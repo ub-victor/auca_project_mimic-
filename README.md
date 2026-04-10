@@ -1,260 +1,495 @@
-# AUCA Project Mimic — Updated Documentation
+# AUCA Project Mimic
 
-A Django-based web application that mimics the AUCA (Adventist University of Central Africa) student portal, featuring a login page and a fully designed student dashboard.
-
----
+A Django-based authentication system that replicates the login functionality for the Adventist University of Central Africa (AUCA) portal. This project provides a clean, responsive login interface with support for both students and staff members, For now only the mimickation of the Login page is implemented.
 
 ## Table of Contents
 
-- [Demo Credentials](#demo-credentials)
-- [How to Run](#how-to-run)
-- [What Was Built](#what-was-built)
-  - [Login Page](#1-login-page)
-  - [Dashboard — Initial Version](#2-dashboard--initial-version)
-  - [Dashboard — Redesign Iterations](#3-dashboard--redesign-iterations)
-  - [Final Dashboard](#4-final-dashboard)
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Project Overview](#project-overview)
+- [Installation](#installation)
 - [Project Structure](#project-structure)
-- [URL Routes](#url-routes)
-- [Tech Stack](#tech-stack)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## Demo Credentials
+## Features
 
-Two demo accounts are available. No registration is required — use these directly on the login page.
-
-| Role    | Email                   | Password     |
-|---------|-------------------------|--------------|
-| Student | student@auca.ac.rw      | student123   |
-| Staff   | staff@auca.ac.rw        | staff123     |
-
-> These credentials are defined in `accounts/views.py` under `DEMO_USERS`. No database is used for authentication — it is a simple in-memory dictionary for demo purposes.
+- **Clean Login Interface**: A modern, responsive login form with AUCA branding
+- **Responsive Design**: Optimized for both desktop and mobile devices
+- **User Type Selection**: Support for differentiating between student and staff logins
+- **Password Recovery**: "Forgot Password?" functionality link
+- **Account Management**: Sign-up link for new users
+- **Static Assets Management**: Organized CSS and image storage
+- **Django Admin Panel**: Pre-configured Django admin interface
+- **Database Ready**: SQLite database setup for development (extensible to production databases) Which is not yet implemented but in the future it can be added
 
 ---
 
-## How to Run
+## 📸 Screenshots
+
+### Desktop View
+![Desktop Login View](static/img/fulldesk.png)
+
+### Mobile View
+![Mobile Login View](static/img/mobileview.png)
+
+---
+
+##  Project Overview
+
+This project is a Django web application we mimic from AUCA site and we plan this project will soon serve as an authentication gateway for AUCA. It's designed to:
+
+1. **Authenticate Users**: Handle login requests for students and staff
+2. **Provide a Professional Interface**: Display the AUCA branding with institutional colors
+3. **Support Mobile Access**: Responsive design for all device sizes
+4. **Be Extensible**: Built with Django to allow easy feature additions
+
+**Current Status**: Development phase with basic login form functionality
+Debora will implement the Regitration for and Valentin the Sign up functionalities.
+
+---
+
+## 🚀 Installation
+
+### Prerequisites
+
+- Python 3.8 or higher
+- pip (Python package manager)
+- Virtual environment (recommended)
+I used Ubuntu as OS
+
+### Step-by-Step Setup
+
+#### 1. Clone or Download the Project
 
 ```bash
-# 1. Activate virtual environment
-# Windows
-py312-env\Scripts\activate
+git clone https://github.com/ub-victor/Python-Learning/tree/main/auca_project_mimic
+```
 
-# Linux / Mac
+```bash
+cd /path/to/auca_project_mimic
+```
+
+#### 2. Create a Virtual Environment
+
+Of course it depend on how you install your enviroment
+
+```bash
+# On Linux/Mac
+python3 -m venv py312-env
+
+# On Windows
+python -m venv py312-env
+```
+
+#### 3. Activate the Virtual Environment
+
+```bash
+# On Linux/Mac
 source py312-env/bin/activate
 
-# 2. Install dependencies
+# On Windows
+py312-env\Scripts\activate
+```
+
+#### 4. Install Dependencies
+
+```bash
+pip install django==6.0.3
+```
+
+Or if you have a `requirements.txt` file:
+
+```bash
 pip install -r requirements.txt
+```
 
-# 3. Apply migrations
+#### 5. Apply Database Migrations
+
+```bash
 python manage.py migrate
+```
 
-# 4. Start the server
+#### 6. Create a Superuser (Admin Account)
+
+```bash
+python manage.py createsuperuser
+```
+
+Follow the prompts to create your admin account.
+
+#### 7. Run the Development Server
+
+```bash
 python manage.py runserver
 ```
 
-Then open your browser at:
+The application will be available at `http://127.0.0.1:8000/`
 
-- **Login page**: `http://127.0.0.1:8000/`
-- **Dashboard**: `http://127.0.0.1:8000/dashboard/` *(redirects to login if not authenticated)*
-- **Admin panel**: `http://127.0.0.1:8000/admin/`
+#### 8. Access the Application
 
----
-
-## What Was Built
-
-### 1. Login Page
-
-The login page (`accounts/templates/accounts/login.html`) replicates the AUCA portal login interface.
-
-**Features:**
-- Email and password input fields
-- "I am a staff" checkbox for role selection
-- "Forgot Password?" link
-- "Sign Up" link for new users
-- Responsive layout — left side has the form, right side has a cover image
-- On mobile, the right-side image is hidden and the form takes full width
-- Error message displayed on invalid credentials
-
-**Authentication flow (`accounts/views.py`):**
-- `POST` request checks email and password against `DEMO_USERS`
-- On success: stores `user_email` and `user_role` in the Django session, redirects to `/dashboard/`
-- On failure: re-renders the login page with an error message
-- `GET` request: renders the empty login form
+- **Login Page**: Visit `http://127.0.0.1:8000/`
+- **Admin Panel**: Visit `http://127.0.0.1:8000/admin/` with your superuser credentials
 
 ---
 
-### 2. Dashboard — Initial Version
-
-The first dashboard (`accounts/templates/accounts/dashboard.html`) was a simple layout with:
-
-- A top navbar with the AUCA logo and a logout button
-- A welcome card showing the logged-in email and role badge
-- Four basic quick-access cards: My Courses, Grades, Schedule, Profile — each with an emoji icon and a short description
-
----
-
-### 3. Dashboard — Redesign Iterations
-
-The dashboard went through several improvement rounds based on feedback:
-
-#### Iteration 1 — Professional Redesign (Remove Emoji Icons)
-- Replaced all emoji icons with colored top-border accent cards
-- Added a sticky navbar with a user email pill
-- Introduced a stats row (Courses, Avg. Grade, Assignments Due, Current Term)
-- Added a two-column panel: Enrolled Courses table + Announcements list
-- "AUCA Portal" navbar title made bold white uppercase
-
-#### Iteration 2 — Sample Data & Richer Cards
-- Stats row updated with real sample numbers
-- Cards converted to a 2×2 grid, each with real content:
-  - **Schedule**: compact timetable (day, time, course)
-  - **Grades**: per-course grade pills (A/B/C color coded) + Download Transcript button
-  - **Enrolled Courses**: course list with credit badges
-  - **Profile**: student details with a "View Profile →" link in the card header
-- Announcements moved to a full-width panel below the grid
-
-#### Iteration 3 — Grades Simplified + Finances Added
-- **Grades card**: stripped grade rows, replaced with a large GPA number (3.6), three meta stats (Avg. Score, Credits, Courses), and a single "Download Transcript" button
-- **Finances card** (new): replaced the old plain slot with a fee breakdown table:
-  - Tuition Fee — RWF 450,000 — Paid
-  - Registration Fee — RWF 25,000 — Paid
-  - Library Fee — RWF 10,000 — Due
-  - ICT Fee — RWF 15,000 — Due
-  - Balance Due total row — RWF 25,000
-  - Green "Pay Now" button
-
-#### Iteration 4 — Profile Moved to Navbar
-- Profile card removed from the grid entirely
-- Profile replaced with a pill button in the navbar showing an avatar circle with initials ("JV") and a "My Profile" label
-
----
-
-### 4. Final Dashboard
-
-The final dashboard is a full creative redesign with the following structure:
-
-#### Navbar
-- Dark background (`#0f1f2e`) for strong contrast
-- AUCA logo + "AUCA PORTAL" uppercase title on the left
-- Right side: **My Profile** pill button (avatar initials + label) and a ghost **Sign out** link
-
-#### Hero Banner
-- Full-width dark-to-navy gradient strip
-- Personalized greeting with email and semester info
-- Role badge
-- Floating stat strip (bottom-right of hero): Courses, GPA, Credits, Due Tasks
-
-#### Row 1 — Academic Overview (3-column grid)
-
-| Card | Content |
-|------|---------|
-| **Timetable** | Day chip + course name + time for Mon–Fri. Teal left accent. |
-| **Enrolled Courses** | Colored dot + course name + credit badge per course. Navy left accent. |
-| **Grades** | Circular GPA badge (gradient), stats (Avg Score, Credits, Courses), Download Transcript button. Dark left accent. |
-
-#### Row 2 — Finance & Updates (2-column grid)
-
-| Card | Content |
-|------|---------|
-| **Finances** | Fee breakdown with Paid/Due pills, bold Balance Due total, teal Pay Now button. Amber left accent. |
-| **Announcements** | Teal dot per item, announcement title + date. No accent border. |
-
-#### Sample Data Used
-
-| Field | Value |
-|-------|-------|
-| Student Name | Jean Valentin |
-| Student ID | AUCA-2024-0312 |
-| Faculty | Computer Science |
-| Year | Year 3 |
-| GPA | 3.6 |
-| Average Score | 82% |
-| Credits | 16 |
-| Courses | Intro to Big Data, Web Development, Database Systems, Data Structures, Software Engineering |
-| Balance Due | RWF 25,000 |
-
----
-
-## Project Structure
+##  Project Structure
 
 ```
 auca_project_mimic/
-├── manage.py
-├── db.sqlite3
-├── requirements.txt
-├── README.md                          # Original documentation
-├── READMEUpdated.md                   # This file
+├── manage.py                          # Django management script
+├── db.sqlite3                         # SQLite database (development)
+├── README.md                          # Project documentation
+├── requirements.txt                   # Python dependencies (recommended)
 │
-├── auca_project_mimic/
-│   ├── settings.py
-│   ├── urls.py                        # Includes accounts.urls
-│   ├── asgi.py
-│   └── wsgi.py
+├── auca_project_mimic/                # Main project configuration
+│   ├── __init__.py
+│   ├── settings.py                    # Project settings
+│   ├── urls.py                        # Main URL routing
+│   ├── asgi.py                        # ASGI configuration
+│   ├── wsgi.py                        # WSGI configuration
+│   └── __pycache__/
 │
-├── accounts/
+├── accounts/                          # Accounts app
+│   ├── migrations/                    # Database migrations
 │   ├── templates/
 │   │   └── accounts/
-│   │       ├── login.html             # Login page
-│   │       └── dashboard.html        # Student dashboard (final redesign)
-│   ├── views.py                       # login_view, dashboard_view, logout_view
-│   ├── urls.py                        # URL patterns for accounts app
-│   ├── models.py
-│   ├── admin.py
-│   └── apps.py
+│   │       └── login.html             # Login page template
+│   ├── __pycache__/
+│   ├── __init__.py
+│   ├── admin.py                       # Admin configuration
+│   ├── apps.py                        # App configuration
+│   ├── models.py                      # Database models
+│   ├── tests.py                       # Unit tests
+│   ├── urls.py                        # App URL routing
+│   └── views.py                       # View logic
 │
-└── static/
+└── static/                            # Static files (CSS, JS, Images)
     ├── css/
     │   └── style.css                  # Login page styles
     └── img/
-        ├── 10001.png                  # AUCA logo
-        ├── 10002.jpg                  # Login page cover image
-        ├── fulldesk.png
-        └── mobileview.png
+        ├── 10001.png                  # AUCA Logo
+        ├── 10002.jpg
+        ├── fulldesk.png               # Desktop screenshot
+        └── mobileview.png             # Mobile screenshot
 ```
 
 ---
 
-## URL Routes
+##  Usage
 
-| URL | View | Name | Description |
-|-----|------|------|-------------|
-| `/` | `login_view` | `login` | Login page |
-| `/dashboard/` | `dashboard_view` | `dashboard` | Student dashboard (session required) |
-| `/logout/` | `logout_view` | `logout` | Clears session, redirects to login |
-| `/admin/` | Django admin | — | Django admin panel |
+### Basic Login Flow
 
----
+1. Navigate to `http://127.0.0.1:8000/`
+2. Enter your email/ID
+3. Enter your password
+4. Check "I am a staff" if applicable
+5. Click "Sign In"
+6. Use "Forgot Password?" to recover your password
+7. Click "Sign Up" to create a new account
 
-## Tech Stack
+Not backend logic is implemented yet
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | Django 6.0.3 |
-| Language | Python 3.8+ |
-| Database | SQLite (development) |
-| Frontend | HTML5, CSS3 (no external libraries) |
-| Session | Django built-in session framework |
-| Static files | Django `{% static %}` template tag |
+### Django Admin Panel future implementation
 
----
+1. Go to `http://127.0.0.1:8000/admin/`
+2. Login with your superuser credentials
+3. Manage users, groups, and other models
 
-## Notes
+### View Raw Login Requests (Development)
 
-- No JavaScript frameworks or CSS libraries (Bootstrap, Tailwind, etc.) are used — the entire UI is pure HTML and CSS
-- All dashboard data (courses, grades, finances, announcements) is currently static sample data hardcoded in the template
-- Authentication uses a simple in-memory dictionary — no Django `User` model or database authentication is implemented yet
-- The "My Profile", "Download Transcript", and "Pay Now" buttons link to `#` as placeholders for future implementation
+The current `views.py` prints login attempts to the console for development purposes:
 
----
-
-## Planned Next Steps
-
-- [ ] Debora — Registration form implementation
-- [ ] Valentin — Sign up functionality
-- [ ] Connect dashboard data to a real database model
-- [ ] Implement Django `User` model authentication
-- [ ] Build out Profile, Transcript download, and Payment pages
+```bash
+# You'll see output like:
+# Email: user@example.com
+# Password: ****
+```
 
 ---
 
-*Last updated: June 2025*
+##  Future  Configuration
+
+### Database Configuration
+
+Edit `auca_project_mimic/settings.py` to change the database:
+
+```python
+# Current (SQLite - Development)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# For PostgreSQL (Production)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'auca_db',
+        'USER': 'auca_user',
+        'PASSWORD': 'your_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+```
+
+### Static Files
+
+Collect static files for production:
+
+```bash
+python manage.py collectstatic
+```
+
+### Security Configuration
+
+Before deploying to production, update these in `settings.py`:
+
+```python
+DEBUG = False  # Disable debug mode
+ALLOWED_HOSTS = ['your-domain.com', 'www.your-domain.com']
+SECRET_KEY = 'your-secret-key-here'  # Change this!
+```
+
+---
+
+##  Contributing
+
+We welcome contributions from the community! Here's how to add new features or fix bugs:
+
+### Step 1: Fork or Clone the Repository
+
+```bash
+git clone https://github.com/ub-victor/Python-Learning/tree/main/auca_project_mimic
+```
+
+### Step 2: Create a Feature Branch
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+or for bug fixes:
+
+```bash
+git checkout -b bugfix/description-of-bug
+```
+
+### Step 3: Make Your Changes
+
+#### Adding a New App
+
+```bash
+python manage.py startapp your_app_name
+```
+
+Then add it to `INSTALLED_APPS` in `settings.py`:
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'accounts',
+    'your_app_name',  # Add this
+]
+```
+
+#### Adding a New View
+
+In your app's `views.py`:
+
+```python
+from django.shortcuts import render
+from django.http import HttpResponse
+
+def your_view(request):
+    # Your view logic here
+    return render(request, 'your_template.html')
+```
+
+Then register it in your app's `urls.py`:
+
+```python
+from django.urls import path
+from .views import your_view
+
+urlpatterns = [
+    path('your-path/', your_view, name='your_view_name'),
+]
+```
+
+And include it in the main `urls.py`.
+
+#### Adding a New Model
+
+In your app's `models.py`:
+
+```python
+from django.db import models
+
+class YourModel(models.Model):
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
+```
+
+Then run migrations:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+#### Modifying Styles
+
+Edit `static/css/style.css` directly and refresh your browser.
+
+#### Adding New Templates
+
+Create new templates in `accounts/templates/accounts/` and reference them in your views.
+
+### Step 4: Test Your Changes
+
+```bash
+# Run the development server
+python manage.py runserver
+
+# Run tests (if any)
+python manage.py test
+```
+
+### Step 5: Commit Your Changes
+
+```bash
+git add .
+git commit -m "Feature: Add description of what you added/fixed"
+```
+
+Examples:
+```bash
+git commit -m "Feature: Add password reset functionality"
+git commit -m "Fix: Correct login form validation"
+git commit -m "Docs: Update README with setup instructions"
+```
+
+### Step 6: Push to Your Fork
+
+```bash
+git push origin feature/your-feature-name
+```
+
+### Step 7: Create a Pull Request
+
+Go to the GitHub repository and create a pull request describing your changes.
+
+### Contribution Guidelines
+
+- **Code Style**: Follow PEP 8 Python style guide
+- **Comments**: Add comments to complex logic
+- **Testing**: Write tests for new features
+- **Documentation**: Update README if needed
+- **Commit Messages**: Use descriptive, present-tense messages
+
+---
+
+##  Development Roadmap
+
+Planned future features for future versions:
+
+- [ ] User authentication backend implementation
+- [ ] Password reset functionality
+- [ ] Email verification
+- [ ] Dashboard/Home page for authenticated users
+- [ ] Student information management
+- [ ] Staff management interface
+- [ ] Course registration system
+- [ ] Grades viewing system
+- [ ] Integration with external APIs
+
+---
+
+##  Troubleshooting
+
+### Common Issues
+
+#### Port 8000 Already in Use
+
+```bash
+python manage.py runserver 8001  # Use different port
+```
+
+#### Database Error
+
+```bash
+# Reset database (careful - deletes all data!)
+rm db.sqlite3
+python manage.py migrate
+```
+
+#### Static Files Not Loading
+
+```bash
+python manage.py collectstatic --clear --no-input
+```
+
+#### Module Not Found
+
+```bash
+# Ensure virtual environment is activated
+source py312-env/bin/activate
+pip install django==6.0.3
+```
+
+---
+
+## 📞 Support
+
+For issues, questions, or suggestions, please:
+
+1. Check the [Troubleshooting](#troubleshooting) section
+2. Open an issue on GitHub
+3. Contact the project maintainers
+
+---
+
+##  License
+
+This project is open source and available under the MIT License. See the LICENSE file for more information.
+
+---
+
+##  Project Information
+
+- **Project Name**: AUCA Project Mimic
+- **Institution**: Adventist University of Central Africa (AUCA)
+- **Framework**: Django 6.0.3
+- **Python Version**: 3.8+
+- **Database**: SQLite (Development) / PostgreSQL (Production)
+- **Status**: Active Development
+
+---
+
+##  Acknowledgments
+
+- Django community for the amazing framework
+- AUCA for the inspiration
+- All contributors who help improve this project
+
+---
+
+**Last Updated**: March 30, 2026
+
+**Happy Coding!**
