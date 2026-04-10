@@ -219,60 +219,105 @@ The final dashboard is a full creative redesign with the following structure:
 
 ```
 auca_project_mimic/
-├── manage.py
-├── db.sqlite3
-├── requirements.txt
-├── README.md                          # Original documentation
-├── READMEUpdated.md                   # This file
-│
-├── auca_project_mimic/
-│   ├── settings/
-│   │   ├── base.py                    # Base settings with Cloudinary config
-│   │   ├── development.py
-│   │   └── production.py
-│   ├── urls.py                        # Includes accounts.urls
-│   ├── asgi.py
-│   └── wsgi.py
-│
 ├── apps/
 │   ├── accounts/
+│   │   ├── apps.py
+│   │   ├── forms.py
+│   │   ├── __init__.py
+│   │   ├── models.py
+│   │   ├── __pycache__/
 │   │   ├── templates/
 │   │   │   └── accounts/
-│   │   │       ├── login.html         # Login page with Cloudinary favicon
-│   │   │       ├── dashboard.html     # Student dashboard (final redesign)
-│   │   │       ├── signup.html
-│   │   │       └── forgot_password.html
-│   │   ├── views.py                   # login_view, dashboard_view, logout_view
-│   │   ├── urls.py                    # URL patterns for accounts app
-│   │   ├── models.py
+│   │   │       ├── dashboard.html
+│   │   │       ├── forgot_password.html
+│   │   │       ├── login.html
+│   │   │       └── signup.html
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── assessments/
 │   │   ├── admin.py
-│   │   └── apps.py
-│   │
+│   │   ├── ai_evaluator.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── __pycache__/
+│   │   ├── tests.py
+│   │   └── views.py
 │   ├── core/
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
 │   │   ├── management/
 │   │   │   └── commands/
-│   │   │       └── upload_to_cloudinary.py  # Custom command to upload media to Cloudinary
-│   │   ├── views.py
+│   │   │       ├── __init__.py
+│   │   │       ├── __pycache__/
+│   │   │       └── upload_to_cloudinary.py
+│   │   ├── migrations/
 │   │   ├── models.py
+│   │   ├── __pycache__/
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── courses/
 │   │   ├── admin.py
-│   │   └── apps.py
-│   │
-│   └── [other apps: assessments, courses, finances, grades]
-│
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── __pycache__/
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── finances/
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── __pycache__/
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── grades/
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── __pycache__/
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── __init__.py
+│   └── __pycache__/
+├── auca_project_mimic/
+│   ├── asgi.py
+│   ├── __init__.py
+│   ├── __pycache__/
+│   ├── settings/
+│   │   ├── base.py
+│   │   ├── development.py
+│   │   ├── __init__.py
+│   │   ├── production.py
+│   │   └── __pycache__/
+│   ├── urls.py
+│   └── wsgi.py
+├── db.sqlite3
+├── docs/
+├── manage.py
+├── ml_models/
+│   ├── answer_evaluator.pkl
+│   └── vectorizer.pkl
+├── README.md
+├── requirements.txt
 ├── static/
 │   ├── css/
-│   │   └── style.css                  # Login page styles
+│   │   └── style.css
+│   ├── img/
 │   └── js/
-│
 ├── templates/
-│   ├── base.html                      # Base template
+│   ├── base.html
 │   └── includes/
-│
-├── utils/
-│   ├── cloudinary_utils.py            # Cloudinary utility functions
-│   └── ml_utils.py
-│
-└── docs/
+└── utils/
+    ├── cloudinary_utils.py
+    └── ml_utils.py
 ```
         ├── fulldesk.png
         └── mobileview.png
@@ -312,8 +357,9 @@ auca_project_mimic/
 - All dashboard data (courses, grades, finances, announcements) is currently static sample data hardcoded in the template
 - Authentication uses a simple in-memory dictionary — no Django `User` model or database authentication is implemented yet
 - The "My Profile", "Download Transcript", and "Pay Now" buttons link to `#` as placeholders for future implementation
-- Cloudinary is integrated for media storage; local media directories (media/, static/uploads/, etc.) have been uploaded and removed
+- Cloudinary is integrated for media storage; local media directories (media/, static/uploads/, static/signupimgs/) have been uploaded and removed
 - Favicon is served via Cloudinary URLs in templates
+- Machine learning models are stored in `ml_models/` directory (answer_evaluator.pkl, vectorizer.pkl) for AI evaluation features
 
 ---
 
