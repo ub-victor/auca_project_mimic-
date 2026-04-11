@@ -50,7 +50,7 @@ Team lead(i) reviews and merges PRs(some time someone else can do it, we're lead
   -----------------------------------------------------------------------
   Member         GitHub Username               Primary Focus
   -------------- ----------------------------- --------------------------
-  Victoire       @victoire                     Architecture, code
+  Victoire       @ub-victor                     Architecture, code
   (Lead)                                       reviews, deployment,
                                                integration
 
