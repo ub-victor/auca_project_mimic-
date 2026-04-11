@@ -156,12 +156,12 @@ All models, migrations, admin working with sample data.
 
 ### Tasks:
 
--   Create base.html template
--   Refactor templates
--   Move inline styles to CSS
--   Make dashboard dynamic
--   Improve responsiveness
--   Add JS enhancements
+-   Create base.html template with blocks (title, content, extra_css, extra_js)
+-   Refactor all existing templates (login.html, signup.html, forgot_password.html, dashboard.html) to extend base.html
+-   Move inline styles to external CSS files (e.g., css/dashboard.css, css/auth.css)
+-   Make dashboard dynamic: replace static sample data with real data from context (passed from views)
+-   Improve mobile responsiveness for all pages
+-   Add JavaScript enhancements (form validation, AJAX for smoother UX where needed)
 
 ### Methodology:
 
