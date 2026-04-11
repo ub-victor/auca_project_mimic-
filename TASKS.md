@@ -48,28 +48,29 @@ Team lead(i) reviews and merges PRs(some time someone else can do it, we're lead
 # Team Members & Roles
 
   -----------------------------------------------------------------------
-  Member         GitHub Username               Primary Focus
+  Member         GitHub Username/team               Primary Focus
   -------------- ----------------------------- --------------------------
   Victoire       @ub-victor                     Architecture, code
   (Lead)                                       reviews, deployment,
                                                integration
 
-  Members                              Authentication, user
-  (+250 780 919 720
+  Team1                              Authentication, user
+  (+250 780 919 720                    profiles, password reset
    ~26949 Umutoni Gisele/
-   +250 791 906 031 Bosco )             profiles, password reset
+   +250 791 906 031 Bosco )             
 
-  Member 3       @valentin                     Database models,
-  (Valentin)                                   migrations, API structure
+  Team2       Team 2                     Database models,
+  (+250 788 426 996 ~Hirwa Roy 24174     migrations, API structure
+    )                                   
 
-  Member 4       @studentA                     Frontend (dashboard,
+  Team3       @studentA                     Frontend (dashboard,
   (Student A)                                  responsive UI, base
                                                templates)
 
-  Member 5       @studentB                     Courses, enrollments,
+  Team 4       @studentB                     Courses, enrollments,
   (Student B)                                  timetable
 
-  Member 6       @studentC                     ML/AI evaluation module,
+  Team 5       @studentC                     ML/AI evaluation module,
   (Student C)                                  assessments
   -----------------------------------------------------------------------
 
