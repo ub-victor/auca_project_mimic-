@@ -266,7 +266,7 @@ Complete assessment flow with AI evaluation; lecturer can see AI suggestions and
 
 ------------------------------------------------------------------------
 
-# Timeline (6 Weeks)
+# Timeline (Everyday work on this Project like is the deadline is tomorrow)
 
   Week   Focus                          Members
   ------ ------------------------------ ----------------------
