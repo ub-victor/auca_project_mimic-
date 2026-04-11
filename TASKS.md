@@ -108,7 +108,7 @@ Team lead(i) reviews and merges PRs(some time someone else can do it, we're lead
     image upload.
 -   Create base accounts app structure and custom User model (extend
     AbstractUser).
--   Run initial migrations and test locally.
+-   Run initial migrations and test locally(I test the connect added randomly 100 tables).
 -   Push branch and open PR with documentation of setup steps.
 
 ### Deliverable PR:
