@@ -165,15 +165,16 @@ All models, migrations, admin working with sample data.
 
 ### Methodology:
 
--   Use `{% block content %}`
--   Create main.css and modular CSS
--   Use loops for dynamic data
--   Test responsiveness
--   Add validation and spinners
+-   Base Template: Design a consistent layout with navbar and footer. Use {% block content %} for page-specific content.
+-   CSS Organization: Create static/css/main.css for global styles; separate files for specific pages if needed. Use CSS variables for theming.
+-   Dashboard Dynamic: Work with backend members to ensure views pass correct context (e.g., enrolled_courses, timetable, announcements). Use Django template tags to loop and display data.
+-   Responsive Testing: Use browser dev tools to test on various screen sizes; adjust media queries.
+-   JavaScript: Implement client-side form validation for signup/login. Add loading spinners for async operations (like file upload).
+- Accessibility: Ensure proper ARIA labels and semantic HTML.
 
 ### Deliverable PR:
 
-Clean responsive UI with dynamic dashboard.
+Refactored templates with clean, responsive design; dashboard shows real data; no inline styles.
 
 ------------------------------------------------------------------------
 
