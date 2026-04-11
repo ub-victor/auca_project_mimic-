@@ -298,7 +298,7 @@ all alway Update the Readme so it can stay Updated
 ## How Has This Been Tested?
 Describe manual tests performed.
 
-## Screenshots (if applicable)
+## Screenshots (if applicable[Optional])
 
 ## Checklist
 - [ ] My code follows the project's style guidelines.
@@ -312,10 +312,4 @@ Describe manual tests performed.
 ------------------------------------------------------------------------
 
 # Final Notes
-
--   Communication: Use Slack/Discord/WhatsApp
--   Daily sync:
-    -   What I did yesterday
-    -   What I will do today
-    -   Blockers
--   Help teammates when done early
+- We will use our WhatsApp group for Updates and communication
