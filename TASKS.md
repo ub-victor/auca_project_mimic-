@@ -64,7 +64,7 @@ Team lead(i) reviews and merges PRs(some time someone else can do it, we're lead
     )                                   
 
   Team3       Team3                     Frontend (dashboard,
-  (Student A)                                  responsive UI, base
+  ()                                  responsive UI, base
                                                templates)
 
   Team 4       @studentB                     Courses, enrollments,
