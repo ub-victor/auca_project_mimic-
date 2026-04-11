@@ -75,7 +75,9 @@ Team lead(i) reviews and merges PRs(some time someone else can do it, we're lead
   )                                  
 
   Team 5       Team 5                     ML/AI evaluation module,
-  (Student C)                                  assessments
+  (Deborah +250 791 319 715/              assessments
+   Valentin +250 793 037 644
+  )                                  
   -----------------------------------------------------------------------
 
 
@@ -86,7 +88,7 @@ Team lead(i) reviews and merges PRs(some time someone else can do it, we're lead
 
 ## 🔹 Member 1: Victoire (Team Lead)
 
-**Branch:** `feature/setup-victoire`
+**Branch:** `feature/setup-victoire(merged and deleted)`
 
 ### Responsibilities:
 
