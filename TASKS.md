@@ -258,10 +258,10 @@ Complete assessment flow with AI evaluation; lecturer can see AI suggestions and
 
   Task                    Suggested Assignee
   ----------------------- --------------------
-  Finance module          Valentin or Debora
-  Announcements system    Student A
-  Transcript generation   Student B
-  API (DRF)               Victoire
+  Finance module          Team 4
+  Announcements system    Team 3
+  Transcript generation   Team 2
+  API (DRF)               Team 1
   Testing                 All
 
 ------------------------------------------------------------------------
