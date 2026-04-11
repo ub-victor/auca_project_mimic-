@@ -262,7 +262,7 @@ Complete assessment flow with AI evaluation; lecturer can see AI suggestions and
   Announcements system    Team 3
   Transcript generation   Team 2
   API (DRF)               Team 1
-  Testing                 All
+  Testing                 All of us
 
 ------------------------------------------------------------------------
 
