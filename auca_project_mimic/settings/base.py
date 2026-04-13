@@ -115,7 +115,8 @@ CLOUDINARY_STORAGE = {
 
 # Set Cloudinary as default storage
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+STATICFILES_LOCATION = 'static'
 
 
 # PASSWORD VALIDATION
