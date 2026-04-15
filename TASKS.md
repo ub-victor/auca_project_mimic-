@@ -283,7 +283,7 @@ PPT files committed to the repository or shared via our WhatsApp group; updated 
   Announcements system    Team 
   Transcript generation   Team 
   API (DRF)               Team 
-  Testing                 All of us
+  Testing                 Team
 
 ------------------------------------------------------------------------
 
