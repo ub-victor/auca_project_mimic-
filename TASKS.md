@@ -287,7 +287,7 @@ PPT files committed to the repository or shared via our WhatsApp group; updated 
 
 ------------------------------------------------------------------------
 
-# Timeline (Everyday work on this Project like is the deadline is tomorrow)
+# Timeline (Everyday work on this Project like iff the deadline is tomorrow)
 
   Priority   Focus                          
   ------     ------------------------------ 
