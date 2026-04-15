@@ -9,25 +9,26 @@ strictly to ensure smooth collaboration and timely completion.
 # Git Workflow & Branching Strategy
 
 We will use GitHub Flow with a develop branch as integration point.
+Team members may need to share a single branch identified by their team number.
 
 ## Branch Structure
 
     main                 # Production-ready code (deployed)
       └── develop        # Integration branch (all features merge here)
-           ├── feature/auth-<name>        # Authentication features
-           ├── feature/models-<name>      # Database models
-           ├── feature/dashboard-<name>   # Dashboard & UI
-           ├── feature/courses-<name>     # Course management
-           ├── feature/assessments-<name> # Assignments & ML
-           ├── feature/finances-<name>    # Finance module
-           └── feature/ml-<name>          # ML evaluation
+           ├── feature/auth-team1        # Authentication features
+           ├── feature/models-team2      # Database models
+           ├── feature/dashboard-team3   # Dashboard & UI
+           ├── feature/courses-team4     # Course management
+           ├── feature/assessments-team5 # Assignments & ML
+           ├── feature/finances-team4    # Finance module
+           └── feature/ppt-team7         # PPT presentations
 
 ## Rules
 
 -   Never commit directly to main or develop.
 -   Create a feature branch from develop for each task.
--   Branch naming convention: `feature/<module>-<your-name>` (e.g.,
-    `feature/auth-debora`).
+-   Branch naming convention: `feature/<module>-team#` (e.g.,
+    `feature/auth-team1`).
 -   Commit frequently with clear messages:
     -   `feat: add login form validation`
     -   `fix: correct course credit calculation`
@@ -93,7 +94,7 @@ model migrated.
 
 ## 🔹 Team 1: (+250 780 919 720 ~26949 Umutoni Gisele/ +250 791 906 031 Bosco ) -- Authentication & User Profiles
 
-**Branch:** `feature/auth-<name>`
+**Branch:** `feature/auth-team1`
 
 ### Tasks:
 
@@ -122,7 +123,7 @@ access.
 
 ## 🔹 Team 2: (+250 788 426 996 ~Hirwa Roy 24174/ +250 791 761 076 ~26454_clement ) -- Database Models & Core Structure
 
-**Branch:** `feature/models-valentin`
+**Branch:** `feature/models-team2`
 
 ### Tasks:
 
@@ -147,7 +148,7 @@ All models defined, migrations applied, admin interface functional with sample d
 
 ## 🔹 Team 3: (+254 790 877089~Anduru/+250 782 802 631~Praise Mutijima) -- Frontend & Dashboard
 
-**Branch:** `feature/frontend-studenta`
+**Branch:** `feature/frontend-team3`
 
 ### Tasks:
 
@@ -175,7 +176,7 @@ Refactored templates with clean, responsive design; dashboard shows real data; n
 
 ## 🔹 Team 4: (+250 793 330 328 ~Josiane🤍/Diane Auca +250 783 829 899) -- Courses & Timetable
 
-**Branch:** `feature/courses-studentb`
+**Branch:** `feature/courses-team4`
 
 ### Tasks:
 
@@ -202,7 +203,7 @@ Functional course browsing, enrollment, and timetable display.
 ## 🔹 Team 5: (Deborah +250 791 319 715 / Valentin +250 793 037 644
   ) -- Assessments & ML
 
-**Branch:** `feature/ml-studentc`
+**Branch:** `feature/ml-team5`
 
 ### Tasks:
 
@@ -254,7 +255,7 @@ Quality assurance reports and approved PRs; updated documentation if needed.
 
 ## 🔹 Team 7: (Ghislaine, Patience) -- PPT Designers
 
-**Branch:** `feature/ppt-<name>`
+**Branch:** `feature/ppt-team7`
 
 ### Responsibilities:
 
