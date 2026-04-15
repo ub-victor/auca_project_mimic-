@@ -228,6 +228,53 @@ Complete assessment flow with AI evaluation; lecturer can see AI suggestions and
 
 ------------------------------------------------------------------------
 
+## 🔹 Team 6: (Gatete, Mushirarungu, Maggy) -- PR Reviewers / Testers
+
+**Branch:** N/A (works across all feature branches)
+
+### Responsibilities:
+
+-   Review pull requests for code quality, functionality, and adherence to project standards.
+-   Test new features manually and report any bugs or issues.
+-   Ensure documentation (README, TASKS.md) is updated with changes.
+-   Collaborate with developers to resolve issues found during testing.
+
+### Methodology:
+
+-   Use GitHub PR interface for code reviews, providing constructive feedback and suggestions.
+-   Pull and test feature branches locally to verify functionality.
+-   Document test cases and results.
+-   Communicate findings via WhatsApp group or PR comments.
+
+### Deliverable:
+
+Quality assurance reports and approved PRs; updated documentation if needed.
+
+------------------------------------------------------------------------
+
+## 🔹 Team 7: (Ghislaine, Patience) -- PPT Designers
+
+**Branch:** `feature/ppt-<name>`
+
+### Responsibilities:
+
+-   Create PowerPoint presentations for project updates, demos, and documentation.
+-   Design slides for team meetings, client presentations, or project showcases.
+-   Gather content from team leads and incorporate it into visually appealing slides.
+
+### Methodology:
+
+-   Use PowerPoint or Google Slides for creating presentations.
+-   Coordinate with team members to collect necessary content, screenshots, and data.
+-   Ensure presentations are professional, consistent with project branding, and easy to understand.
+-   Test presentations for clarity and flow.
+
+### Deliverable PR:
+
+PPT files committed to the repository or shared via appropriate channels; updated with latest project information.
+
+------------------------------------------------------------------------
+
 # Additional Tasks
 
   Task                    Suggested Assignee
