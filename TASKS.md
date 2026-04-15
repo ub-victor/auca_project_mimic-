@@ -259,7 +259,7 @@ Quality assurance reports and approved PRs; updated documentation if needed.
 ### Responsibilities:
 
 -   Create PowerPoint presentations for project updates, demos, and documentation.
--   Design slides for team meetings, client presentations, or project showcases.
+-   Design slides for project showcases.
 -   Gather content from team leads and incorporate it into visually appealing slides.
 
 ### Methodology:
