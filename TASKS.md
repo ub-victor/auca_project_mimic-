@@ -271,7 +271,7 @@ Quality assurance reports and approved PRs; updated documentation if needed.
 
 ### Deliverable PR:
 
-PPT files committed to the repository or shared via appropriate channels; updated with latest project information.
+PPT files committed to the repository or shared via our WhatsApp group; updated with latest project information.
 
 ------------------------------------------------------------------------
 
