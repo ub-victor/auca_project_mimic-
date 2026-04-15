@@ -44,23 +44,18 @@ We will use GitHub Flow with a develop branch as integration point.
 Team lead(i) reviews and merges PRs(some time someone else can do it, we're leader).
 
 # Team Members & Roles
-
 | # | Member | Phone | Team | Primary Focus |
 |---|--------|-------|------|----------------|
 | 1 | Victoire (Lead) | +250-79-44-12-876 | Team 0 | Architecture, code reviews, deployment, integration |
-| 2 | Umutoni Gisele | +250 780 919 720 | Team 1 | Authentication, user profiles, password reset |
-| 3 | Bosco | +250 791 906 031 | Team 1 | Authentication, user profiles, password reset |
-| 4 | Hirwa Roy | +250 788 426 996 | Team 2 | Database models, migrations, API structure |
-| 5 | Clement | +250 791 761 076 | Team 2 | Database models, migrations, API structure |
-| 6 | Anduru | +254 790 877 089 | Team 3 | Frontend (dashboard, responsive UI, base templates) |
-| 7 | Praise Mutijima | +250 782 802 631 | Team 3 | Frontend (dashboard, responsive UI, base templates) |
-| 8 | Josiane | +250 793 330 328 | Team 4 | Courses, enrollments, timetable |
-| 9 | Diane Auca | +250 783 829 899 | Team 4 | Courses, enrollments, timetable |
-| 10 | Deborah | +250 791 319 715 | Team 5 | ML/AI evaluation module, assessments |
-| 11 | Valentin | +250 793 037 644 | Team 5 | ML/AI evaluation module, assessments |
+| 2-4 | Umutoni Gisele, Bosco,Tuyishime  | +250 780 919 720, +250 791 906 031, 26717 | Team 1 | Authentication, user profiles, password reset |
+| 5-7 | Hirwa Roy, Clement, Mugisha | +250 788 426 996, +250 791 761 076, 27891  | Team 2 | Database models, migrations, API structure |
+| 8-10 | Anduru, Praise Mutijima, Barema | +254 790 877 089, +250 782 802 631, 26255 | Team 3 | Frontend (dashboard, responsive UI, base templates) |
+| 11-13 | Josiane, Diane Auca, Umutoni | +250 793 330 328, +250 783 829 899,26456  | Team 4 | Courses, enrollments, timetable |
+| 14-16 | Deborah, Valentin, Mizero | +250 791 319 715, +250 793 037 644, 28333  | Team 5 | ML/AI evaluation module, assessments |
+| 17-19 | ⁠Gatete, Mushirarungu, Maggy   | 27380, 28450 | Team 6 | PR's Reviwier / tester |
+| 20-21 | Ghislaine, patience | 27380, 27388 | Team 7 | PPT Designers |
 
 ------------------------------------------------------------------------
-
 
 # Detailed Task Assignments
 
