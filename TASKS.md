@@ -54,10 +54,9 @@ Team lead(i) reviews and merges PRs(some time someone else can do it, we're lead
 | 8-10 | Anduru, Praise Mutijima, Barema          | +254 790 877 089, +250 782 802 631, 26255  | Team 3 | Frontend (dashboard, responsive UI, base templates)        |
 |11-13 | Josiane, Diane Auca, Umutoni             | +250 793 330 328, +250 783 829 899, 26456  | Team 4 | Courses, enrollments, timetable                           |
 |14-16 | Deborah, Valentin, Mizero                | +250 791 319 715, +250 793 037 644, 28333  | Team 5 | ML/AI evaluation module, assessments                      |
-|17-19 | Gatete, Mushirarungu, Maggy              |                         27380, 28450       | Team 6 | PR's Reviewer / tester                                    |
+|17-19 | Gatete, Mushirarungu, Maggy              |                         27380, 28450       | Team 6 | PR's Reviewers / tester                                    |
 |20-21 | Ghislaine, Patience                      |                         27380, 27388       | Team 7 | PPT Designers                                             |
 ------------------------------------------------------------------------
-
 # Detailed Task Assignments
 
 ## 🔹 Team 0: Victoire (Team Lead)
