@@ -279,10 +279,10 @@ PPT files committed to the repository or shared via our WhatsApp group; updated 
 
   Task                    Suggested Assignee
   ----------------------- --------------------
-  Finance module          Team 4
-  Announcements system    Team 3
-  Transcript generation   Team 2
-  API (DRF)               Team 1
+  Finance module          Team 
+  Announcements system    Team 
+  Transcript generation   Team 
+  API (DRF)               Team 
   Testing                 All of us
 
 ------------------------------------------------------------------------
