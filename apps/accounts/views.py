@@ -4,8 +4,9 @@ from django.contrib import messages
 
 # Shared demo credentials
 DEMO_USERS = {
-    'student@auca.ac.rw': {'password': 'student123', 'role': 'Student'},
-    'staff@auca.ac.rw':   {'password': 'staff123',   'role': 'Staff'},
+    'student@auca.ac.rw':  {'password': 'student123',  'role': 'Student'},
+    'staff@auca.ac.rw':    {'password': 'staff123',    'role': 'Staff'},
+    'lecturer@auca.ac.rw': {'password': 'lecturer123', 'role': 'Lecturer'},
 }
 
 def login_view(request):
@@ -113,6 +114,8 @@ def dashboard_view(request):
     context = {
         'user_email': user_email,
         'user_role': user_role,
+        'email': user_email,
+        'role': user_role,
     }
     return render(request, "accounts/dashboard.html", context)
 
