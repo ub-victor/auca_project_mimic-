@@ -1,84 +1,80 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from .forms import SignupForm, ProfileForm        # ← import forms
+from .decorators import student_required, lecturer_required, staff_required
 
-# =========================
-# 🔐 AUTHENTICATION VIEWS
-# =========================
-
+# ================= LOGIN =================
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email    = request.POST.get('username')
         password = request.POST.get('password')
-
-        user = authenticate(request, username=username, password=password)
+        user     = authenticate(request, username=email, password=password)
 
         if user is not None:
             login(request, user)
-
-            # Redirect based on role
             if user.role == 'student':
-                return redirect('student_dashboard')
+                return redirect('student_area')
             elif user.role == 'lecturer':
-                return redirect('lecturer_dashboard')
-            elif user.is_staff:
-                return redirect('admin_dashboard')
+                return redirect('lecturer_area')
+            else:
+                return redirect('staff_area')
         else:
-            return render(request, 'login.html', {'error': 'Invalid credentials'})
+            return render(request, 'accounts/login.html', {'error': 'Invalid credentials'})
 
-    return render(request, 'login.html')
+    return render(request, 'accounts/login.html')
 
 
+# ================= SIGNUP — now uses SignupForm =================
+def signup_view(request):
+    form = SignupForm(request.POST or None)      # ← use form, not raw POST
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Account created! Please log in.')
+            return redirect('login')
+        # form.errors will show automatically in template
+
+    return render(request, 'accounts/signup.html', {'form': form})
+
+
+# ================= DASHBOARD — now protected by decorator =================
+@login_required(login_url='login')             # ← decorator instead of manual check
+def dashboard_view(request):
+    return render(request, 'accounts/dashboard.html', {'user': request.user})
+
+
+# ================= LOGOUT =================
 def logout_view(request):
     logout(request)
+    messages.success(request, 'Logged out.')
     return redirect('login')
 
 
-# =========================
-# 🔒 ROLE-BASED DECORATORS
-# =========================
+# ================= PROFILE — uses ProfileForm =================
+@login_required(login_url='login')
+def profile_view(request):
+    form = ProfileForm(request.POST or None,
+                       request.FILES or None,
+                       instance=request.user)  # ← form pre-filled with current user
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Profile updated!')
+        return redirect('profile')
 
-def student_required(view_func):
-    def wrapper(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.role == 'student':
-            return view_func(request, *args, **kwargs)
-        return redirect('login')
-    return wrapper
-
-
-def lecturer_required(view_func):
-    def wrapper(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.role == 'lecturer':
-            return view_func(request, *args, **kwargs)
-        return redirect('login')
-    return wrapper
+    return render(request, 'accounts/profile.html', {'form': form})
 
 
-def staff_required(view_func):
-    def wrapper(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_staff:
-            return view_func(request, *args, **kwargs)
-        return redirect('login')
-    return wrapper
-
-
-# =========================
-# 🧑‍💻 DASHBOARDS (PROTECTED)
-# =========================
-
-@login_required
+# ================= ROLE AREAS =================
 @student_required
-def student_dashboard(request):
-    return render(request, 'student/dashboard.html')
+def student_area(request):
+    return render(request, 'accounts/dashboard.html', {'role_label': 'Student Area'})
 
-
-@login_required
 @lecturer_required
-def lecturer_dashboard(request):
-    return render(request, 'lecturer/dashboard.html')
+def lecturer_area(request):
+    return render(request, 'accounts/dashboard.html', {'role_label': 'Lecturer Area'})
 
-
-@login_required
 @staff_required
-def admin_dashboard(request):
-    return render(request, 'admin/dashboard.html')
+def staff_area(request):
+    return render(request, 'accounts/dashboard.html', {'role_label': 'Staff Area'})
