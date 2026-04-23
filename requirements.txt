@@ -4,3 +4,4 @@ dj-database-url
 django-cloudinary-storage
 cloudinary
 psycopg2-binary
+Pillow
