@@ -1,0 +1,245 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AUCA &mdash; My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dm9lsqabb/image/upload/v1776922071/aucawebsite/favicon.ico">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy: rgb(45,77,104); --dark: #0f1f2e; --teal: #2a9d8f;
+            --bg: #eef1f5; --white: #ffffff; --muted: #7a8a99; --border: #e4e8ed;
+            --red: #c0392b; --green: #2e7d32;
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #1a2a3a; min-height: 100vh; }
+
+        /* Navbar */
+        .navbar {
+            background: var(--dark); height: 62px; padding: 0 36px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 200;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+        .navbar-brand { display: flex; align-items: center; gap: 14px; }
+        .navbar-brand img { height: 34px; }
+        .navbar-brand span { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+        .navbar-right { display: flex; align-items: center; gap: 12px; }
+        .nav-link {
+            color: rgba(255,255,255,0.65); text-decoration: none; font-size: 13px;
+            padding: 6px 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { color: white; border-color: rgba(255,255,255,0.5); }
+        .nav-link.active { color: white; background: rgba(255,255,255,0.1); }
+
+        /* Main */
+        .main { max-width: 760px; margin: 40px auto; padding: 0 24px; }
+
+        /* Profile card */
+        .profile-card {
+            background: var(--white); border-radius: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+        .profile-header {
+            background: linear-gradient(120deg, var(--dark) 0%, var(--navy) 100%);
+            padding: 36px 36px 24px;
+            display: flex; align-items: center; gap: 24px;
+        }
+        .avatar-wrap { position: relative; flex-shrink: 0; }
+        .avatar-img {
+            width: 90px; height: 90px; border-radius: 50%;
+            object-fit: cover; border: 3px solid rgba(255,255,255,0.3);
+            background: var(--navy);
+        }
+        .avatar-initials {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: var(--navy); border: 3px solid rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: 700; color: white;
+        }
+        .profile-header-info h2 { color: white; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .profile-header-info p { color: rgba(255,255,255,0.55); font-size: 13px; }
+        .role-badge {
+            display: inline-block; margin-top: 8px;
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            color: white; font-size: 11px; padding: 3px 12px; border-radius: 20px;
+            text-transform: capitalize; letter-spacing: 0.4px;
+        }
+
+        /* Form */
+        .profile-body { padding: 32px 36px; }
+        .section-title {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--muted); margin-bottom: 20px;
+        }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field.full { grid-column: 1 / -1; }
+        .form-field label {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--muted);
+        }
+        .form-field input,
+        .form-field textarea,
+        .form-field select {
+            padding: 10px 13px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-family: inherit; font-size: 0.88rem;
+            color: #1a2a3a; background: #f8fafc; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-field input:focus,
+        .form-field textarea:focus {
+            border-color: var(--navy); background: white;
+            box-shadow: 0 0 0 3px rgba(45,77,104,0.1);
+        }
+        .form-field .errorlist { list-style: none; color: var(--red); font-size: 12px; margin-top: 4px; }
+
+        /* Picture upload */
+        .picture-section {
+            border: 2px dashed var(--border); border-radius: 10px;
+            padding: 20px; text-align: center; margin-bottom: 18px;
+            transition: border-color 0.2s;
+        }
+        .picture-section:hover { border-color: var(--navy); }
+        .picture-section input[type="file"] { display: none; }
+        .picture-section label {
+            cursor: pointer; font-size: 13px; color: var(--navy);
+            font-weight: 600; display: block;
+        }
+        .picture-section p { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .current-pic { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px; display: block; }
+
+        /* Messages */
+        .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; }
+        .alert-success { background: #e6f4ea; color: var(--green); border: 1px solid #b7dfbe; }
+        .alert-error   { background: #fdecea; color: var(--red);   border: 1px solid #f5c6c2; }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 12px; margin-top: 24px; }
+        .btn {
+            padding: 11px 28px; border-radius: 8px; font-size: 13px;
+            font-weight: 700; border: none; cursor: pointer;
+            text-decoration: none; transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-navy { background: var(--navy); color: white; }
+        .btn-outline { background: transparent; color: var(--navy); border: 1.5px solid var(--navy); }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .profile-body { padding: 24px 20px; }
+            .profile-header { padding: 24px 20px; flex-direction: column; text-align: center; }
+            .main { padding: 0 12px; }
+            .navbar { padding: 0 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand">
+        <img src="https://res.cloudinary.com/dm9lsqabb/image/upload/v1776922071/aucawebsite/favicon.ico" alt="AUCA">
+        <span>AUCA Portal</span>
+    </div>
+    <div class="navbar-right">
+        <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+        <a href="{% url 'profile' %}" class="nav-link active">My Profile</a>
+        <a href="{% url 'logout' %}" class="nav-link">Sign out</a>
+    </div>
+</nav>
+
+<main class="main">
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="profile-card">
+
+        <!-- Header -->
+        <div class="profile-header">
+            <div class="avatar-wrap">
+                {% if user.profile_picture %}
+                    <img class="avatar-img" src="{{ user.profile_picture.url }}" alt="Profile picture">
+                {% else %}
+                    <div class="avatar-initials">
+                        {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="profile-header-info">
+                <h2>{{ user.get_full_name|default:user.email }}</h2>
+                <p>{{ user.email }}</p>
+                {% if user.student_id %}<p>ID: {{ user.student_id }}</p>{% endif %}
+                <span class="role-badge">{{ user.role }}</span>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="profile-body">
+            <p class="section-title">Edit Profile</p>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Profile picture upload -->
+                <div class="picture-section">
+                    {% if user.profile_picture %}
+                        <img class="current-pic" src="{{ user.profile_picture.url }}" alt="Current picture">
+                    {% endif %}
+                    <label for="{{ form.profile_picture.id_for_label }}">
+                        📷 Click to upload a new profile picture
+                    </label>
+                    {{ form.profile_picture }}
+                    <p>JPG, PNG or WEBP · Max 5MB</p>
+                    {% if form.profile_picture.errors %}
+                        <ul class="errorlist">{% for e in form.profile_picture.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label>First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<ul class="errorlist">{% for e in form.first_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                    <div class="form-field">
+                        <label>Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<ul class="errorlist">{% for e in form.last_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                    <div class="form-field">
+                        <label>Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                    <div class="form-field">
+                        <label>Student ID</label>
+                        {{ form.student_id }}
+                        {% if form.student_id.errors %}<ul class="errorlist">{% for e in form.student_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                    <div class="form-field full">
+                        <label>Bio</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}<ul class="errorlist">{% for e in form.bio.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-navy">Save Changes</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

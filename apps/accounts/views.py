@@ -1,124 +1,90 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 
+from .forms import SignupForm, LoginForm, ProfileForm
+from .decorators import login_required
 
-# Shared demo credentials
-DEMO_USERS = {
-    'student@auca.ac.rw': {'password': 'student123', 'role': 'Student'},
-    'staff@auca.ac.rw':   {'password': 'staff123',   'role': 'Staff'},
-}
 
 def login_view(request):
-    if request.method == "POST":
-        email = request.POST.get("email", "").strip()
-        password = request.POST.get("password", "").strip()
-        is_staff = request.POST.get("staff", False)
+    if request.user.is_authenticated:
+        return redirect('dashboard')
 
-        if not email or not password:
+    if request.method == 'POST':
+        login_input = request.POST.get('email', '').strip()
+        password    = request.POST.get('password', '').strip()
+
+        if not login_input or not password:
             messages.error(request, "Please fill in all fields.")
-            return render(request, "accounts/login.html")
+            return render(request, 'accounts/login.html')
 
-        # Check demo credentials
-        user = DEMO_USERS.get(email)
-        if user and user['password'] == password:
-            # Successful login
-            request.session['user_email'] = email
-            request.session['user_role'] = user['role']
-            messages.success(request, f"Welcome, {user['role']}!")
-            return redirect("dashboard")
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        user_obj = None
+        if '@' in login_input:
+            user_obj = User.objects.filter(email=login_input).first()
         else:
-            messages.error(request, "Invalid email or password.")
-            return render(request, "accounts/login.html")
+            user_obj = User.objects.filter(student_id=login_input).first()
 
-    return render(request, "accounts/login.html")
+        user = authenticate(request, email=user_obj.email if user_obj else '', password=password)
+        if user:
+            login(request, user)
+            messages.success(request, f"Welcome, {user.first_name or user.email}!")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Invalid email/ID or password.")
+
+    return render(request, 'accounts/login.html')
+
+
+def signup_view(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.role = 'student'
+            user.save()
+            messages.success(request, "Account created! Please log in.")
+            return redirect('login')
+    else:
+        form = SignupForm()
+
+    return render(request, 'accounts/signup.html', {'form': form})
 
 
 def forgot_password_view(request):
-    if request.method == "POST":
-        email = request.POST.get("email", "").strip()
-
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
         if not email:
             messages.error(request, "Please enter your email address.")
-            return render(request, "accounts/forgot_password.html")
-
-        # Placeholder: send reset email logic goes here
-        print("Password reset requested for:", email)
-        messages.success(request, f"Reset instructions sent to {email}. Please check your inbox.")
-        return render(request, "accounts/forgot_password.html")
-
-    return render(request, "accounts/forgot_password.html")
+            return render(request, 'accounts/forgot_password.html')
+        messages.success(request, f"Reset instructions sent to {email}. Check your terminal.")
+    return render(request, 'accounts/forgot_password.html')
 
 
-def signup_view(request):
-    if request.method == "POST":
-        student_id       = request.POST.get("student_id", "").strip()
-        first_name       = request.POST.get("first_name", "").strip()
-        email            = request.POST.get("email", "").strip()
-        password         = request.POST.get("password", "")
-        confirm_password = request.POST.get("confirm_password", "")
-
-        form_data = {
-            "student_id": student_id,
-            "first_name": first_name,
-            "email": email,
-        }
-
-        if not all([student_id, first_name, email, password, confirm_password]):
-            messages.error(request, "All fields are required.")
-            return render(request, "accounts/signup.html", {"form_data": form_data})
-
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match.")
-            return render(request, "accounts/signup.html", {"form_data": form_data})
-
-def signup_view(request):
-    if request.method == "POST":
-        student_id       = request.POST.get("student_id", "").strip()
-        first_name       = request.POST.get("first_name", "").strip()
-        email            = request.POST.get("email", "").strip()
-        password         = request.POST.get("password", "")
-        confirm_password = request.POST.get("confirm_password", "")
-
-        form_data = {
-            "student_id": student_id,
-            "first_name": first_name,
-            "email": email,
-        }
-
-        if not all([student_id, first_name, email, password, confirm_password]):
-            messages.error(request, "All fields are required.")
-            return render(request, "accounts/signup.html", {"form_data": form_data})
-
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match.")
-            return render(request, "accounts/signup.html", {"form_data": form_data})
-
-        # Placeholder: save user to database here
-        print("New account — ID:", student_id, "| Name:", first_name, "| Email:", email)
-        messages.success(request, "Account created! Please log in.")
-        return redirect("login")
-
-    return render(request, "accounts/signup.html")
-
-
+@login_required
 def dashboard_view(request):
-    # Check if user is logged in
-    if 'user_email' not in request.session:
-        messages.error(request, "Please log in to access the dashboard.")
-        return redirect("login")
-    
-    user_email = request.session['user_email']
-    user_role = request.session['user_role']
-    
-    context = {
-        'user_email': user_email,
-        'user_role': user_role,
-    }
-    return render(request, "accounts/dashboard.html", context)
+    return render(request, 'accounts/dashboard.html', {'user': request.user})
+
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('profile')
+        else:
+            messages.error(request, "Please fix the errors below.")
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(request, 'accounts/profile.html', {'form': form})
 
 
 def logout_view(request):
-    # Clear the session
-    request.session.flush()
+    logout(request)
     messages.success(request, "You have been logged out successfully.")
-    return redirect("login")
+    return redirect('login')
