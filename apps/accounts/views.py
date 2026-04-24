@@ -70,14 +70,9 @@ def signup_view(request):
 
 
 # ================= DASHBOARD =================
+@login_required(login_url='login')
 def dashboard_view(request):
-    if not request.user.is_authenticated:
-        messages.error(request, "Please log in first.")
-        return redirect("login")
-
-    return render(request, "accounts/dashboard.html", {
-        "user": request.user
-    })
+    return render(request, "accounts/dashboard.html", {"user": request.user})
 
 
 # ================= LOGOUT =================
