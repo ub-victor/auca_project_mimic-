@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AUCA Registration – Signup</title>
-    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png" type="image/png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <title>AUCA – Create Account</title>
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,284 +15,458 @@
             background: #fff;
         }
 
-        /* ── SPLIT LAYOUT ─────────────────────── */
-        .page-wrap {
-            display: flex;
-            height: 100vh;
-            width: 100%;
-        }
+        /* ── LAYOUT ── */
+        .page-wrap { display: flex; height: 100vh; width: 100%; }
 
-        /* ── LEFT PANEL ───────────────────────── */
         .left-panel {
             width: 50%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px 32px;
+            padding: 40px 48px;
             background: #fff;
             overflow-y: auto;
         }
 
-        .inner {
-            width: 100%;
-            max-width: 380px;
+        .right-panel {
+            width: 50%;
+            flex-shrink: 0;
+            position: relative;
+            background-image: url("{% static 'img/gishushu_campus.jpg' %}");
+            background-size: cover;
+            background-position: center;
         }
 
-        /* Logo */
+        .right-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,47,171,0.55) 0%, rgba(10,20,50,0.7) 100%);
+        }
+
+        .right-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 48px 40px;
+            color: white;
+        }
+
+        .right-overlay h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+
+        .right-overlay p {
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.7;
+            max-width: 320px;
+        }
+
+        /* ── FORM PANEL ── */
+        .inner { width: 100%; max-width: 400px; }
+
         .logo-wrap {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 14px;
-            margin-bottom: 22px;
+            margin-bottom: 28px;
         }
 
-        .logo-img {
-            width: 220px;
-            height: auto;
-        }
+        .logo-img { width: 200px; height: auto; }
 
-
-
-        /* Heading */
         h1.page-heading {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #1a4799;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f1f2e;
             text-align: center;
-            margin-bottom: 22px;
+            margin-bottom: 4px;
         }
 
-        /* Form fields */
-        .form-group {
-            margin-bottom: 10px;
+        .page-sub {
+            text-align: center;
+            font-size: 0.82rem;
+            color: #7a8a99;
+            margin-bottom: 24px;
         }
+
+        /* ── FORM FIELDS ── */
+        .form-group { margin-bottom: 14px; }
 
         .field-label {
-            font-size: 0.8rem;
-            color: #333;
-            margin-bottom: 3px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 5px;
             display: block;
-            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .form-input {
             display: block;
             width: 100%;
-            border: 1px solid #bbb;
-            border-radius: 3px;
-            padding: 6px 10px;
-            font-size: 0.87rem;
-            color: #333;
-            background: #fff;
+            border: 1.5px solid #dde5f5;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            color: #1a2a3a;
+            background: #f8faff;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
 
-        .form-input::placeholder {
-            color: #aaa;
-            font-size: 0.83rem;
-        }
+        .form-input::placeholder { color: #b0bec5; }
 
         .form-input:focus {
             border-color: #1a4799;
-            box-shadow: 0 0 0 2px rgba(26,71,153,0.1);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,71,153,0.1);
         }
 
-        /* Create Account button */
+        .form-input.has-toggle { padding-right: 44px; }
+
+        /* ── SHOW/HIDE TOGGLE ── */
+        .toggle-btn {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: #7a8a99;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .toggle-btn:hover { color: #1a4799; }
+
+        .toggle-btn svg { width: 18px; height: 18px; }
+
+        /* ── PASSWORD STRENGTH ── */
+        .strength-bar {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .strength-bar span {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+            background: #e4e8ed;
+            transition: background 0.3s;
+        }
+
+        .strength-label {
+            font-size: 0.7rem;
+            margin-top: 4px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        /* ── MATCH INDICATOR ── */
+        .match-indicator {
+            font-size: 0.72rem;
+            margin-top: 5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-height: 16px;
+        }
+
+        .match-indicator svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+        /* ── ERROR ── */
+        .field-error {
+            color: #c0392b;
+            font-size: 0.72rem;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ── SUBMIT ── */
         .btn-create {
             display: block;
-            margin: 20px auto 14px;
-            background: #5b7fba;
+            width: 100%;
+            margin-top: 20px;
+            background: #1a4799;
             color: #fff;
             border: none;
-            border-radius: 4px;
-            padding: 9px 28px;
-            font-size: 0.9rem;
-            font-weight: 500;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.92rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            letter-spacing: 0.02em;
         }
 
-        .btn-create:hover { background: #1a4799; }
+        .btn-create:hover {
+            background: #003080;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(26,71,153,0.3);
+        }
 
-        /* Bottom link */
+        .btn-create:active { transform: translateY(0); }
+
+        /* ── BOTTOM LINK ── */
         .bottom-link {
             display: block;
             text-align: center;
             font-size: 0.82rem;
-            color: #555;
+            color: #7a8a99;
+            margin-top: 16px;
         }
 
-        .bottom-link a {
-            color: #1a4799;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
+        .bottom-link a { color: #1a4799; text-decoration: none; font-weight: 600; }
         .bottom-link a:hover { text-decoration: underline; }
 
-        /* Error messages */
+        /* ── ALERT ── */
         .alert-error {
             background: #fdf0ef;
             border: 1px solid #e8a49a;
             color: #c0392b;
-            border-radius: 3px;
-            padding: 8px 12px;
+            border-radius: 6px;
+            padding: 10px 14px;
             font-size: 0.8rem;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
-        /* ── RIGHT PANEL ──────────────────────── */
-        .right-panel {
-            width: 50%;
-            flex-shrink: 0;
-            background-image: url("{% static 'signupimgs/gishushu_campus.jpg' %}");
-            background-size: cover;
-            background-position: center;
-        }
-
-        /* ── TABLET (≤ 992px) ──────────────────── */
-        @media (max-width: 992px) {
-            .left-panel  {
-                width: 60%;
-                padding: 32px 24px;
-            }
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .left-panel { width: 60%; padding: 32px 32px; }
             .right-panel { width: 40%; }
         }
 
-        /* ── MOBILE (≤ 600px) ──────────────────── */
         @media (max-width: 600px) {
             body, html { height: auto; }
-
-            .page-wrap {
-                flex-direction: column;
-                height: auto;
-                min-height: 100vh;
-            }
-
-            .left-panel {
-                width: 100%;
-                padding: 28px 20px 40px;
-                justify-content: flex-start;
-            }
-
-            .inner {
-                max-width: 100%;
-            }
-
-            .logo-img { width: 180px; }
-
-            h1.page-heading { font-size: 1.1rem; }
-
-            .right-panel {
-                display: block;
-                width: 100%;
-                height: 220px;
-                order: -1;
-            }
+            .page-wrap { flex-direction: column; height: auto; min-height: 100vh; }
+            .left-panel { width: 100%; padding: 32px 24px 40px; justify-content: flex-start; }
+            .inner { max-width: 100%; }
+            .right-panel { width: 100%; height: 200px; order: -1; }
+            .right-overlay { padding: 24px 20px; }
+            .right-overlay h2 { font-size: 1.3rem; }
         }
     </style>
 </head>
 <body>
-    <div class="page-wrap">
+<div class="page-wrap">
 
-        <!-- LEFT PANEL -->
-        <div class="left-panel">
-            <div class="inner">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+        <div class="inner">
 
-                <!-- Logo -->
-                <div class="logo-wrap">
-                    <img src="{% static 'signupimgs/auca_logo.png' %}" alt="AUCA Logo" class="logo-img" />
+            <div class="logo-wrap">
+                <img src="{% static 'img/auca_logo.png' %}" alt="AUCA Logo" class="logo-img" />
+            </div>
+
+            <h1 class="page-heading">Create your account</h1>
+            <p class="page-sub">Join the AUCA student portal today</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-error">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" action="{% url 'signup' %}" id="signupForm">
+                {% csrf_token %}
+
+                <!-- Student ID -->
+                <div class="form-group">
+                    <label class="field-label" for="student_id">Student ID</label>
+                    <div class="input-wrap">
+                        <input type="text" id="student_id" name="student_id" class="form-input"
+                               placeholder="e.g. AUCA-2024-0312"
+                               value="{{ form.student_id.value|default:'' }}" required />
+                    </div>
+                    {% if form.student_id.errors %}
+                        <p class="field-error">{{ form.student_id.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
-                <!-- Heading -->
-                <h1 class="page-heading">Create new account</h1>
-
-                <!-- Error messages -->
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert-error">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-
-                <!-- Form -->
-                <form method="POST" action="{% url 'signup' %}">
-                    {% csrf_token %}
-
-                    <div class="form-group">
-                        <label class="field-label" for="student_id">Enter your ID</label>
-                        <input
-                            type="text"
-                            id="student_id"
-                            name="student_id"
-                            class="form-input"
-                            placeholder="Enter your Student Reg No"
-                            value="{{ form_data.student_id|default:'' }}"
-                            required
-                        />
+                <!-- First Name -->
+                <div class="form-group">
+                    <label class="field-label" for="first_name">First Name</label>
+                    <div class="input-wrap">
+                        <input type="text" id="first_name" name="first_name" class="form-input"
+                               placeholder="Your first name"
+                               value="{{ form.first_name.value|default:'' }}" required />
                     </div>
+                    {% if form.first_name.errors %}
+                        <p class="field-error">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
 
-                    <div class="form-group">
-                        <label class="field-label" for="first_name">Enter your Firstname</label>
-                        <input
-                            type="text"
-                            id="first_name"
-                            name="first_name"
-                            class="form-input"
-                            placeholder="Enter only your first name (one name)"
-                            value="{{ form_data.first_name|default:'' }}"
-                            required
-                        />
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="field-label" for="email">Email Address</label>
+                    <div class="input-wrap">
+                        <input type="email" id="email" name="email" class="form-input"
+                               placeholder="you@auca.ac.rw"
+                               value="{{ form.email.value|default:'' }}" required />
                     </div>
+                    {% if form.email.errors %}
+                        <p class="field-error">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
 
-                    <div class="form-group">
-                        <label class="field-label" for="email">Enter your Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            class="form-input"
-                            placeholder=""
-                            value="{{ form_data.email|default:'' }}"
-                            required
-                        />
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="field-label" for="password1">Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="password1" name="password1"
+                               class="form-input has-toggle"
+                               placeholder="Create a strong password" required />
+                        <button type="button" class="toggle-btn" onclick="togglePassword('password1', this)" aria-label="Show password">
+                            <!-- eye icon -->
+                            <svg id="eye1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
                     </div>
-
-                    <div class="form-group">
-                        <label class="field-label" for="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            class="form-input"
-                            required
-                        />
+                    <!-- Strength bar -->
+                    <div class="strength-bar" id="strengthBar">
+                        <span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span>
                     </div>
+                    <div class="strength-label" id="strengthLabel" style="color:#b0bec5;">Enter a password</div>
+                    {% if form.password1.errors %}
+                        <p class="field-error">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                </div>
 
-                    <div class="form-group">
-                        <label class="field-label" for="confirm_password">Re-type password</label>
-                        <input
-                            type="password"
-                            id="confirm_password"
-                            name="confirm_password"
-                            class="form-input"
-                            required
-                        />
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label class="field-label" for="password2">Confirm Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="password2" name="password2"
+                               class="form-input has-toggle"
+                               placeholder="Re-type your password" required />
+                        <button type="button" class="toggle-btn" onclick="togglePassword('password2', this)" aria-label="Show password">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
                     </div>
+                    <div class="match-indicator" id="matchIndicator"></div>
+                    {% if form.password2.errors %}
+                        <p class="field-error">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
 
-                    <button type="submit" class="btn-create">Create Account</button>
+                <button type="submit" class="btn-create" id="submitBtn">Create Account</button>
 
-                    <span class="bottom-link">
-                        Already have an account? <a href="{% url 'login' %}">Login</a>
-                    </span>
-                </form>
-            </div>
+                <span class="bottom-link">
+                    Already have an account? <a href="{% url 'login' %}">Sign in</a>
+                </span>
+            </form>
         </div>
-
-        <!-- RIGHT PANEL -->
-        <div class="right-panel"></div>
     </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+        <div class="right-overlay">
+            <h2>Start your academic journey at AUCA</h2>
+            <p>Access your courses, grades, timetable, and finances — all in one place.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /* ── Show / Hide password ── */
+    function togglePassword(fieldId, btn) {
+        const input = document.getElementById(fieldId);
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        btn.innerHTML = isHidden
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                 <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                 <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                 <line x1="1" y1="1" x2="23" y2="23"/>
+               </svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                 <circle cx="12" cy="12" r="3"/>
+               </svg>`;
+    }
+
+    /* ── Password strength ── */
+    const p1 = document.getElementById('password1');
+    const bars = [document.getElementById('s1'), document.getElementById('s2'),
+                  document.getElementById('s3'), document.getElementById('s4')];
+    const label = document.getElementById('strengthLabel');
+
+    const levels = [
+        { color: '#e74c3c', text: 'Weak',      textColor: '#e74c3c' },
+        { color: '#e67e22', text: 'Fair',      textColor: '#e67e22' },
+        { color: '#f1c40f', text: 'Good',      textColor: '#d4a017' },
+        { color: '#2ecc71', text: 'Strong ✓',  textColor: '#27ae60' },
+    ];
+
+    function getStrength(pw) {
+        let score = 0;
+        if (pw.length >= 8)  score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^A-Za-z0-9]/.test(pw)) score++;
+        return score;
+    }
+
+    p1.addEventListener('input', () => {
+        const pw = p1.value;
+        if (!pw) {
+            bars.forEach(b => b.style.background = '#e4e8ed');
+            label.textContent = 'Enter a password';
+            label.style.color = '#b0bec5';
+            return;
+        }
+        const score = getStrength(pw);
+        bars.forEach((b, i) => {
+            b.style.background = i < score ? levels[score - 1].color : '#e4e8ed';
+        });
+        label.textContent = levels[score - 1].text;
+        label.style.color  = levels[score - 1].textColor;
+        checkMatch();
+    });
+
+    /* ── Password match ── */
+    const p2 = document.getElementById('password2');
+    const matchEl = document.getElementById('matchIndicator');
+
+    function checkMatch() {
+        if (!p2.value) { matchEl.innerHTML = ''; return; }
+        if (p1.value === p2.value) {
+            matchEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                 <span style="color:#27ae60;">Passwords match</span>`;
+        } else {
+            matchEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                 <span style="color:#e74c3c;">Passwords do not match</span>`;
+        }
+    }
+
+    p2.addEventListener('input', checkMatch);
+
+    /* ── Loading state on submit ── */
+    document.getElementById('signupForm').addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        btn.textContent = 'Creating account…';
+        btn.disabled = true;
+        btn.style.opacity = '0.75';
+    });
+</script>
 </body>
 </html>

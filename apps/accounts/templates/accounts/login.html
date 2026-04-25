@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <title>AUCA Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png" type="image/png">
-
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
@@ -24,8 +23,10 @@
             <h3 class="log">Login</h3>
             <p class="welcome">Welcome! Please enter your details.</p>
 
-            {% if error %}
-            <p style="color:red; text-align:center; margin-bottom:10px;">{{ error }}</p>
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color:red; text-align:center; margin-bottom:10px;">{{ message }}</p>
+                {% endfor %}
             {% endif %}
 
             <label for="email">Enter your Email or ID</label>
@@ -33,10 +34,21 @@
                    placeholder="Enter your Email or ID" required>
 
             <label for="password">Password</label>
-            <input id="password" name="password" class="carre" type="password"
-                   placeholder="Type your Password" required>
+            <div style="position:relative;display:flex;align-items:center;">
+                <input id="password" name="password" class="carre" type="password"
+                       placeholder="Type your Password" required style="padding-right:42px;">
+                <button type="button" onclick="togglePassword()" aria-label="Show password"
+                    style="position:absolute;right:12px;background:none;border:none;
+                           cursor:pointer;padding:4px;color:#7a8a99;display:flex;align-items:center;">
+                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" width="18" height="18">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+            </div>
 
-            <a href="{% url 'forgot_password' %}" class="forgot-password">Forgot Password?</a>
+            <a href="{% url 'password_reset' %}" class="forgot-password">Forgot Password?</a>
 
             <div class="checkbox-container">
                 <label>
@@ -62,5 +74,19 @@
     </div>
 
 </div>
+<script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const icon  = document.getElementById('eyeIcon');
+        const show  = input.type === 'password';
+        input.type  = show ? 'text' : 'password';
+        icon.innerHTML = show
+            ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+               <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+               <line x1="1" y1="1" x2="23" y2="23"/>`
+            : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+               <circle cx="12" cy="12" r="3"/>` ;
+    }
+</script>
 </body>
 </html>

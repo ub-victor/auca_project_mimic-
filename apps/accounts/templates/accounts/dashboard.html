@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>AUCA &mdash; Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png" type="image/png">
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -388,8 +388,8 @@
         <span>AUCA Portal</span>
     </div>
     <div class="navbar-right">
-        <a href="#" class="nav-profile-btn">
-            <div class="nav-avatar">JV</div>
+        <a href="{% url 'profile' %}" class="nav-profile-btn">
+            <div class="nav-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
             My Profile
         </a>
         <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>
@@ -400,9 +400,9 @@
 <div class="hero">
     <div class="hero-inner">
         <div class="hero-text">
-            <h1>Welcome back, Jean!</h1>
-            <p>{{ email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
-            <span class="hero-badge">{{ role }}</span>
+            <h1>Welcome back, {{ user.first_name|default:user.email }}!</h1>
+            <p>{{ user.email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
+            <span class="hero-badge">{{ user.role|capfirst }}</span>
         </div>
         <div class="stat-strip">
             <div class="stat-item">
