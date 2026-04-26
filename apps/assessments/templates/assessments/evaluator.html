@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Answer Evaluator — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png" type="image/png">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --dark:  #0f1f2e;
+            --navy:  rgb(45,77,104);
+            --teal:  #2a9d8f;
+            --amber: #e67e22;
+            --bg:    #eef1f5;
+            --white: #ffffff;
+            --border:#e4e8ed;
+            --muted: #7a8a99;
+            --green: #2e7d32;
+            --red:   #c0392b;
+        }
+        body { font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); min-height:100vh; display:flex; flex-direction:column; color:#1a2a3a; }
+
+        /* ── Navbar ── */
+        nav {
+            background:var(--dark); padding:0 36px; height:62px;
+            display:flex; align-items:center; justify-content:space-between;
+            box-shadow:0 2px 12px rgba(0,0,0,0.25); position:sticky; top:0; z-index:200;
+        }
+        .nav-left { display:flex; align-items:center; gap:14px; }
+        .nav-logo { height:34px; }
+        .nav-title { color:white; font-weight:700; font-size:15px; letter-spacing:1.2px; text-transform:uppercase; }
+        .role-badge {
+            background:rgba(42,157,143,0.2); border:1px solid rgba(42,157,143,0.45);
+            color:#7ee8df; font-size:11px; padding:3px 11px; border-radius:20px; font-weight:600;
+        }
+        .nav-back {
+            color:rgba(255,255,255,0.65); text-decoration:none; font-size:13px;
+            border:1px solid rgba(255,255,255,0.2); padding:6px 14px; border-radius:6px; transition:all 0.2s;
+            display:flex; align-items:center; gap:6px;
+        }
+        .nav-back:hover { color:white; border-color:rgba(255,255,255,0.5); }
+
+        /* ── Hero ── */
+        .hero {
+            background:linear-gradient(120deg, var(--dark) 0%, var(--navy) 100%);
+            padding:32px 36px 28px; color:white;
+        }
+        .hero-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+        .hero-text h1 { font-size:24px; font-weight:700; margin-bottom:6px; }
+        .hero-text p { font-size:13px; color:rgba(255,255,255,0.6); }
+        .hero-chips { display:flex; gap:10px; flex-wrap:wrap; }
+        .hero-chip {
+            background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+            color:rgba(255,255,255,0.8); font-size:12px; padding:6px 14px; border-radius:20px;
+            display:flex; align-items:center; gap:6px;
+        }
+        .hero-chip svg { opacity:0.7; }
+
+        /* ── Main ── */
+        main { max-width:900px; width:100%; margin:32px auto; padding:0 24px; flex:1; }
+
+        .sec-label {
+            font-size:11px; font-weight:700; text-transform:uppercase;
+            letter-spacing:1px; color:var(--muted); margin-bottom:14px;
+        }
+
+        /* ── Card ── */
+        .card {
+            background:var(--white); border-radius:12px; padding:26px;
+            box-shadow:0 1px 4px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+            margin-bottom:20px;
+        }
+        .card-head {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--border);
+        }
+        .card-head-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; }
+        .card.accent-teal  { border-left:4px solid var(--teal); }
+        .card.accent-navy  { border-left:4px solid var(--navy); }
+
+        /* ── Tabs ── */
+        .tabs { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:22px; }
+        .tab {
+            padding:9px 20px; font-size:13px; font-weight:600; color:var(--muted);
+            cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.15s;
+        }
+        .tab.active { color:var(--teal); border-bottom-color:var(--teal); }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+
+        /* ── Presets ── */
+        .preset-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+        .preset-btn {
+            font-size:12px; padding:5px 13px; border-radius:20px;
+            border:1px solid var(--border); background:var(--white);
+            cursor:pointer; color:var(--navy); font-weight:500; transition:all 0.15s;
+        }
+        .preset-btn:hover, .preset-btn.active { background:var(--navy); color:white; border-color:var(--navy); }
+
+        /* ── Form fields ── */
+        .field-label {
+            display:block; font-size:11px; font-weight:700; text-transform:uppercase;
+            letter-spacing:0.8px; color:var(--navy); margin-bottom:7px;
+        }
+        textarea {
+            width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:8px;
+            font-size:14px; font-family:inherit; resize:vertical; color:#1a2a3a;
+            background:#fafbfc; transition:border 0.2s; margin-bottom:16px; min-height:130px;
+        }
+        textarea:focus { outline:none; border-color:var(--teal); background:white; box-shadow:0 0 0 3px rgba(42,157,143,0.08); }
+
+        /* ── File zone ── */
+        .file-zone {
+            border:2px dashed var(--border); border-radius:8px; padding:22px;
+            text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:16px; background:#fafbfc;
+        }
+        .file-zone:hover, .file-zone.drag-over { border-color:var(--teal); background:#f0faf9; }
+        .file-zone input[type=file] { display:none; }
+        .file-zone-icon { font-size:28px; margin-bottom:8px; }
+        .file-zone-label { font-size:13px; color:var(--muted); line-height:1.5; }
+        .file-zone-label strong { color:var(--teal); }
+        .file-name { font-size:12px; color:var(--navy); font-weight:600; margin-top:8px; }
+
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        @media(max-width:640px) {
+            .grid-2 { grid-template-columns:1fr; }
+            nav { padding:0 16px; }
+            .nav-title { display:none; }
+            .hero { padding:24px 18px; }
+            main { padding:0 16px; }
+        }
+
+        /* ── Submit ── */
+        .submit-btn {
+            width:100%; padding:13px; background:var(--teal); color:white; border:none;
+            border-radius:8px; font-size:14px; font-weight:700; cursor:pointer;
+            transition:opacity 0.2s, transform 0.1s;
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            letter-spacing:0.3px;
+        }
+        .submit-btn:hover { opacity:0.88; transform:translateY(-1px); }
+        .submit-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+        .spinner { display:none; width:18px; height:18px; border:3px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        .error-msg { display:none; background:#fdecea; color:var(--red); padding:12px 16px; border-radius:8px; font-size:13px; margin-top:14px; border-left:3px solid var(--red); }
+
+        /* ── Result card ── */
+        #result-card { display:none; }
+
+        .score-hero {
+            display:flex; align-items:center; gap:28px; flex-wrap:wrap;
+            padding:20px 0 22px; border-bottom:1px solid var(--border); margin-bottom:24px;
+        }
+        .score-circle {
+            width:100px; height:100px; border-radius:50%;
+            background:linear-gradient(135deg,var(--dark),var(--navy));
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            flex-shrink:0; box-shadow:0 6px 20px rgba(45,77,104,0.35);
+        }
+        .score-num { font-size:32px; font-weight:800; color:white; line-height:1; }
+        .score-denom { font-size:12px; color:rgba(255,255,255,0.5); }
+        .score-meta { flex:1; }
+        .score-label { font-size:20px; font-weight:700; color:var(--dark); margin-bottom:8px; }
+        .verdict {
+            display:inline-block; padding:4px 16px; border-radius:20px;
+            font-size:12px; font-weight:700; letter-spacing:0.3px;
+        }
+        .verdict-excellent { background:#e6f4ea; color:var(--green); }
+        .verdict-good      { background:#e3f2fd; color:#1565c0; }
+        .verdict-average   { background:#fff8e1; color:#f57f17; }
+        .verdict-poor      { background:#fdecea; color:var(--red); }
+
+        /* ── Metric bars ── */
+        .metrics { display:flex; flex-direction:column; gap:18px; }
+        .metric-row { display:flex; flex-direction:column; gap:6px; }
+        .metric-top { display:flex; justify-content:space-between; font-size:13px; }
+        .metric-name { font-weight:600; color:#1a2a3a; }
+        .metric-val { color:var(--muted); font-weight:600; }
+        .bar-track { height:9px; background:var(--bg); border-radius:5px; overflow:hidden; }
+        .bar-fill { height:100%; border-radius:5px; transition:width 0.6s cubic-bezier(.4,0,.2,1); width:0%; }
+        .bar-similarity { background:linear-gradient(90deg,var(--teal),#3dbfb0); }
+        .bar-keyword    { background:linear-gradient(90deg,var(--navy),rgb(70,110,145)); }
+        .bar-length     { background:linear-gradient(90deg,var(--amber),#f0a040); }
+
+        /* ── Footer ── */
+        footer { text-align:center; padding:24px; font-size:12px; color:#b0bec5; border-top:1px solid var(--border); background:var(--white); }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-left">
+        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/static/img/10001.png" alt="AUCA" class="nav-logo">
+        <span class="nav-title">AUCA Portal</span>
+        <span class="role-badge">{{ user_role }}</span>
+    </div>
+    <a href="/dashboard/" class="nav-back">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Dashboard
+    </a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+    <div class="hero-inner">
+        <div class="hero-text">
+            <h1>AI Answer Evaluator</h1>
+            <p>Score student answers instantly using semantic similarity, keyword coverage &amp; length analysis.</p>
+        </div>
+        <div class="hero-chips">
+            <div class="hero-chip">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                Instant scoring
+            </div>
+            <div class="hero-chip">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+                .txt &amp; .pdf support
+            </div>
+            <div class="hero-chip">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Scored out of 10
+            </div>
+        </div>
+    </div>
+</div>
+
+<main>
+
+    <p class="sec-label">Evaluation Input</p>
+
+    <!-- Input card -->
+    <div class="card accent-teal">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('text')">Type Answers</div>
+            <div class="tab" onclick="switchTab('file')">Upload Files</div>
+        </div>
+
+        <label class="field-label">Quick Examples</label>
+        <div class="preset-bar">
+            <button class="preset-btn" onclick="loadPreset(0)">Big Data</button>
+            <button class="preset-btn" onclick="loadPreset(1)">Database</button>
+            <button class="preset-btn" onclick="loadPreset(2)">Web Dev</button>
+            <button class="preset-btn" onclick="loadPreset(3)">Data Structures</button>
+            <button class="preset-btn" onclick="loadPreset(4)">Software Eng.</button>
+        </div>
+
+        <form id="eval-form" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- TEXT TAB -->
+            <div class="tab-panel active" id="panel-text">
+                <div class="grid-2">
+                    <div>
+                        <label class="field-label" for="model_answer">Model Answer</label>
+                        <textarea id="model_answer" name="model_answer" rows="6" placeholder="Paste the correct / expected answer…"></textarea>
+                    </div>
+                    <div>
+                        <label class="field-label" for="student_answer">Student Answer</label>
+                        <textarea id="student_answer" name="student_answer" rows="6" placeholder="Paste the student's answer…"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILE TAB -->
+            <div class="tab-panel" id="panel-file">
+                <div class="grid-2">
+                    <div>
+                        <label class="field-label">Model Answer File</label>
+                        <div class="file-zone" id="zone-model"
+                             onclick="document.getElementById('model_file').click()"
+                             ondragover="dragOver(event,'zone-model')"
+                             ondragleave="dragLeave('zone-model')"
+                             ondrop="dropFile(event,'model_file','zone-model','fname-model')">
+                            <input type="file" id="model_file" name="model_file" accept=".txt,.pdf" onchange="showFileName(this,'fname-model')">
+                            <div class="file-zone-icon">📄</div>
+                            <div class="file-zone-label">Drag &amp; drop or <strong>browse</strong><br><small>.txt or .pdf</small></div>
+                            <div class="file-name" id="fname-model"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="field-label">Student Answer File</label>
+                        <div class="file-zone" id="zone-student"
+                             onclick="document.getElementById('student_file').click()"
+                             ondragover="dragOver(event,'zone-student')"
+                             ondragleave="dragLeave('zone-student')"
+                             ondrop="dropFile(event,'student_file','zone-student','fname-student')">
+                            <input type="file" id="student_file" name="student_file" accept=".txt,.pdf" onchange="showFileName(this,'fname-student')">
+                            <div class="file-zone-icon">📝</div>
+                            <div class="file-zone-label">Drag &amp; drop or <strong>browse</strong><br><small>.txt or .pdf</small></div>
+                            <div class="file-name" id="fname-student"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+                <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span id="btn-text">Evaluate Answer</span>
+                <div class="spinner" id="spinner"></div>
+            </button>
+        </form>
+
+        <div class="error-msg" id="error-msg"></div>
+    </div>
+
+    <!-- Result card -->
+    <p class="sec-label" id="result-label" style="display:none;">Result</p>
+    <div class="card accent-navy" id="result-card">
+        <div class="score-hero">
+            <div class="score-circle">
+                <div class="score-num" id="r-final">—</div>
+                <div class="score-denom">/ 10</div>
+            </div>
+            <div class="score-meta">
+                <div class="score-label" id="r-verdict-text">—</div>
+                <span class="verdict" id="r-verdict-badge"></span>
+            </div>
+        </div>
+        <div class="metrics">
+            <div class="metric-row">
+                <div class="metric-top">
+                    <span class="metric-name">Semantic Similarity</span>
+                    <span class="metric-val" id="r-similarity">—</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill bar-similarity" id="bar-similarity"></div></div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-top">
+                    <span class="metric-name">Keyword Coverage</span>
+                    <span class="metric-val" id="r-keyword">—</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill bar-keyword" id="bar-keyword"></div></div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-top">
+                    <span class="metric-name">Answer Length</span>
+                    <span class="metric-val" id="r-length">—</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill bar-length" id="bar-length"></div></div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer>&copy; 2025 Adventist University of Central Africa &mdash; All rights reserved.</footer>
+
+<script>
+const PRESETS = [
+    { model: "Hadoop is an open-source framework that allows distributed storage and processing of large datasets across clusters of computers. It consists of HDFS for storage and MapReduce for processing.", student: "Hadoop is an open-source framework used for distributed storage and processing of big data across multiple computers. It uses HDFS to store data and MapReduce to process it." },
+    { model: "A primary key is a column or set of columns in a database table that uniquely identifies each row. It must be unique and cannot contain NULL values.", student: "A primary key uniquely identifies each record in a database table. It cannot be null or duplicated." },
+    { model: "HTTP stands for HyperText Transfer Protocol. It is the foundation of data communication on the web, defining how messages are formatted and transmitted between browsers and servers.", student: "HTTP is HyperText Transfer Protocol, the protocol used for communication between browsers and web servers to transfer data on the internet." },
+    { model: "A linked list is a linear data structure where each element, called a node, contains data and a pointer to the next node. Unlike arrays, linked lists do not store elements in contiguous memory.", student: "A linked list is a data structure made of nodes where each node holds data and a reference to the next node." },
+    { model: "Agile is a software development methodology that promotes iterative development, collaboration, and flexibility. Work is divided into short cycles called sprints.", student: "Agile is a development approach that uses short iterations called sprints to deliver software incrementally. It focuses on collaboration and flexibility." }
+];
+
+let activeTab = "text";
+
+function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll(".tab").forEach((t, i) => t.classList.toggle("active", ["text","file"][i] === tab));
+    document.getElementById("panel-text").classList.toggle("active", tab === "text");
+    document.getElementById("panel-file").classList.toggle("active", tab === "file");
+    document.getElementById("result-card").style.display = "none";
+    document.getElementById("result-label").style.display = "none";
+}
+
+function loadPreset(i) {
+    document.getElementById("model_answer").value   = PRESETS[i].model;
+    document.getElementById("student_answer").value = PRESETS[i].student;
+    document.querySelectorAll(".preset-btn").forEach((b, idx) => b.classList.toggle("active", idx === i));
+    if (activeTab !== "text") switchTab("text");
+    document.getElementById("result-card").style.display = "none";
+    document.getElementById("result-label").style.display = "none";
+}
+
+function showFileName(input, labelId) {
+    document.getElementById(labelId).textContent = input.files[0] ? "📄 " + input.files[0].name : "";
+}
+function dragOver(e, zoneId)  { e.preventDefault(); document.getElementById(zoneId).classList.add("drag-over"); }
+function dragLeave(zoneId)    { document.getElementById(zoneId).classList.remove("drag-over"); }
+function dropFile(e, inputId, zoneId, labelId) {
+    e.preventDefault(); dragLeave(zoneId);
+    const input = document.getElementById(inputId);
+    const dt = new DataTransfer(); dt.items.add(e.dataTransfer.files[0]);
+    input.files = dt.files; showFileName(input, labelId);
+}
+
+function getVerdict(score) {
+    if (score >= 8) return { text: "Excellent Answer", cls: "verdict-excellent" };
+    if (score >= 6) return { text: "Good Answer",      cls: "verdict-good" };
+    if (score >= 4) return { text: "Average Answer",   cls: "verdict-average" };
+    return               { text: "Poor Answer",       cls: "verdict-poor" };
+}
+
+function showResult(data) {
+    const verdict = getVerdict(data.final_score);
+    document.getElementById("r-final").textContent        = data.final_score;
+    document.getElementById("r-verdict-text").textContent = verdict.text;
+    const badge = document.getElementById("r-verdict-badge");
+    badge.textContent = verdict.text; badge.className = "verdict " + verdict.cls;
+    document.getElementById("r-similarity").textContent = (data.similarity    * 100).toFixed(1) + "%";
+    document.getElementById("r-keyword").textContent    = (data.keyword_score * 100).toFixed(1) + "%";
+    document.getElementById("r-length").textContent     = (data.length_score  * 100).toFixed(1) + "%";
+    document.getElementById("result-label").style.display = "block";
+    const card = document.getElementById("result-card");
+    card.style.display = "block";
+    ["bar-similarity","bar-keyword","bar-length"].forEach(id => document.getElementById(id).style.width = "0%");
+    setTimeout(() => {
+        document.getElementById("bar-similarity").style.width = (data.similarity    * 100) + "%";
+        document.getElementById("bar-keyword").style.width    = (data.keyword_score * 100) + "%";
+        document.getElementById("bar-length").style.width     = (data.length_score  * 100) + "%";
+    }, 40);
+    card.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+document.getElementById("eval-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const errorDiv = document.getElementById("error-msg");
+    errorDiv.style.display = "none";
+    document.getElementById("result-card").style.display = "none";
+    document.getElementById("result-label").style.display = "none";
+
+    const btn = document.getElementById("submit-btn");
+    const btnText = document.getElementById("btn-text");
+    const spinner = document.getElementById("spinner");
+    btn.disabled = true; btnText.style.display = "none"; spinner.style.display = "block";
+
+    try {
+        let response;
+        if (activeTab === "file") {
+            const formData = new FormData(this);
+            formData.delete("student_answer"); formData.delete("model_answer");
+            response = await fetch("/assessments/evaluate/", { method:"POST", body:formData });
+        } else {
+            const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+            const studentAnswer = document.getElementById("student_answer").value.trim();
+            const modelAnswer   = document.getElementById("model_answer").value.trim();
+            if (!studentAnswer || !modelAnswer) throw new Error("Please fill in both fields.");
+            response = await fetch("/assessments/evaluate/", {
+                method:"POST",
+                headers:{ "Content-Type":"application/json", "X-CSRFToken":csrfToken },
+                body:JSON.stringify({ student_answer:studentAnswer, model_answer:modelAnswer })
+            });
+        }
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Evaluation failed.");
+        showResult(data);
+    } catch (err) {
+        errorDiv.textContent = err.message; errorDiv.style.display = "block";
+    } finally {
+        btn.disabled = false; btnText.style.display = "inline"; spinner.style.display = "none";
+    }
+});
+</script>
+</body>
+</html>
