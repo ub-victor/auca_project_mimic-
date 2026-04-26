@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="profile-wrap">
+    <div class="profile-card">
+        <h2>My Profile</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-success">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}"
+                 class="profile-avatar" alt="Profile Picture">
+        {% else %}
+            <div class="profile-avatar-initials">
+                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="profile-field">
+                <label>First Name</label>
+                <input type="text" name="first_name" value="{{ user.first_name }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Last Name</label>
+                <input type="text" name="last_name" value="{{ user.last_name }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ user.email }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Profile Picture</label>
+                <input type="file" name="profile_picture" accept="image/*">
+            </div>
+
+            <button type="submit" class="profile-btn">Save Changes</button>
+        </form>
+
+        <a href="{% url 'dashboard' %}" class="profile-back">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

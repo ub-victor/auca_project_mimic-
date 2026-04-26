@@ -1,0 +1,83 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+
+# =========================
+# 🔐 AUTHENTICATION VIEWS
+# =========================
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password'
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+
+            # Redirect based on role
+            if user.role == 'student':
+                return redirect('student_dashboard')
+            elif user.role == 'lecturer':
+                return redirect('lecturer_dashboard')
+            elif user.is_staff:
+                return redirect('admin_dashboard')
+        else:
+            return render(request, 'login.html', {'error': 'Invalid credentials'})
+
+    return render(request, 'login.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+# =========================
+# 🔒 ROLE-BASED DECORATORS
+# =========================
+
+def student_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.role == 'student':
+            return view_func(request, *args, **kwargs)
+        return redirect('login')
+    return wrapper
+
+
+def lecturer_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.role == 'lecturer':
+            return view_func(request, *args, **kwargs)
+        return redirect('login')
+    return wrapper
+
+
+def staff_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_staff:
+            return view_func(request, *args, **kwargs)
+        return redirect('login')
+    return wrapper
+
+
+# =========================
+# 🧑‍💻 DASHBOARDS (PROTECTED)
+# =========================
+
+@login_required
+@student_required
+def student_dashboard(request):
+    return render(request, 'student/dashboard.html')
+
+
+@login_required
+@lecturer_required
+def lecturer_dashboard(request):
+    return render(request, 'lecturer/dashboard.html')
+
+
+@login_required
+@staff_required
+def admin_dashboard(request):
+    return render(request, 'admin/dashboard.html')
