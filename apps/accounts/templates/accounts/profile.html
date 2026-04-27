@@ -1,142 +1,72 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My Profile — AUCA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png" type="image/png">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --navy:#2d4d68; --dark:#0f1f2e; --teal:#2a9d8f; --bg:#eef1f5; --white:#fff; --border:#e4e8ed; --muted:#7a8a99; --green:#2e7d32; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #1a2a3a; min-height: 100vh; }
-        .navbar { background: var(--dark); height: 62px; padding: 0 36px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
-        .navbar-brand { display: flex; align-items: center; gap: 14px; }
-        .navbar-brand img { height: 34px; }
-        .navbar-brand span { color: white; font-size: 15px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
-        .navbar-right { display: flex; align-items: center; gap: 12px; }
-        .nav-link { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 13px; padding: 6px 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; }
-        .nav-link:hover { color: white; }
-        .main { max-width: 700px; margin: 40px auto; padding: 0 24px; }
-        .profile-header { display: flex; align-items: center; gap: 24px; background: linear-gradient(120deg, var(--dark), var(--navy)); border-radius: 14px; padding: 28px; color: white; margin-bottom: 28px; }
-        .avatar-big { width: 80px; height: 80px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: white; flex-shrink: 0; }
-        .profile-header h1 { font-size: 22px; margin-bottom: 4px; }
-        .profile-header p { font-size: 13px; color: rgba(255,255,255,0.65); }
-        .role-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: white; font-size: 11px; padding: 3px 12px; border-radius: 20px; margin-top: 8px; }
-        .card { background: var(--white); border-radius: 12px; padding: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
-        .card h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--navy); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; }
-        input, select { width: 100%; border: 1px solid #ccc; border-radius: 7px; padding: 9px 12px; font-size: 13px; font-family: inherit; background: #fafafa; }
-        input:focus, select:focus { outline: none; border-color: var(--teal); background: white; }
-        input[readonly] { background: #f0f0f0; color: #888; cursor: not-allowed; }
-        .btn { display: inline-block; padding: 10px 28px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; color: white; background: var(--teal); text-decoration: none; }
-        .btn:hover { opacity: 0.88; }
-        .msg { padding: 10px 16px; border-radius: 7px; font-size: 13px; margin-bottom: 16px; }
-        .msg-success { background: #e6f4ea; color: var(--green); }
-        .msg-error { background: #fdecea; color: #c0392b; }
-        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f4f4f4; font-size: 13px; }
-        .info-row:last-child { border-bottom: none; }
-        .info-label { color: var(--muted); font-weight: 600; }
-        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .main { padding: 0 16px; } }
-    </style>
-</head>
-<body>
-<nav class="navbar">
-    <div class="navbar-brand">
-        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/10001.png" alt="AUCA Logo">
-        <span>AUCA Portal</span>
-    </div>
-    <div class="navbar-right">
-        <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
-        <a href="{% url 'logout' %}" class="nav-link">Sign out</a>
-    </div>
-</nav>
+{% block title %}My Profile{% endblock %}
 
-<main class="main">
-    {% if messages %}
-        {% for message in messages %}
-        <div class="msg {% if message.tags == 'error' %}msg-error{% else %}msg-success{% endif %}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+{% block content %}
+<div class="profile-wrap">
+    <div class="profile-card">
+        <h2>My Profile</h2>
 
-    <!-- Profile Header -->
-    <div class="profile-header">
-        <div class="avatar-big">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
-        <div>
-            <h1>{{ user.get_full_name|default:user.username }}</h1>
-            <p>{{ user.email }}</p>
-            {% if user.student_id %}<p>ID: {{ user.student_id }}</p>{% endif %}
-            <span class="role-badge">{{ user.role|capfirst }}</span>
-        </div>
-    </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-success">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
 
-    <!-- Account Info -->
-    <div class="card">
-        <h2>Account Information</h2>
-        <div class="info-row">
-            <span class="info-label">Username</span>
-            <span>{{ user.username }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Email</span>
-            <span>{{ user.email }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Role</span>
-            <span>{{ user.role|capfirst }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Student ID</span>
-            <span>{{ user.student_id|default:"—" }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Phone</span>
-            <span>{{ user.phone|default:"—" }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Member since</span>
-            <span>{{ user.date_joined|date:"M d, Y" }}</span>
-        </div>
-    </div>
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}"
+                 class="profile-avatar" alt="Profile Picture">
+        {% else %}
+            <div class="profile-avatar-initials">
+                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+            </div>
+        {% endif %}
 
-    <!-- Edit Form -->
-    <div class="card">
-        <h2>Edit Profile</h2>
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="form-row">
-                <div class="form-group">
-                    <label>First Name</label>
-                    <input type="text" name="first_name" value="{{ user.first_name }}">
+
+            {% if form.non_field_errors %}
+                <div class="alert-error">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
                 </div>
-                <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" name="last_name" value="{{ user.last_name }}">
-                </div>
+            {% endif %}
+
+            <div class="profile-field">
+                <label>First Name</label>
+                {{ form.first_name }}
             </div>
-            <div class="form-group">
-                <label>Email (readonly)</label>
-                <input type="email" value="{{ user.email }}" readonly>
+
+            <div class="profile-field">
+                <label>Last Name</label>
+                {{ form.last_name }}
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Student ID</label>
-                    <input type="text" name="student_id" value="{{ user.student_id|default:'' }}">
-                </div>
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="text" name="phone" value="{{ user.phone|default:'' }}">
-                </div>
+
+            <div class="profile-field">
+                <label>Email</label>
+                {{ form.email }}
             </div>
-            <div class="form-group">
+
+            <div class="profile-field">
+                <label>Phone</label>
+                {{ form.phone }}
+            </div>
+
+            <div class="profile-field">
                 <label>Bio</label>
-                <input type="text" name="bio" value="{{ user.bio|default:'' }}">
+                {{ form.bio }}
             </div>
-            <button type="submit" class="btn">Save Changes</button>
+
+            <div class="profile-field">
+                <label>Profile Picture</label>
+                {{ form.profile_picture }}
+            </div>
+
+            <button type="submit" class="profile-btn">Save Changes</button>
         </form>
+
+        <a href="{% url 'dashboard' %}" class="profile-back">← Back to Dashboard</a>
     </div>
-</main>
-</body>
-</html>
+</div>
+{% endblock %}

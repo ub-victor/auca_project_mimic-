@@ -11,146 +11,129 @@ from django.views.decorators.http import require_POST
 
 from apps.accounts.decorators import lecturer_required, student_required
 from .ai_evaluator import evaluate_answer, batch_evaluate
-from .models import Assignment, Question, Submission
+from .models import Assessment, Question, Answer
 
 logger = logging.getLogger(__name__)
 
 QuestionFormSet = inlineformset_factory(
-    Assignment, Question,
-    fields=['text', 'model_answer', 'max_score', 'order'],
+    Assessment, Question,
+    fields=['question_text', 'model_answer', 'marks', 'order'],
     extra=3, can_delete=True
 )
 
-
-# ── Assignment list ───────────────────────────────────────────────────
 
 @login_required(login_url='login')
 def assignment_list(request):
     user = request.user
     if user.role in ('lecturer', 'staff'):
-        assignments = Assignment.objects.filter(lecturer=user).prefetch_related('questions')
+        assessments = Assessment.objects.filter(created_by=user).prefetch_related('questions')
     else:
-        assignments = Assignment.objects.all().prefetch_related('questions')
-    return render(request, 'assessments/assignment_list.html', {'assignments': assignments})
+        assessments = Assessment.objects.all().prefetch_related('questions')
+    return render(request, 'assessments/assignment_list.html', {'assignments': assessments})
 
-
-# ── Create assignment (lecturer only) ────────────────────────────────
 
 @lecturer_required
 def assignment_create(request):
-    from .forms import AssignmentForm
+    from .forms import AssessmentForm
     if request.method == 'POST':
-        form     = AssignmentForm(request.POST)
-        formset  = QuestionFormSet(request.POST)
+        form    = AssessmentForm(request.POST)
+        formset = QuestionFormSet(request.POST)
         if form.is_valid() and formset.is_valid():
-            assignment          = form.save(commit=False)
-            assignment.lecturer = request.user
-            assignment.save()
-            formset.instance = assignment
+            assessment             = form.save(commit=False)
+            assessment.created_by  = request.user
+            assessment.save()
+            formset.instance = assessment
             formset.save()
-            messages.success(request, f'Assignment "{assignment.title}" created.')
+            messages.success(request, f'Assessment "{assessment.title}" created.')
             return redirect('assessments:assignment_list')
     else:
-        form    = AssignmentForm()
+        form    = AssessmentForm()
         formset = QuestionFormSet()
     return render(request, 'assessments/assignment_form.html', {'form': form, 'formset': formset})
 
 
-# ── Assignment detail + student submission ────────────────────────────
-
 @login_required(login_url='login')
 def assignment_detail(request, pk):
-    assignment  = get_object_or_404(Assignment, pk=pk)
-    questions   = assignment.questions.all()
-    user        = request.user
+    assessment = get_object_or_404(Assessment, pk=pk)
+    questions  = assessment.questions.all()
+    user       = request.user
 
-    # Build existing submissions map for this student
     existing = {}
     if user.role == 'student':
-        for sub in Submission.objects.filter(student=user, question__assignment=assignment):
-            existing[sub.question_id] = sub
+        for ans in Answer.objects.filter(student=user, question__assessment=assessment):
+            existing[ans.question_id] = ans
 
     if request.method == 'POST' and user.role == 'student':
         for question in questions:
             answer_text = request.POST.get(f'answer_{question.pk}', '').strip()
             answer_file = request.FILES.get(f'file_{question.pk}')
-
             if not answer_text and not answer_file:
                 continue
 
-            sub, _ = Submission.objects.get_or_create(question=question, student=user)
+            ans, _ = Answer.objects.get_or_create(question=question, student=user)
 
             if answer_file:
-                sub.answer_file = answer_file
-                # Extract text from file for AI evaluation
                 try:
                     content = answer_file.read().decode('utf-8', errors='ignore').strip()
                     answer_text = content or answer_text
                     answer_file.seek(0)
-                    sub.answer_file = answer_file
+                    ans.answer_file = answer_file
                 except Exception:
                     pass
 
-            sub.answer_text = answer_text
+            ans.answer_text = answer_text
 
-            # Run AI evaluation
-            if answer_text:
-                result = evaluate_answer(answer_text, question.model_answer, question.max_score)
-                sub.similarity_score = result['similarity_score']
-                sub.ai_score         = result['ai_score']
-                sub.ai_feedback      = result['ai_feedback']
+            if answer_text and question.model_answer:
+                result = evaluate_answer(answer_text, question.model_answer, question.marks)
+                ans.similarity_score = result['similarity_score']
+                ans.ai_score         = result['ai_score']
+                ans.ai_feedback      = result['ai_feedback']
 
-            sub.save()
+            ans.save()
 
         messages.success(request, 'Answers submitted successfully!')
         return redirect('assessments:assignment_detail', pk=pk)
 
     return render(request, 'assessments/assignment_detail.html', {
-        'assignment': assignment,
+        'assignment': assessment,
         'questions':  questions,
         'existing':   existing,
     })
 
 
-# ── Grading interface (lecturer) ──────────────────────────────────────
-
 @lecturer_required
 def grade_submissions(request, assignment_pk):
-    assignment  = get_object_or_404(Assignment, pk=assignment_pk, lecturer=request.user)
-    submissions = Submission.objects.filter(
-        question__assignment=assignment
+    assessment = get_object_or_404(Assessment, pk=assignment_pk, created_by=request.user)
+    answers    = Answer.objects.filter(
+        question__assessment=assessment
     ).select_related('student', 'question').order_by('question__order', 'student__username')
 
     if request.method == 'POST':
-        sub_id       = request.POST.get('submission_id')
-        final_score  = request.POST.get('final_score')
-        feedback     = request.POST.get('lecturer_feedback', '')
-        sub          = get_object_or_404(Submission, pk=sub_id, question__assignment=assignment)
-        sub.final_score       = float(final_score) if final_score else sub.ai_score
-        sub.lecturer_feedback = feedback
-        sub.status            = 'graded'
-        sub.graded_by         = request.user
-        sub.save()
-        messages.success(request, f'Grade saved for {sub.student.username}.')
+        ans_id   = request.POST.get('submission_id')
+        score    = request.POST.get('final_score')
+        feedback = request.POST.get('lecturer_feedback', '')
+        ans      = get_object_or_404(Answer, pk=ans_id, question__assessment=assessment)
+        ans.marks_obtained    = float(score) if score else ans.ai_score
+        ans.lecturer_feedback = feedback
+        ans.status            = 'graded'
+        ans.graded_by         = request.user
+        ans.save()
+        messages.success(request, f'Grade saved for {ans.student.username}.')
         return redirect('assessments:grade_submissions', assignment_pk=assignment_pk)
 
     return render(request, 'assessments/grade_submissions.html', {
-        'assignment':  assignment,
-        'submissions': submissions,
+        'assignment':  assessment,
+        'submissions': answers,
     })
 
 
-# ── Student results ───────────────────────────────────────────────────
-
 @student_required
 def my_results(request):
-    submissions = Submission.objects.filter(
+    answers = Answer.objects.filter(
         student=request.user
-    ).select_related('question', 'question__assignment').order_by('-submitted_at')
-    return render(request, 'assessments/my_results.html', {'submissions': submissions})
+    ).select_related('question', 'question__assessment').order_by('-submitted_at')
+    return render(request, 'assessments/my_results.html', {'submissions': answers})
 
-
-# ── JSON API evaluate (used by evaluator page) ────────────────────────
 
 @csrf_exempt
 @require_POST

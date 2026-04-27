@@ -20,16 +20,17 @@ A Django-based web application that mimics the AUCA (Adventist University of Cen
 
 ---
 
-## Demo Credentials
+## Authentication & Profile Management
 
-Two demo accounts are available. No registration is required — use these directly on the login page.
+This application now uses Django authentication with a custom `CustomUser` model stored in the database.
 
-| Role    | Email                   | Password     |
-|---------|-------------------------|--------------|
-| Student | student@auca.ac.rw      | student123   |
-| Staff   | staff@auca.ac.rw        | staff123     |
+- Users can register using the signup page.
+- Login uses `django.contrib.auth.authenticate()` and `login()`.
+- Password reset is enabled through Django's built-in password reset views and the console email backend for local development.
+- Users can edit their profile, including uploading a profile picture to Cloudinary.
+- Role-based access control is implemented through decorators: `@student_required`, `@lecturer_required`, and `@staff_required`.
 
-> These credentials are defined in `accounts/views.py` under `DEMO_USERS`. No database is used for authentication — it is a simple in-memory dictionary for demo purposes.
+> Use Django admin or the signup page to create accounts; there are no hard-coded in-memory demo credentials in the final auth flow.
 
 ---
 
@@ -115,11 +116,12 @@ The login page (`accounts/templates/accounts/login.html`) replicates the AUCA po
 - On mobile, the right-side image is hidden and the form takes full width
 - Error message displayed on invalid credentials
 
-**Authentication flow (`accounts/views.py`):**
-- `POST` request checks email and password against `DEMO_USERS`
-- On success: stores `user_email` and `user_role` in the Django session, redirects to `/dashboard/`
-- On failure: re-renders the login page with an error message
-- `GET` request: renders the empty login form
+**Authentication flow (`apps/accounts/views.py`):**
+- `POST` request validates the login form and authenticates against the database using Django auth.
+- On success: logs the user in with `login(request, user)` and redirects to `/dashboard/`.
+- On failure: redisplays the login page with validation or credential errors.
+- Password reset routes use Django's built-in views and the console email backend in development.
+- Profile editing uses a `ProfileForm` to update first name, last name, email, bio, phone, and Cloudinary profile picture.
 
 ---
 
@@ -215,7 +217,49 @@ The final dashboard is a full creative redesign with the following structure:
 
 ---
 
-## Project Structure
+## Database Models & Core Structure
+
+The application uses a comprehensive database schema with the following models:
+
+### Core App
+- **Faculty**: Represents academic faculties (e.g., Faculty of Science and Technology)
+- **Department**: Departments within faculties (e.g., Computer Science)
+- **Semester**: Academic semesters with start/end dates
+
+### Courses App
+- **Course**: Course details including code, title, credits, department, lecturer
+- **CourseEnrollment**: Student enrollments in courses for specific semesters
+
+### Assessments App
+- **Assessment**: Exams, quizzes, assignments with due dates and marks
+- **Question**: Individual questions within assessments
+- **Answer**: Student submissions for questions
+
+### Finances App
+- **Fee**: Various fees (tuition, registration, etc.) per student and semester
+- **Payment**: Payment records linked to multiple fees
+
+### Grades App
+- **Grade**: Final grades for course enrollments with GPA points
+
+### Relationships
+- All user-related models use `AUTH_USER_MODEL = 'accounts.CustomUser'`
+- Foreign keys establish proper relationships (e.g., Course -> Department, Enrollment -> Student/Course)
+- Many-to-many relationships for courses and semesters, payments and fees
+
+### Admin Interface
+All models are registered in Django admin with:
+- `list_display` for key fields
+- `search_fields` for quick lookup
+- `list_filter` for filtering options
+
+### Sample Data
+Sample data has been populated including:
+- Demo users (student, lecturer, staff)
+- Faculty, department, semester
+- Courses, enrollments, assessments, grades, fees, payments
+
+Run `python manage.py populate_sample_data` to reload sample data.
 
 ```
 auca_project_mimic/
@@ -348,6 +392,32 @@ auca_project_mimic/
 | Frontend | HTML5, CSS3 (no external libraries) |
 | Session | Django built-in session framework |
 | Static files | Django `{% static %}` template tag, Cloudinary for media |
+
+---
+
+## Implementation Status
+
+### Completed Features
+- ✅ **Authentication System**: Custom user model with roles, signup/login/logout, password reset, profile management with Cloudinary integration.
+- ✅ **Database Models**: Comprehensive schema with all apps (core, courses, assessments, finances, grades) and proper relationships.
+- ✅ **Admin Interface**: All models registered with list_display, search_fields, and list_filter.
+- ✅ **Migrations**: Database schema created and migrations applied.
+- ✅ **Sample Data**: Management command to populate demo users, faculties, courses, enrollments, assessments, grades, fees, and payments.
+- ✅ **GitHub Deployment**: Code pushed to GitHub repository on the `develop` branch.
+
+### System Robustness
+- **Relationships**: All foreign keys, one-to-one, and many-to-many relationships properly defined.
+- **Validation**: Django forms used for input validation and error handling.
+- **Security**: Role-based access control with decorators, Django auth for secure authentication.
+- **Scalability**: Modular app structure, Cloudinary for media storage, configurable database backends.
+- **Maintainability**: Clear model definitions, admin interfaces, and comprehensive documentation.
+
+### Next Steps
+The system is now ready for further development, such as:
+- Implementing views for courses, assessments, grades, and finances.
+- Adding API endpoints for mobile app integration.
+- Enhancing the dashboard with real-time data.
+- Deploying to production with PostgreSQL and proper environment configuration.
 
 ---
 

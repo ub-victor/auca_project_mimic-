@@ -9,25 +9,26 @@ strictly to ensure smooth collaboration and timely completion.
 # Git Workflow & Branching Strategy
 
 We will use GitHub Flow with a develop branch as integration point.
+Team members may need to share a single branch identified by their team number.
 
 ## Branch Structure
 
     main                 # Production-ready code (deployed)
       └── develop        # Integration branch (all features merge here)
-           ├── feature/auth-<name>        # Authentication features
-           ├── feature/models-<name>      # Database models
-           ├── feature/dashboard-<name>   # Dashboard & UI
-           ├── feature/courses-<name>     # Course management
-           ├── feature/assessments-<name> # Assignments & ML
-           ├── feature/finances-<name>    # Finance module
-           └── feature/ml-<name>          # ML evaluation
+           ├── feature/auth-team1        # Authentication features
+           ├── feature/models-team2      # Database models
+           ├── feature/dashboard-team3   # Dashboard & UI
+           ├── feature/courses-team4     # Course management
+           ├── feature/assessments-team5 # Assignments & ML
+           ├── feature/finances-team4    # Finance module
+           └── feature/ppt-team7         # PPT presentations
 
 ## Rules
 
 -   Never commit directly to main or develop.
 -   Create a feature branch from develop for each task.
--   Branch naming convention: `feature/<module>-<your-name>` (e.g.,
-    `feature/auth-debora`).
+-   Branch naming convention: `feature/<module>-team#` (e.g.,
+    `feature/auth-team1`).
 -   Commit frequently with clear messages:
     -   `feat: add login form validation`
     -   `fix: correct course credit calculation`
@@ -44,24 +45,19 @@ We will use GitHub Flow with a develop branch as integration point.
 Team lead(i) reviews and merges PRs(some time someone else can do it, we're leader).
 
 # Team Members & Roles
+# Team Members & Roles
 
-| # | Member | Phone | Team | Primary Focus |
-|---|--------|-------|------|----------------|
-| 1 | Victoire (Lead) | +250-79-44-12-876 | Team 0 | Architecture, code reviews, deployment, integration |
-| 2 | Umutoni Gisele | +250 780 919 720 | Team 1 | Authentication, user profiles, password reset |
-| 3 | Bosco | +250 791 906 031 | Team 1 | Authentication, user profiles, password reset |
-| 4 | Hirwa Roy | +250 788 426 996 | Team 2 | Database models, migrations, API structure |
-| 5 | Clement | +250 791 761 076 | Team 2 | Database models, migrations, API structure |
-| 6 | Anduru | +254 790 877 089 | Team 3 | Frontend (dashboard, responsive UI, base templates) |
-| 7 | Praise Mutijima | +250 782 802 631 | Team 3 | Frontend (dashboard, responsive UI, base templates) |
-| 8 | Josiane | +250 793 330 328 | Team 4 | Courses, enrollments, timetable |
-| 9 | Diane Auca | +250 783 829 899 | Team 4 | Courses, enrollments, timetable |
-| 10 | Deborah | +250 791 319 715 | Team 5 | ML/AI evaluation module, assessments |
-| 11 | Valentin | +250 793 037 644 | Team 5 | ML/AI evaluation module, assessments |
-
+|  #   | Member                                   | Phone                                      |  Team  | Primary Focus                                              |
+|:----:|------------------------------------------|--------------------------------------------:|:------:|------------------------------------------------------------|
+|  1   | Victoire (Lead)                          |                          +250-79-44-12-876 | Team 0 | Architecture, code reviews, deployment, integration        |
+| 2-4  | Umutoni Gisele, Bosco, Tuyishime         | +250 780 919 720, +250 791 906 031, 26717  | Team 1 | Authentication, user profiles, password reset              |
+| 5-7  | Hirwa Roy, Clement, Mugisha              | +250 788 426 996, +250 791 761 076, 27891  | Team 2 | Database models, migrations, API structure                 |
+| 8-10 | Anduru, Praise Mutijima, Barema          | +254 790 877 089, +250 782 802 631, 26255  | Team 3 | Frontend (dashboard, responsive UI, base templates)        |
+|11-13 | Josiane, Diane Auca, Umutoni             | +250 793 330 328, +250 783 829 899, 26456  | Team 4 | Courses, enrollments, timetable                           |
+|14-16 | Deborah, Valentin, Mizero                | +250 791 319 715, +250 793 037 644, 28333  | Team 5 | ML/AI evaluation module, assessments                      |
+|17-19 | Gatete, Mushirarungu, Maggy              |                         27380, 28450       | Team 6 | PR's Reviewers / tester                                    |
+|20-21 | Ghislaine, Patience                      |                         27380, 27388       | Team 7 | PPT Designers                                             |
 ------------------------------------------------------------------------
-
-
 # Detailed Task Assignments
 
 ## 🔹 Team 0: Victoire (Team Lead)
@@ -98,7 +94,7 @@ model migrated.
 
 ## 🔹 Team 1: (+250 780 919 720 ~26949 Umutoni Gisele/ +250 791 906 031 Bosco ) -- Authentication & User Profiles
 
-**Branch:** `feature/auth-<name>`
+**Branch:** `feature/auth-team1`
 
 ### Tasks:
 
@@ -127,7 +123,7 @@ access.
 
 ## 🔹 Team 2: (+250 788 426 996 ~Hirwa Roy 24174/ +250 791 761 076 ~26454_clement ) -- Database Models & Core Structure
 
-**Branch:** `feature/models-valentin`
+**Branch:** `feature/models-team2`
 
 ### Tasks:
 
@@ -152,7 +148,7 @@ All models defined, migrations applied, admin interface functional with sample d
 
 ## 🔹 Team 3: (+254 790 877089~Anduru/+250 782 802 631~Praise Mutijima) -- Frontend & Dashboard
 
-**Branch:** `feature/frontend-studenta`
+**Branch:** `feature/frontend-team3`
 
 ### Tasks:
 
@@ -180,7 +176,7 @@ Refactored templates with clean, responsive design; dashboard shows real data; n
 
 ## 🔹 Team 4: (+250 793 330 328 ~Josiane🤍/Diane Auca +250 783 829 899) -- Courses & Timetable
 
-**Branch:** `feature/courses-studentb`
+**Branch:** `feature/courses-team4`
 
 ### Tasks:
 
@@ -207,7 +203,7 @@ Functional course browsing, enrollment, and timetable display.
 ## 🔹 Team 5: (Deborah +250 791 319 715 / Valentin +250 793 037 644
   ) -- Assessments & ML
 
-**Branch:** `feature/ml-studentc`
+**Branch:** `feature/ml-team5`
 
 ### Tasks:
 
@@ -233,6 +229,53 @@ Complete assessment flow with AI evaluation; lecturer can see AI suggestions and
 
 ------------------------------------------------------------------------
 
+## 🔹 Team 6: (Gatete, Mushirarungu, Maggy) -- PR Reviewers / Testers
+
+**Branch:** N/A (works across all feature branches)
+
+### Responsibilities:
+
+-   Review pull requests for code quality, functionality, and adherence to project standards.
+-   Test new features manually and report any bugs or issues.
+-   Ensure documentation (README, TASKS.md) is updated with changes.
+-   Collaborate with developers to resolve issues found during testing.
+
+### Methodology:
+
+-   Use GitHub PR interface for code reviews, providing constructive feedback and suggestions.
+-   Pull and test feature branches locally to verify functionality.
+-   Document test cases and results.
+-   Communicate findings via WhatsApp group or PR comments.
+
+### Deliverable:
+
+Quality assurance reports and approved PRs; updated documentation if needed.
+
+------------------------------------------------------------------------
+
+## 🔹 Team 7: (Ghislaine, Patience) -- PPT Designers
+
+**Branch:** `feature/ppt-team7`
+
+### Responsibilities:
+
+-   Create PowerPoint presentations for project updates, demos, and documentation.
+-   Design slides for project showcases.
+-   Gather content from team leads and incorporate it into visually appealing slides.
+
+### Methodology:
+
+-   Use PowerPoint or Google Slides for creating presentations.
+-   Coordinate with team members to collect necessary content, screenshots, and data.
+-   Ensure presentations are professional, consistent with project branding, and easy to understand.
+-   Test presentations for clarity and flow.
+
+### Deliverable PR:
+
+PPT files committed to the repository or shared via our WhatsApp group; updated with latest project information.
+
+------------------------------------------------------------------------
+
 # Additional Tasks
 
   Task                    Suggested Assignee
@@ -240,12 +283,12 @@ Complete assessment flow with AI evaluation; lecturer can see AI suggestions and
   Finance module          Team 4
   Announcements system    Team 3
   Transcript generation   Team 2
-  API (DRF)               Team 1
-  Testing                 All of us
+  API (DRF)               Team 2
+  Testing                 Team 6(same time this task is for we all)
 
 ------------------------------------------------------------------------
 
-# Timeline (Everyday work on this Project like is the deadline is tomorrow)
+# Timeline (Everyday work on this Project like iff the deadline is tomorrow)
 
   Priority   Focus                          
   ------     ------------------------------ 

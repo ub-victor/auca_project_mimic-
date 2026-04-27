@@ -384,13 +384,13 @@
 <!-- Navbar -->
 <nav class="navbar">
     <div class="navbar-brand">
-        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/10001.png" alt="AUCA Logo">
+        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858116/static/img/static/img/10001.png" alt="AUCA Logo">
         <span>AUCA Portal</span>
     </div>
     <div class="navbar-right">
         <a href="{% url 'profile' %}" class="nav-profile-btn">
-            <div class="nav-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
-            {{ user.get_full_name|default:user.username }}
+            <div class="nav-avatar">{{ user.first_name|first|default:'U'|upper }}{{ user.last_name|first|default:''|upper }}</div>
+            My Profile
         </a>
         <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>
     </div>
@@ -400,26 +400,26 @@
 <div class="hero">
     <div class="hero-inner">
         <div class="hero-text">
-            <h1>Welcome back, {{ user.get_full_name|default:user.first_name|default:user.username }}!</h1>
-            <p>{{ user.email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
+            <h1>Welcome back, {{ user.first_name|default:'Student' }}!</h1>
+            <p>{{ email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
             <span class="hero-badge">{{ role }}</span>
         </div>
         <div class="stat-strip">
             <div class="stat-item">
-                <div class="stat-val">{{ courses|length }}</div>
+                <div class="stat-val">5</div>
                 <div class="stat-lbl">Courses</div>
             </div>
             <div class="stat-item">
-                <div class="stat-val">{{ avg_score|default:"—" }}</div>
-                <div class="stat-lbl">Avg Score</div>
+                <div class="stat-val">3.6</div>
+                <div class="stat-lbl">GPA</div>
             </div>
             <div class="stat-item">
-                <div class="stat-val">{{ total_credits|default:0 }}</div>
+                <div class="stat-val">16</div>
                 <div class="stat-lbl">Credits</div>
             </div>
             <div class="stat-item">
-                <div class="stat-val" style="color:#f39c12;">{{ pending_submissions }}</div>
-                <div class="stat-lbl">{% if user.role == 'lecturer' %}To Grade{% else %}Pending{% endif %}</div>
+                <div class="stat-val" style="color:#f39c12;">3</div>
+                <div class="stat-lbl">Due Tasks</div>
             </div>
         </div>
     </div>
@@ -427,44 +427,6 @@
 
 <!-- Main -->
 <main class="main">
-
-    <!-- Assessments Quick Access -->
-    <p class="sec-label">Assessments & AI Evaluation</p>
-    <div class="grid-3" style="margin-bottom:28px;">
-        {% if user.role == 'lecturer' or user.role == 'staff' %}
-        <a href="{% url 'assessments:assignment_create' %}" class="card accent-teal" style="text-decoration:none;display:block;">
-            <div class="card-head">
-                <span class="card-head-title">+ Create Assignment</span>
-            </div>
-            <p style="font-size:13px;color:#555;">Add a new assignment with questions for students.</p>
-        </a>
-        <a href="{% url 'assessments:assignment_list' %}" class="card accent-navy" style="text-decoration:none;display:block;">
-            <div class="card-head">
-                <span class="card-head-title">View Assignments</span>
-            </div>
-            <p style="font-size:13px;color:#555;">See all assignments and grade student submissions.</p>
-        </a>
-        <a href="{% url 'assessments:evaluator' %}" class="card accent-dark" style="text-decoration:none;display:block;">
-            <div class="card-head">
-                <span class="card-head-title">AI Evaluator</span>
-            </div>
-            <p style="font-size:13px;color:#555;">Instantly evaluate any answer using AI similarity scoring.</p>
-        </a>
-        {% else %}
-        <a href="{% url 'assessments:assignment_list' %}" class="card accent-teal" style="text-decoration:none;display:block;">
-            <div class="card-head">
-                <span class="card-head-title">My Assignments</span>
-            </div>
-            <p style="font-size:13px;color:#555;">View and submit answers to your assignments.</p>
-        </a>
-        <a href="{% url 'assessments:my_results' %}" class="card accent-navy" style="text-decoration:none;display:block;">
-            <div class="card-head">
-                <span class="card-head-title">My Results</span>
-            </div>
-            <p style="font-size:13px;color:#555;">See your AI scores and lecturer feedback.</p>
-        </a>
-        {% endif %}
-    </div>
 
     <!-- Row 1: Schedule + Courses + Grades -->
     <p class="sec-label">Academic Overview</p>
@@ -516,18 +478,34 @@
         <!-- Enrolled Courses -->
         <div class="card accent-navy">
             <div class="card-head">
-                <span class="card-head-title">{% if user.role == 'lecturer' %}My Courses{% else %}Enrolled Courses{% endif %}</span>
-                <span class="card-head-sub">{{ total_credits }} credits</span>
+                <span class="card-head-title">Enrolled Courses</span>
+                <span class="card-head-sub">16 credits total</span>
             </div>
-            {% for course in courses %}
             <div class="course-row">
                 <div class="course-dot"></div>
-                <span class="course-name">{{ course.title }}</span>
-                <span class="cr-badge">{{ course.credits }} cr</span>
+                <span class="course-name">Intro to Big Data</span>
+                <span class="cr-badge">3 cr</span>
             </div>
-            {% empty %}
-            <p style="font-size:13px;color:var(--muted);">No courses yet.</p>
-            {% endfor %}
+            <div class="course-row">
+                <div class="course-dot"></div>
+                <span class="course-name">Web Development</span>
+                <span class="cr-badge">3 cr</span>
+            </div>
+            <div class="course-row">
+                <div class="course-dot"></div>
+                <span class="course-name">Database Systems</span>
+                <span class="cr-badge">3 cr</span>
+            </div>
+            <div class="course-row">
+                <div class="course-dot"></div>
+                <span class="course-name">Data Structures</span>
+                <span class="cr-badge">4 cr</span>
+            </div>
+            <div class="course-row">
+                <div class="course-dot"></div>
+                <span class="course-name">Software Engineering</span>
+                <span class="cr-badge">3 cr</span>
+            </div>
         </div>
 
         <!-- Grades -->
@@ -538,30 +516,23 @@
             </div>
             <div class="gpa-block">
                 <div class="gpa-circle">
-                    <div class="gpa-num">{{ avg_score|default:"—" }}</div>
-                    <div class="gpa-lbl">Avg</div>
+                    <div class="gpa-num">3.6</div>
+                    <div class="gpa-lbl">GPA</div>
                 </div>
                 <div class="gpa-stats">
-                    <div class="gpa-stat"><strong>{{ avg_score }}%</strong> Average Score</div>
-                    <div class="gpa-stat"><strong>{{ total_credits }}</strong> Credits Earned</div>
-                    <div class="gpa-stat"><strong>{{ grades|length }}</strong> Courses Graded</div>
+                    <div class="gpa-stat"><strong>82%</strong> Average Score</div>
+                    <div class="gpa-stat"><strong>16</strong> Credits Earned</div>
+                    <div class="gpa-stat"><strong>5</strong> Courses Taken</div>
                 </div>
             </div>
-            {% for grade in grades %}
-            <div class="course-row">
-                <span class="course-name">{{ grade.course.code }}</span>
-                <span class="cr-badge">{{ grade.letter }} ({{ grade.score }}%)</span>
-            </div>
-            {% empty %}
-            <p style="font-size:13px;color:var(--muted);">No grades yet.</p>
-            {% endfor %}
-            <a href="#" class="btn btn-navy" style="margin-top:12px;">Download Transcript</a>
+            <a href="#" class="btn btn-navy">Download Transcript</a>
         </div>
 
     </div>
 
     <!-- Row 2: Finances + Announcements -->
     <p class="sec-label">Finance &amp; Updates</p>
+
     <div class="grid-2">
 
         <!-- Finances -->
@@ -570,24 +541,39 @@
                 <span class="card-head-title">Finances</span>
                 <span class="card-head-sub">Sem 2 &middot; 2024/25</span>
             </div>
-            {% for fee in fees %}
             <div class="fee-row">
-                <span class="fee-label">{{ fee.name }}</span>
+                <span class="fee-label">Tuition Fee</span>
                 <div class="fee-right">
-                    <span class="fee-amount">RWF {{ fee.amount|floatformat:0 }}</span>
-                    <span class="pill {% if fee.status == 'paid' %}pill-paid{% else %}pill-due{% endif %}">{{ fee.status|capfirst }}</span>
+                    <span class="fee-amount">RWF 450,000</span>
+                    <span class="pill pill-paid">Paid</span>
                 </div>
             </div>
-            {% empty %}
-            <p style="font-size:13px;color:var(--muted);">No fee records yet.</p>
-            {% endfor %}
-            {% if fees %}
+            <div class="fee-row">
+                <span class="fee-label">Registration Fee</span>
+                <div class="fee-right">
+                    <span class="fee-amount">RWF 25,000</span>
+                    <span class="pill pill-paid">Paid</span>
+                </div>
+            </div>
+            <div class="fee-row">
+                <span class="fee-label">Library Fee</span>
+                <div class="fee-right">
+                    <span class="fee-amount">RWF 10,000</span>
+                    <span class="pill pill-due">Due</span>
+                </div>
+            </div>
+            <div class="fee-row">
+                <span class="fee-label">ICT Fee</span>
+                <div class="fee-right">
+                    <span class="fee-amount">RWF 15,000</span>
+                    <span class="pill pill-due">Due</span>
+                </div>
+            </div>
             <div class="fee-total">
                 <span>Balance Due</span>
-                <span>RWF {{ balance_due|floatformat:0 }}</span>
+                <span>RWF 25,000</span>
             </div>
             <a href="#" class="btn btn-teal">Pay Now</a>
-            {% endif %}
         </div>
 
         <!-- Announcements -->
@@ -627,6 +613,34 @@
         </div>
 
     </div>
+
+    {% if user_role == 'Staff' or user_role == 'Lecturer' %}
+    <p class="sec-label" style="margin-top:8px;">AI Tools</p>
+    <div class="card accent-teal" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px;">
+        <div>
+            <div style="font-size:14px;font-weight:700;color:#1a2a3a;margin-bottom:4px;">AI Answer Evaluator</div>
+            <div style="font-size:13px;color:var(--muted);">Automatically score student answers using semantic similarity &amp; keyword analysis.</div>
+        </div>
+        <a href="/assessments/" style="
+            display:inline-flex;align-items:center;gap:9px;
+            background:linear-gradient(135deg,var(--dark),var(--navy));
+            color:white;text-decoration:none;
+            padding:11px 22px;border-radius:8px;
+            font-size:13px;font-weight:700;letter-spacing:0.4px;
+            box-shadow:0 4px 14px rgba(15,31,46,0.25);
+            white-space:nowrap;
+            transition:opacity 0.2s,transform 0.15s;"
+            onmouseover="this.style.opacity='.88';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.opacity='1';this.style.transform='translateY(0)'">
+            <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="1"/>
+                <path d="M9 12h6M9 16h4"/>
+            </svg>
+            Open Evaluator
+        </a>
+    </div>
+    {% endif %}
 
 </main>
 

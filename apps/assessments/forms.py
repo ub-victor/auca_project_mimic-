@@ -1,11 +1,11 @@
 from django import forms
-from .models import Assignment, Question
+from .models import Assessment, Question
 
 
-class AssignmentForm(forms.ModelForm):
+class AssessmentForm(forms.ModelForm):
     class Meta:
-        model  = Assignment
-        fields = ['title', 'description', 'course', 'due_date']
+        model  = Assessment
+        fields = ['title', 'description', 'course', 'assessment_type', 'total_marks', 'due_date']
         widgets = {
             'due_date':    forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'description': forms.Textarea(attrs={'rows': 3}),
@@ -15,8 +15,8 @@ class AssignmentForm(forms.ModelForm):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model  = Question
-        fields = ['text', 'model_answer', 'max_score', 'order']
+        fields = ['question_text', 'model_answer', 'marks', 'order']
         widgets = {
-            'text':         forms.Textarea(attrs={'rows': 2}),
-            'model_answer': forms.Textarea(attrs={'rows': 3}),
+            'question_text': forms.Textarea(attrs={'rows': 2}),
+            'model_answer':  forms.Textarea(attrs={'rows': 3}),
         }

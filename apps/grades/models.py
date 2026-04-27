@@ -1,28 +1,20 @@
 from django.db import models
 from django.conf import settings
+from apps.courses.models import CourseEnrollment
 
 
 class Grade(models.Model):
-    student    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='grades')
-    course     = models.ForeignKey('courses.Course', on_delete=models.CASCADE, related_name='grades')
-    score      = models.FloatField()
-    letter     = models.CharField(max_length=2, blank=True)
-    semester   = models.CharField(max_length=20, default='Sem 2')
-    year       = models.CharField(max_length=10, default='2024/25')
-    created_at = models.DateTimeField(auto_now_add=True)
+    GRADE_CHOICES = [
+        ('A', 'A'), ('A-', 'A-'), ('B+', 'B+'), ('B', 'B'), ('B-', 'B-'),
+        ('C+', 'C+'), ('C', 'C'), ('C-', 'C-'), ('D+', 'D+'), ('D', 'D'), ('F', 'F'),
+    ]
 
-    class Meta:
-        unique_together = ('student', 'course', 'semester', 'year')
-
-    def save(self, *args, **kwargs):
-        if self.score >= 90: self.letter = 'A+'
-        elif self.score >= 80: self.letter = 'A'
-        elif self.score >= 75: self.letter = 'B+'
-        elif self.score >= 70: self.letter = 'B'
-        elif self.score >= 65: self.letter = 'C+'
-        elif self.score >= 60: self.letter = 'C'
-        else: self.letter = 'F'
-        super().save(*args, **kwargs)
+    enrollment = models.OneToOneField(CourseEnrollment, on_delete=models.CASCADE, related_name='grade_record')
+    grade      = models.CharField(max_length=5, choices=GRADE_CHOICES)
+    points     = models.DecimalField(max_digits=3, decimal_places=2)
+    remarks    = models.TextField(blank=True)
+    graded_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='graded_grades')
+    graded_at  = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.student.username} — {self.course.code}: {self.letter}"
+        return f"{self.enrollment} - {self.grade}"
