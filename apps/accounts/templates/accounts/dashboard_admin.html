@@ -115,22 +115,22 @@
         <div class="stat-card" style="border-top:4px solid #1565c0;">
             <div class="big" style="color:#1565c0;">{{ total_students }}</div>
             <div class="lbl">Students</div>
-            <a href="/admin/accounts/customuser/?role=student" class="manage">Manage →</a>
+            <a href="{% url 'admin_panel:user_list' %}?role=student" class="manage">Manage &#8594;</a>
         </div>
         <div class="stat-card" style="border-top:4px solid var(--purple);">
             <div class="big" style="color:var(--purple);">{{ total_lecturers }}</div>
             <div class="lbl">Lecturers</div>
-            <a href="/admin/accounts/customuser/?role=lecturer" class="manage">Manage →</a>
+            <a href="{% url 'admin_panel:user_list' %}?role=lecturer" class="manage">Manage &#8594;</a>
         </div>
         <div class="stat-card" style="border-top:4px solid var(--teal);">
             <div class="big" style="color:var(--teal);">{{ all_courses|length }}</div>
             <div class="lbl">Active Courses</div>
-            <a href="#course-table" class="manage">View →</a>
+            <a href="#course-table" class="manage">View &#8594;</a>
         </div>
         <div class="stat-card" style="border-top:4px solid var(--red);">
             <div class="big" style="color:var(--red);">{{ unpaid_count }}</div>
             <div class="lbl">Unpaid Fees</div>
-            <a href="/admin/" class="manage">View →</a>
+            <a href="/admin/" class="manage">View &#8594;</a>
         </div>
     </div>
 
@@ -198,7 +198,11 @@
     <div class="card" style="margin-bottom:28px;">
         <div class="card-head">
             <span class="card-head-title">User Accounts</span>
-            <a href="/admin/accounts/customuser/add/" class="btn btn-navy" style="padding:7px 18px;font-size:12px;">+ Add User</a>
+            <div style="display:flex;gap:8px;">
+                <a href="{% url 'admin_panel:user_list' %}" class="btn btn-navy" style="padding:7px 18px;font-size:12px;">&#128269; Search &amp; Manage</a>
+                <a href="{% url 'admin_panel:user_create' %}" class="btn btn-teal" style="padding:7px 18px;font-size:12px;">+ Add User</a>
+                <a href="{% url 'admin_panel:audit_log' %}" class="btn btn-amber" style="padding:7px 18px;font-size:12px;">Audit Log</a>
+            </div>
         </div>
         <table>
             <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Student ID</th><th>Actions</th></tr></thead>
@@ -209,7 +213,14 @@
                     <td>{{ u.email }}</td>
                     <td><span class="pill pill-{{ u.role }}">{{ u.get_role_display }}</span></td>
                     <td>{{ u.student_id|default:"—" }}</td>
-                    <td><a href="/admin/accounts/customuser/{{ u.pk }}/change/" class="btn-sm" style="background:var(--navy);color:white;">Edit</a></td>
+                    <td style="display:flex;gap:6px;">
+                        <a href="{% url 'admin_panel:user_detail' u.pk %}" class="btn-sm" style="background:var(--navy);color:white;">View</a>
+                        <a href="{% url 'admin_panel:user_edit' u.pk %}" class="btn-sm" style="background:var(--teal);color:white;">Edit</a>
+                        <form method="POST" action="{% url 'admin_panel:impersonate' u.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-sm" style="background:var(--amber);color:white;" onclick="return confirm('Login as {{ u.get_full_name }}?')">Login As</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

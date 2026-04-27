@@ -9,7 +9,6 @@ class CustomUser(AbstractUser):
         ('lecturer', 'Lecturer'),
         ('staff',    'Staff'),
     ]
-
     role            = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
     student_id      = models.CharField(max_length=30, blank=True, null=True)
     bio             = models.TextField(blank=True)
@@ -17,4 +16,30 @@ class CustomUser(AbstractUser):
     profile_picture = CloudinaryField('image', blank=True, null=True)
 
     def __str__(self):
-        return f"{self.username} ({self.role})"
+        return f"{self.get_full_name() or self.username} ({self.role})"
+
+
+class AuditLog(models.Model):
+    ACTION_CHOICES = [
+        ('login',    'Login'),
+        ('logout',   'Logout'),
+        ('create',   'Create'),
+        ('update',   'Update'),
+        ('delete',   'Delete'),
+        ('view',     'View'),
+        ('grade',    'Grade'),
+        ('enroll',   'Enroll'),
+        ('impersonate', 'Impersonate'),
+    ]
+    user        = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='audit_logs')
+    action      = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    target      = models.CharField(max_length=200, blank=True)
+    detail      = models.TextField(blank=True)
+    ip_address  = models.GenericIPAddressField(null=True, blank=True)
+    timestamp   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.user} — {self.action} — {self.timestamp:%Y-%m-%d %H:%M}"

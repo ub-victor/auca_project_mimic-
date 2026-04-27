@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import CustomUser as User
+from .models import CustomUser as User, AuditLog
 from .decorators import student_required, lecturer_required, staff_required
 from .forms import LoginForm, SignupForm, ProfileForm
 
@@ -15,6 +15,8 @@ def login_view(request):
         user     = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
+            AuditLog.objects.create(user=user, action='login', target='dashboard',
+                detail='Login successful', ip_address=request.META.get('REMOTE_ADDR'))
             return redirect("dashboard")
         messages.error(request, "Invalid email or password.")
     return render(request, "accounts/login.html", {'form': form})
@@ -121,6 +123,9 @@ def dashboard_view(request):
 
 
 def logout_view(request):
+    if request.user.is_authenticated:
+        AuditLog.objects.create(user=request.user, action='logout', target='login',
+            detail='User logged out', ip_address=request.META.get('REMOTE_ADDR'))
     logout(request)
     messages.success(request, "Logged out successfully.")
     return redirect("login")

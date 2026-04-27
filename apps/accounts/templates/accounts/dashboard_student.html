@@ -95,6 +95,12 @@
     </style>
 </head>
 <body>
+{% if request.session.original_admin %}
+<div style="background:#e65100;color:white;text-align:center;padding:10px;font-size:13px;font-weight:600;position:sticky;top:0;z-index:300;">
+    &#9888; You are impersonating another user.
+    <a href="{% url 'stop_impersonate' %}" style="color:white;margin-left:16px;text-decoration:underline;font-weight:700;">&#8592; Return to Admin</a>
+</div>
+{% endif %}
 
 <nav class="navbar">
     <div class="navbar-brand">

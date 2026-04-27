@@ -24,4 +24,5 @@ urlpatterns = [
     path('assessments/', include('apps.assessments.urls')),
     path('courses/', include('apps.courses.urls')),
     path('core/', include('apps.core.urls')),
+    path('panel/', include('apps.accounts.admin_urls')),
 ]
