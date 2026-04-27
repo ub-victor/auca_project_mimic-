@@ -24,26 +24,30 @@
             <h3 class="log">Login</h3>
             <p class="welcome">Welcome! Please enter your details.</p>
 
-            {% if error %}
-            <p style="color:red; text-align:center; margin-bottom:10px;">{{ error }}</p>
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color: {% if message.tags == 'error' %}#c0392b{% else %}#2a9d8f{% endif %}; text-align:center; margin-bottom:10px;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <p style="color:#c0392b; text-align:center; margin-bottom:10px;">{{ error }}</p>
+                {% endfor %}
             {% endif %}
 
-            <label for="email">Enter your Email or ID</label>
-            <input id="email" name="email" class="carre" type="text"
-                   placeholder="Enter your Email or ID" required>
+            <label for="email">Enter your Email</label>
+            {{ form.email }}
+            {% for error in form.email.errors %}
+                <p style="color:#c0392b; margin:6px 0 0;">{{ error }}</p>
+            {% endfor %}
 
             <label for="password">Password</label>
-            <input id="password" name="password" class="carre" type="password"
-                   placeholder="Type your Password" required>
+            {{ form.password }}
+            {% for error in form.password.errors %}
+                <p style="color:#c0392b; margin:6px 0 0;">{{ error }}</p>
+            {% endfor %}
 
             <a href="{% url 'password_reset' %}" class="forgot-password">Forgot Password?</a>
-
-            <div class="checkbox-container">
-                <label>
-                    <input class="checkbox" type="checkbox" name="staff">
-                    I am a staff
-                </label>
-            </div>
 
             <div class="button-contener">
                 <button class="p" type="submit">Sign In</button>

@@ -217,70 +217,54 @@
                         <div class="alert-error">{{ message }}</div>
                     {% endfor %}
                 {% endif %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
 
                 <!-- Form -->
                 <form method="POST" action="{% url 'signup' %}">
                     {% csrf_token %}
 
                     <div class="form-group">
-                        <label class="field-label" for="student_id">Enter your ID</label>
-                        <input
-                            type="text"
-                            id="student_id"
-                            name="student_id"
-                            class="form-input"
-                            placeholder="Enter your Student Reg No"
-                            value="{{ form_data.student_id|default:'' }}"
-                            required
-                        />
+                        <label class="field-label" for="id_student_id">Enter your ID</label>
+                        {{ form.student_id }}
+                        {% for error in form.student_id.errors %}
+                            <p class="alert-error">{{ error }}</p>
+                        {% endfor %}
                     </div>
 
                     <div class="form-group">
-                        <label class="field-label" for="first_name">Enter your Firstname</label>
-                        <input
-                            type="text"
-                            id="first_name"
-                            name="first_name"
-                            class="form-input"
-                            placeholder="Enter only your first name (one name)"
-                            value="{{ form_data.first_name|default:'' }}"
-                            required
-                        />
+                        <label class="field-label" for="id_first_name">Enter your Firstname</label>
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}
+                            <p class="alert-error">{{ error }}</p>
+                        {% endfor %}
                     </div>
 
                     <div class="form-group">
-                        <label class="field-label" for="email">Enter your Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            class="form-input"
-                            placeholder=""
-                            value="{{ form_data.email|default:'' }}"
-                            required
-                        />
+                        <label class="field-label" for="id_email">Enter your Email</label>
+                        {{ form.email }}
+                        {% for error in form.email.errors %}
+                            <p class="alert-error">{{ error }}</p>
+                        {% endfor %}
                     </div>
 
                     <div class="form-group">
-                        <label class="field-label" for="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            class="form-input"
-                            required
-                        />
+                        <label class="field-label" for="id_password1">Password</label>
+                        {{ form.password1 }}
+                        {% for error in form.password1.errors %}
+                            <p class="alert-error">{{ error }}</p>
+                        {% endfor %}
                     </div>
 
                     <div class="form-group">
-                        <label class="field-label" for="confirm_password">Re-type password</label>
-                        <input
-                            type="password"
-                            id="confirm_password"
-                            name="confirm_password"
-                            class="form-input"
-                            required
-                        />
+                        <label class="field-label" for="id_password2">Re-type password</label>
+                        {{ form.password2 }}
+                        {% for error in form.password2.errors %}
+                            <p class="alert-error">{{ error }}</p>
+                        {% endfor %}
                     </div>
 
                     <button type="submit" class="btn-create">Create Account</button>

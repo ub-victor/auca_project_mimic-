@@ -25,24 +25,42 @@
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
+            {% if form.non_field_errors %}
+                <div class="alert-error">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <div class="profile-field">
                 <label>First Name</label>
-                <input type="text" name="first_name" value="{{ user.first_name }}">
+                {{ form.first_name }}
             </div>
 
             <div class="profile-field">
                 <label>Last Name</label>
-                <input type="text" name="last_name" value="{{ user.last_name }}">
+                {{ form.last_name }}
             </div>
 
             <div class="profile-field">
                 <label>Email</label>
-                <input type="email" name="email" value="{{ user.email }}">
+                {{ form.email }}
+            </div>
+
+            <div class="profile-field">
+                <label>Phone</label>
+                {{ form.phone }}
+            </div>
+
+            <div class="profile-field">
+                <label>Bio</label>
+                {{ form.bio }}
             </div>
 
             <div class="profile-field">
                 <label>Profile Picture</label>
-                <input type="file" name="profile_picture" accept="image/*">
+                {{ form.profile_picture }}
             </div>
 
             <button type="submit" class="profile-btn">Save Changes</button>

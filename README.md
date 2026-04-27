@@ -20,16 +20,17 @@ A Django-based web application that mimics the AUCA (Adventist University of Cen
 
 ---
 
-## Demo Credentials
+## Authentication & Profile Management
 
-Two demo accounts are available. No registration is required — use these directly on the login page.
+This application now uses Django authentication with a custom `CustomUser` model stored in the database.
 
-| Role    | Email                   | Password     |
-|---------|-------------------------|--------------|
-| Student | student@auca.ac.rw      | student123   |
-| Staff   | staff@auca.ac.rw        | staff123     |
+- Users can register using the signup page.
+- Login uses `django.contrib.auth.authenticate()` and `login()`.
+- Password reset is enabled through Django's built-in password reset views and the console email backend for local development.
+- Users can edit their profile, including uploading a profile picture to Cloudinary.
+- Role-based access control is implemented through decorators: `@student_required`, `@lecturer_required`, and `@staff_required`.
 
-> These credentials are defined in `accounts/views.py` under `DEMO_USERS`. No database is used for authentication — it is a simple in-memory dictionary for demo purposes.
+> Use Django admin or the signup page to create accounts; there are no hard-coded in-memory demo credentials in the final auth flow.
 
 ---
 
@@ -115,11 +116,12 @@ The login page (`accounts/templates/accounts/login.html`) replicates the AUCA po
 - On mobile, the right-side image is hidden and the form takes full width
 - Error message displayed on invalid credentials
 
-**Authentication flow (`accounts/views.py`):**
-- `POST` request checks email and password against `DEMO_USERS`
-- On success: stores `user_email` and `user_role` in the Django session, redirects to `/dashboard/`
-- On failure: re-renders the login page with an error message
-- `GET` request: renders the empty login form
+**Authentication flow (`apps/accounts/views.py`):**
+- `POST` request validates the login form and authenticates against the database using Django auth.
+- On success: logs the user in with `login(request, user)` and redirects to `/dashboard/`.
+- On failure: redisplays the login page with validation or credential errors.
+- Password reset routes use Django's built-in views and the console email backend in development.
+- Profile editing uses a `ProfileForm` to update first name, last name, email, bio, phone, and Cloudinary profile picture.
 
 ---
 

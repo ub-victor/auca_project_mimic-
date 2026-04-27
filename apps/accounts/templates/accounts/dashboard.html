@@ -388,8 +388,8 @@
         <span>AUCA Portal</span>
     </div>
     <div class="navbar-right">
-        <a href="#" class="nav-profile-btn">
-            <div class="nav-avatar">JV</div>
+        <a href="{% url 'profile' %}" class="nav-profile-btn">
+            <div class="nav-avatar">{{ user.first_name|first|default:'U'|upper }}{{ user.last_name|first|default:''|upper }}</div>
             My Profile
         </a>
         <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>
@@ -400,7 +400,7 @@
 <div class="hero">
     <div class="hero-inner">
         <div class="hero-text">
-            <h1>Welcome back, Jean!</h1>
+            <h1>Welcome back, {{ user.first_name|default:'Student' }}!</h1>
             <p>{{ email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
             <span class="hero-badge">{{ role }}</span>
         </div>
