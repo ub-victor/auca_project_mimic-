@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Course Catalog{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="courses-container">
+    <div class="courses-header">
+        <h1>Course Catalog</h1>
+        <p>Browse and enroll in available courses</p>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="courses-filters">
+        <form method="get" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="search">Search Courses:</label>
+                    <input type="text" id="search" name="search" value="{{ search_query }}" placeholder="Course code or title">
+                </div>
+
+                <div class="filter-group">
+                    <label for="department">Department:</label>
+                    <select id="department" name="department">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}" {% if selected_department == dept.id|stringformat:"s" %}selected{% endif %}>
+                            {{ dept.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="semester">Semester:</label>
+                    <select id="semester" name="semester">
+                        <option value="">All Semesters</option>
+                        {% for sem in semesters %}
+                        <option value="{{ sem.id }}" {% if selected_semester == sem.id|stringformat:"s" %}selected{% endif %}>
+                            {{ sem.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">Clear</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Course Grid -->
+    <div class="courses-grid">
+        {% for course in page_obj %}
+        <div class="course-card">
+            <div class="course-header">
+                <h3 class="course-code">{{ course.code }}</h3>
+                <span class="course-credits">{{ course.credits }} credits</span>
+            </div>
+
+            <h4 class="course-title">{{ course.title }}</h4>
+
+            <div class="course-info">
+                <p class="course-department">
+                    <i class="icon-building"></i> {{ course.department.name }}
+                </p>
+                {% if course.lecturer %}
+                <p class="course-lecturer">
+                    <i class="icon-user"></i> {{ course.lecturer.get_full_name|default:course.lecturer.username }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="course-description">
+                <p>{{ course.description|truncatechars:100 }}</p>
+            </div>
+
+            <div class="course-actions">
+                <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-outline">View Details</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-courses">
+            <h3>No courses found</h3>
+            <p>Try adjusting your search criteria or check back later for new courses.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if selected_semester %}&semester={{ selected_semester }}{% endif %}" class="page-link">« Previous</a>
+        {% endif %}
+
+        <span class="page-info">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if selected_semester %}&semester={{ selected_semester }}{% endif %}" class="page-link">Next »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

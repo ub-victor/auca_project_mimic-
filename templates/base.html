@@ -5,26 +5,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}AUCA Portal{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png" type="image/png">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-
-    {% if messages %}
-        <div style="padding: 10px 20px;">
-            {% for message in messages %}
-                <div class="alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="{% url 'dashboard' %}" class="brand-link">
+                <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858116/static/img/static/img/10001.png" alt="AUCA Logo" class="brand-logo">
+                <span class="brand-name">AUCA Portal</span>
+            </a>
         </div>
-    {% endif %}
+        {% if user.is_authenticated %}
+        <nav class="site-nav" aria-label="Main navigation">
+            <a href="{% url 'dashboard' %}" class="site-nav-link">Dashboard</a>
+            <a href="{% url 'courses:course_list' %}" class="site-nav-link">Courses</a>
+            {% if user.role == 'student' %}
+            <a href="{% url 'courses:timetable' %}" class="site-nav-link">Timetable</a>
+            {% elif user.role == 'lecturer' %}
+            <a href="{% url 'courses:lecturer_courses' %}" class="site-nav-link">My Courses</a>
+            {% elif user.role == 'staff' %}
+            <a href="{% url 'courses:user_management' %}" class="site-nav-link">Users</a>
+            {% endif %}
+            <a href="{% url 'profile' %}" class="site-nav-link">Profile</a>
+            <a href="{% url 'logout' %}" class="site-nav-link">Logout</a>
+        </nav>
+        {% endif %}
+    </header>
 
-    {% block content %}{% endblock %}
+    <main class="site-main" role="main">
+        {% if messages %}
+            <div class="site-messages" role="status" aria-live="polite">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-    <footer style="text-align:center; padding:20px; font-size:12px;
-                   color:#b0bec5; border-top:1px solid #e4e8ed; margin-top:40px;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
         &copy; 2025 Adventist University of Central Africa
     </footer>
-
+    <script src="{% static 'js/main.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

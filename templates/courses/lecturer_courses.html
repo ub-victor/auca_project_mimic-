@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Courses - Lecturer{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="lecturer-courses-container">
+    <div class="courses-header">
+        <h1>My Courses</h1>
+        <p>Manage the courses you are teaching</p>
+    </div>
+
+    {% if current_semester %}
+    <div class="semester-info">
+        <h3>Current Semester: {{ current_semester.name }}</h3>
+        <p>{{ current_semester.start_date|date:"M d, Y" }} - {{ current_semester.end_date|date:"M d, Y" }}</p>
+    </div>
+    {% endif %}
+
+    <div class="courses-grid">
+        {% for course in courses %}
+        <div class="course-card lecturer-course-card">
+            <div class="course-header">
+                <h3 class="course-code">{{ course.code }}</h3>
+                <span class="course-credits">{{ course.credits }} credits</span>
+            </div>
+
+            <h4 class="course-title">{{ course.title }}</h4>
+
+            <div class="course-info">
+                <p class="course-department">
+                    <i class="icon-building"></i> {{ course.department.name }}
+                </p>
+                {% if current_semester %}
+                <p class="enrollment-count">
+                    <i class="icon-users"></i> {{ enrollments|default_if_none:0 }} students enrolled
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="course-description">
+                <p>{{ course.description|truncatechars:100 }}</p>
+            </div>
+
+            <div class="course-actions">
+                <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-outline">View Details</a>
+                <a href="#" class="btn btn-secondary">Manage Students</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-courses">
+            <h3>No courses assigned</h3>
+            <p>You are not currently assigned to teach any courses.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="lecturer-actions">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

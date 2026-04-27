@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Timetable{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="timetable-container">
+    <div class="timetable-header">
+        <h1>My Timetable</h1>
+        {% if current_semester %}
+        <p>{{ current_semester.name }} - {{ current_semester.start_date|date:"M d, Y" }} to {{ current_semester.end_date|date:"M d, Y" }}</p>
+        {% else %}
+        <p>No current semester is set.</p>
+        {% endif %}
+    </div>
+
+    {% if current_semester %}
+    <div class="timetable-grid">
+        {% for day in days_order %}
+        <div class="timetable-day">
+            <h3 class="day-header">{{ day|title }}</h3>
+            <div class="day-schedule">
+                {% for schedule in timetable.day %}
+                <div class="schedule-card">
+                    <div class="schedule-time">
+                        {{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}
+                    </div>
+                    <div class="schedule-course">
+                        <strong>{{ schedule.course.code }}</strong>
+                        <br>
+                        <span class="course-title">{{ schedule.course.title }}</span>
+                    </div>
+                    {% if schedule.room %}
+                    <div class="schedule-room">
+                        Room: {{ schedule.room }}
+                    </div>
+                    {% endif %}
+                    {% if schedule.course.lecturer %}
+                    <div class="schedule-lecturer">
+                        {{ schedule.course.lecturer.get_full_name|default:schedule.course.lecturer.username }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="no-classes">
+                    <p>No classes scheduled</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="timetable-actions">
+        <a href="{% url 'courses:course_list' %}" class="btn btn-primary">Browse Courses</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    {% else %}
+    <div class="no-timetable">
+        <h3>No Timetable Available</h3>
+        <p>Please contact your administrator to set up the current semester.</p>
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

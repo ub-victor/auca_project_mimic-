@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="user-management-container">
+    <div class="management-header">
+        <h1>User Management</h1>
+        <p>Manage system users and their roles</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="management-filters">
+        <form method="get" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="search">Search Users:</label>
+                    <input type="text" id="search" name="search" value="{{ search_query }}" placeholder="Username, email, or name">
+                </div>
+
+                <div class="filter-group">
+                    <label for="role">Role:</label>
+                    <select id="role" name="role">
+                        <option value="">All Roles</option>
+                        {% for role_value, role_name in role_choices %}
+                        <option value="{{ role_value }}" {% if selected_role == role_value %}selected{% endif %}>
+                            {{ role_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="{% url 'courses:user_management' %}" class="btn btn-secondary">Clear</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="users-table-container">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Student ID</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in page_obj %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.get_full_name|default:"—" }}</td>
+                    <td>{{ user.email|default:"—" }}</td>
+                    <td>
+                        <span class="role-badge role-{{ user.role }}">
+                            {{ user.get_role_display }}
+                        </span>
+                    </td>
+                    <td>{{ user.student_id|default:"—" }}</td>
+                    <td>
+                        {% if user.is_active %}
+                        <span class="status-active">Active</span>
+                        {% else %}
+                        <span class="status-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="actions-cell">
+                        <a href="#" class="btn btn-sm btn-outline">Edit</a>
+                        {% if user.is_active %}
+                        <a href="#" class="btn btn-sm btn-warning">Deactivate</a>
+                        {% else %}
+                        <a href="#" class="btn btn-sm btn-success">Activate</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="no-users">
+                        No users found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_role %}&role={{ selected_role }}{% endif %}" class="page-link">« Previous</a>
+        {% endif %}
+
+        <span class="page-info">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_role %}&role={{ selected_role }}{% endif %}" class="page-link">Next »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="management-actions">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

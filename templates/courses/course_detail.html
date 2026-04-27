@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - Course Details{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="course-detail-container">
+    <div class="course-detail-header">
+        <div class="course-title-section">
+            <h1>{{ course.code }} - {{ course.title }}</h1>
+            <div class="course-meta">
+                <span class="course-credits">{{ course.credits }} Credits</span>
+                <span class="course-department">{{ course.department.name }}</span>
+            </div>
+        </div>
+
+        <div class="course-actions">
+            {% if user.role == 'student' %}
+                {% if is_enrolled %}
+                <form method="post" action="{% url 'courses:unenroll_course' course.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to unenroll from this course?')">
+                        Unenroll
+                    </button>
+                </form>
+                {% else %}
+                <form method="post" action="{% url 'courses:enroll_course' course.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">
+                        Enroll in Course
+                    </button>
+                </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="course-detail-content">
+        <div class="course-info-section">
+            <h2>Course Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Course Code:</strong> {{ course.code }}
+                </div>
+                <div class="info-item">
+                    <strong>Title:</strong> {{ course.title }}
+                </div>
+                <div class="info-item">
+                    <strong>Credits:</strong> {{ course.credits }}
+                </div>
+                <div class="info-item">
+                    <strong>Department:</strong> {{ course.department.name }}
+                </div>
+                {% if course.lecturer %}
+                <div class="info-item">
+                    <strong>Lecturer:</strong> {{ course.lecturer.get_full_name|default:course.lecturer.username }}
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <strong>Semesters:</strong>
+                    {% for semester in course.semester.all %}
+                        {{ semester.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {% if course.description %}
+        <div class="course-description-section">
+            <h2>Description</h2>
+            <p>{{ course.description }}</p>
+        </div>
+        {% endif %}
+
+        {% if schedules %}
+        <div class="course-schedule-section">
+            <h2>Schedule</h2>
+            <div class="schedule-grid">
+                {% for schedule in schedules %}
+                <div class="schedule-item">
+                    <div class="schedule-day">{{ schedule.get_day_of_week_display }}</div>
+                    <div class="schedule-time">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</div>
+                    {% if schedule.room %}
+                    <div class="schedule-room">Room: {{ schedule.room }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if user.role == 'student' and enrollment %}
+        <div class="enrollment-info">
+            <h2>Enrollment Information</h2>
+            <div class="enrollment-details">
+                <p><strong>Enrolled on:</strong> {{ enrollment.enrollment_date|date:"M d, Y" }}</p>
+                {% if enrollment.grade %}
+                <p><strong>Grade:</strong> {{ enrollment.grade }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="course-navigation">
+        <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">← Back to Course List</a>
+        {% if user.role == 'student' %}
+        <a href="{% url 'courses:timetable' %}" class="btn btn-outline">View Timetable</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

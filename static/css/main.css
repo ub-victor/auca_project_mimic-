@@ -1,0 +1,250 @@
+/* Global theme and base styles */
+:root {
+    --bg: #f4f8fb;
+    --surface: #ffffff;
+    --surface-strong: #f9fbfd;
+    --text: #1e2f3f;
+    --muted: #6f7f8f;
+    --border: #dce3ea;
+    --primary: #2a9d8f;
+    --primary-dark: #1f7d6f;
+    --accent: #2d4d68;
+    --danger: #c0392b;
+    --success: #2e7d32;
+    --shadow: 0 8px 30px rgba(23, 43, 69, 0.08);
+    --radius: 16px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.site-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-logo {
+    width: 36px;
+    height: auto;
+}
+
+.brand-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.site-nav {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.site-nav-link {
+    color: var(--muted);
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.site-nav-link:hover,
+.site-nav-link:focus-visible {
+    color: var(--accent);
+}
+
+.site-main {
+    width: min(1280px, 100% - 36px);
+    margin: 0 auto;
+    padding: 28px 0 32px;
+}
+
+.site-messages {
+    display: grid;
+    gap: 12px;
+    padding: 0 28px;
+    margin-bottom: 10px;
+}
+
+.alert {
+    border-radius: 12px;
+    padding: 14px 18px;
+    border: 1px solid transparent;
+    box-shadow: var(--shadow);
+}
+
+.alert-success {
+    background: #ecf8f1;
+    border-color: rgba(46, 125, 50, 0.18);
+    color: var(--success);
+}
+
+.alert-error {
+    background: #fdf0f0;
+    border-color: rgba(192, 57, 43, 0.18);
+    color: var(--danger);
+}
+
+.page-title {
+    font-size: clamp(1.4rem, 2vw, 2rem);
+    margin: 0 0 12px;
+}
+
+.page-copy {
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 24px;
+}
+
+.form-group,
+.auth-field {
+    margin-bottom: 18px;
+}
+
+.form-label,
+.auth-label {
+    display: block;
+    color: #334155;
+    font-size: 0.92rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-input,
+.auth-input,
+.auth-select,
+.auth-textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus,
+.auth-input:focus,
+.auth-textarea:focus,
+.auth-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.12);
+}
+
+.btn,
+.auth-btn {
+    appearance: none;
+    border: none;
+    border-radius: 14px;
+    min-height: 48px;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    background: var(--accent);
+    color: white;
+}
+
+.btn:hover,
+.auth-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 32px rgba(42, 157, 143, 0.18);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--accent);
+    border: 1px solid var(--border);
+}
+
+.small-text {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.link-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+footer.site-footer {
+    text-align: center;
+    padding: 24px 28px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    background: #ffffff;
+}
+
+@media (max-width: 720px) {
+    .site-header,
+    .site-main,
+    footer.site-footer {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .site-nav {
+        justify-content: center;
+    }
+}

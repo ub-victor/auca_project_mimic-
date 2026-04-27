@@ -103,6 +103,17 @@ This project uses Cloudinary for media storage to handle images, favicons, and o
 
 ## What Was Built
 
+### Frontend & Dashboard Improvements
+
+The frontend was refactored to use a shared `base.html` layout, external CSS files, and centralized JavaScript enhancements.
+
+- Global theme and responsive page structure moved into `static/css/main.css`.
+- Auth pages now use `static/css/auth.css` and share a consistent form experience.
+- Dashboard styling moved into `static/css/dashboard.css` with reusable card and grid layouts.
+- Templates were updated to extend `base.html` and remove inline styling.
+- JavaScript supports client-side form validation, loading feedback, and AJAX password reset submission.
+- Accessibility improved with ARIA labels, semantic headings, and responsive mobile-first layouts.
+
 ### 1. Login Page
 
 The login page (`accounts/templates/accounts/login.html`) replicates the AUCA portal login interface.
@@ -217,6 +228,76 @@ The final dashboard is a full creative redesign with the following structure:
 
 ---
 
+## Courses & Timetable Management
+
+The application now includes comprehensive course browsing, enrollment, and timetable functionality.
+
+### Features Implemented
+
+#### Course List View (`/courses/`)
+- **Browse Available Courses**: Paginated grid layout with course cards
+- **Advanced Filtering**: Filter by department, semester, and search by course code/title
+- **Course Information**: Displays code, title, credits, department, lecturer, and description
+- **Responsive Design**: Mobile-friendly grid that adapts to screen size
+
+#### Course Detail View (`/courses/<id>/`)
+- **Detailed Course Information**: Complete course details, schedule, and enrollment status
+- **Schedule Display**: Shows class times and rooms grouped by day
+- **Enrollment Management**: Students can enroll/unenroll with duplicate prevention
+- **Role-Based Access**: Different views for students, lecturers, and staff
+
+#### Enrollment Functionality
+- **Duplicate Prevention**: Unique constraint prevents multiple enrollments in same course-semester
+- **Real-time Status**: Shows current enrollment status and enrollment date
+- **Secure Operations**: POST requests with CSRF protection and user validation
+
+#### Timetable Generation (`/courses/timetable/`)
+- **Weekly Schedule**: Displays enrolled courses grouped by day of week
+- **Time Slots**: Shows start/end times for each class
+- **Course Details**: Includes course code, title, room, and lecturer information
+- **Current Semester**: Only shows schedules for the active semester
+
+#### Lecturer Course Management (`/courses/lecturer/`)
+- **Assigned Courses**: View all courses taught by the lecturer
+- **Enrollment Counts**: See number of students enrolled per course
+- **Current Semester Focus**: Highlights active semester enrollments
+
+#### User Management (`/courses/users/`) - Staff Only
+- **User Overview**: List all users with role-based filtering
+- **Search Functionality**: Search by username, email, or name
+- **Role Management**: View and manage user roles (Student/Lecturer/Staff)
+- **Status Tracking**: Active/inactive user status display
+
+### Technical Implementation
+
+#### Views & Logic
+- **Role-Based Permissions**: Decorators ensure proper access control
+- **Database Queries**: Optimized with select_related/prefetch_related for performance
+- **Form Validation**: Django forms with custom validation and error handling
+- **Pagination**: Efficient handling of large course/user lists
+
+#### Templates & UI
+- **Consistent Design**: Extends base.html with shared navigation
+- **External CSS**: Dedicated `courses.css` for course-specific styling
+- **Responsive Layouts**: Mobile-first design with flexible grids
+- **Accessibility**: ARIA labels and semantic HTML structure
+
+#### Models & Relationships
+- **CourseSchedule**: New model for managing class schedules
+- **Unique Constraints**: Prevents scheduling conflicts and duplicate enrollments
+- **Foreign Key Relationships**: Proper linking between courses, users, and semesters
+
+### URL Routes
+- `/courses/` - Course catalog with filtering
+- `/courses/<id>/` - Course details and enrollment
+- `/courses/<id>/enroll/` - Enroll in course
+- `/courses/<id>/unenroll/` - Unenroll from course
+- `/courses/timetable/` - Student timetable
+- `/courses/lecturer/` - Lecturer course management
+- `/courses/users/` - User management (staff only)
+
+---
+
 ## Database Models & Core Structure
 
 The application uses a comprehensive database schema with the following models:
@@ -228,6 +309,7 @@ The application uses a comprehensive database schema with the following models:
 
 ### Courses App
 - **Course**: Course details including code, title, credits, department, lecturer
+- **CourseSchedule**: Class schedules with day, time, room for each course-semester
 - **CourseEnrollment**: Student enrollments in courses for specific semesters
 
 ### Assessments App

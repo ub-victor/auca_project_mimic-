@@ -1,70 +1,53 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>AUCA Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png" type="image/png">
+{% extends "base.html" %}
+{% block title %}Login | AUCA Portal{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+    <section class="auth-card" aria-labelledby="login-heading">
+        <h2 id="login-heading">Sign in to AUCA Portal</h2>
+        <p class="page-copy">Use your AUCA email and password to access your dashboard.</p>
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
+        <div class="auth-feedback" aria-live="polite"></div>
 
-<body>
-<div class="container">
-
-    <!-- LEFT SIDE -->
-    <div class="left-side">
-
-        <img class="logo" src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858116/static/img/static/img/10001.png" alt="AUCA Logo">
-
-        <form method="POST">
+        <form method="POST" class="auth-form" novalidate>
             {% csrf_token %}
 
-            <h3 class="log">Login</h3>
-            <p class="welcome">Welcome! Please enter your details.</p>
-
-            {% if messages %}
-                {% for message in messages %}
-                    <p style="color: {% if message.tags == 'error' %}#c0392b{% else %}#2a9d8f{% endif %}; text-align:center; margin-bottom:10px;">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
             {% if form.non_field_errors %}
-                {% for error in form.non_field_errors %}
-                    <p style="color:#c0392b; text-align:center; margin-bottom:10px;">{{ error }}</p>
-                {% endfor %}
+                <div class="alert alert-error">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
             {% endif %}
 
-            <label for="email">Enter your Email</label>
-            {{ form.email }}
-            {% for error in form.email.errors %}
-                <p style="color:#c0392b; margin:6px 0 0;">{{ error }}</p>
-            {% endfor %}
-
-            <label for="password">Password</label>
-            {{ form.password }}
-            {% for error in form.password.errors %}
-                <p style="color:#c0392b; margin:6px 0 0;">{{ error }}</p>
-            {% endfor %}
-
-            <a href="{% url 'password_reset' %}" class="forgot-password">Forgot Password?</a>
-
-            <div class="button-contener">
-                <button class="p" type="submit">Sign In</button>
+            <div class="auth-field">
+                <label class="auth-label" for="id_email">Email</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                    <div class="alert alert-error">{{ error }}</div>
+                {% endfor %}
             </div>
 
-            <p class="signup">
-                Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
-            </p>
+            <div class="auth-field">
+                <label class="auth-label" for="id_password">Password</label>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                    <div class="alert alert-error">{{ error }}</div>
+                {% endfor %}
+            </div>
 
+            <div class="auth-meta">
+                <a href="{% url 'password_reset' %}" class="auth-link">Forgot password?</a>
+            </div>
+
+            <div class="auth-button-row">
+                <button type="submit" class="auth-btn">Sign In</button>
+            </div>
+
+            <p class="auth-note">Don’t have an account? <a href="{% url 'signup' %}" class="auth-link">Sign Up</a></p>
         </form>
-    </div>
-
-    <!-- RIGHT SIDE -->
-    <div class="right-side">
-        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858113/static/img/static/img/10002.jpg" alt="Campus Photo">
-    </div>
-
+    </section>
 </div>
-</body>
-</html>
+{% endblock %}

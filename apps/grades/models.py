@@ -18,7 +18,7 @@ class Grade(models.Model):
         ('F', 'F'),
     ]
 
-    enrollment = models.OneToOneField(CourseEnrollment, on_delete=models.CASCADE, related_name='grade')
+    enrollment = models.OneToOneField(CourseEnrollment, on_delete=models.CASCADE, related_name='detailed_grade')
     grade = models.CharField(max_length=5, choices=GRADE_CHOICES)
     points = models.DecimalField(max_digits=3, decimal_places=2)  # GPA points
     remarks = models.TextField(blank=True)
