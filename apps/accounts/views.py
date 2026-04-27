@@ -66,12 +66,51 @@ def forgot_password_view(request):
 
 @login_required(login_url='login')
 def dashboard_view(request):
+    from apps.courses.models import Course, Enrollment
+    from apps.grades.models import Grade
+    from apps.finances.models import FeeItem
+    from apps.assessments.models import Assignment, Submission
+
+    user = request.user
+
+    # Courses
+    if user.role == 'lecturer':
+        courses = Course.objects.filter(lecturer=user)
+    else:
+        enrollments = Enrollment.objects.filter(student=user).select_related('course')
+        courses = [e.course for e in enrollments]
+
+    # Grades
+    grades = Grade.objects.filter(student=user).select_related('course') if user.role == 'student' else []
+    avg_score = round(sum(g.score for g in grades) / len(grades), 1) if grades else 0
+    total_credits = sum(g.course.credits for g in grades)
+
+    # Finances
+    fees = FeeItem.objects.filter(student=user)
+    balance_due = sum(f.amount for f in fees if f.status == 'due')
+
+    # Assignments
+    if user.role == 'lecturer':
+        assignments = Assignment.objects.filter(lecturer=user).prefetch_related('questions')[:5]
+        pending_submissions = Submission.objects.filter(question__assignment__lecturer=user, status='pending').count()
+    else:
+        assignments = Assignment.objects.all().prefetch_related('questions')[:5]
+        pending_submissions = Submission.objects.filter(student=user, status='pending').count()
+
     context = {
-        'email': request.user.email,
-        'role': request.user.role.capitalize(),
-        'user': request.user,
+        'user':                request.user,
+        'email':               user.email,
+        'role':                user.role.capitalize(),
+        'courses':             courses,
+        'grades':              grades,
+        'avg_score':           avg_score,
+        'total_credits':       total_credits,
+        'fees':                fees,
+        'balance_due':         balance_due,
+        'assignments':         assignments,
+        'pending_submissions': pending_submissions,
     }
-    return render(request, "accounts/dashboard.html", context)
+    return render(request, 'accounts/dashboard.html', context)
 
 
 def logout_view(request):
@@ -84,9 +123,11 @@ def logout_view(request):
 def profile_view(request):
     if request.method == 'POST':
         user = request.user
-        user.first_name = request.POST.get('first_name', user.first_name)
-        user.last_name  = request.POST.get('last_name', user.last_name)
-        user.email      = request.POST.get('email', user.email)
+        user.first_name  = request.POST.get('first_name', user.first_name)
+        user.last_name   = request.POST.get('last_name', user.last_name)
+        user.student_id  = request.POST.get('student_id', user.student_id)
+        user.phone       = request.POST.get('phone', user.phone)
+        user.bio         = request.POST.get('bio', user.bio)
         if request.FILES.get('profile_picture'):
             user.profile_picture = request.FILES['profile_picture']
         user.save()

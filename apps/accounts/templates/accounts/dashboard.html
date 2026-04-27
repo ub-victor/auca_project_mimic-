@@ -388,9 +388,9 @@
         <span>AUCA Portal</span>
     </div>
     <div class="navbar-right">
-        <a href="#" class="nav-profile-btn">
-            <div class="nav-avatar">JV</div>
-            My Profile
+        <a href="{% url 'profile' %}" class="nav-profile-btn">
+            <div class="nav-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+            {{ user.get_full_name|default:user.username }}
         </a>
         <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>
     </div>
@@ -400,26 +400,26 @@
 <div class="hero">
     <div class="hero-inner">
         <div class="hero-text">
-            <h1>Welcome back, Jean!</h1>
-            <p>{{ email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
+            <h1>Welcome back, {{ user.get_full_name|default:user.first_name|default:user.username }}!</h1>
+            <p>{{ user.email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
             <span class="hero-badge">{{ role }}</span>
         </div>
         <div class="stat-strip">
             <div class="stat-item">
-                <div class="stat-val">5</div>
+                <div class="stat-val">{{ courses|length }}</div>
                 <div class="stat-lbl">Courses</div>
             </div>
             <div class="stat-item">
-                <div class="stat-val">3.6</div>
-                <div class="stat-lbl">GPA</div>
+                <div class="stat-val">{{ avg_score|default:"—" }}</div>
+                <div class="stat-lbl">Avg Score</div>
             </div>
             <div class="stat-item">
-                <div class="stat-val">16</div>
+                <div class="stat-val">{{ total_credits|default:0 }}</div>
                 <div class="stat-lbl">Credits</div>
             </div>
             <div class="stat-item">
-                <div class="stat-val" style="color:#f39c12;">3</div>
-                <div class="stat-lbl">Due Tasks</div>
+                <div class="stat-val" style="color:#f39c12;">{{ pending_submissions }}</div>
+                <div class="stat-lbl">{% if user.role == 'lecturer' %}To Grade{% else %}Pending{% endif %}</div>
             </div>
         </div>
     </div>
@@ -516,34 +516,18 @@
         <!-- Enrolled Courses -->
         <div class="card accent-navy">
             <div class="card-head">
-                <span class="card-head-title">Enrolled Courses</span>
-                <span class="card-head-sub">16 credits total</span>
+                <span class="card-head-title">{% if user.role == 'lecturer' %}My Courses{% else %}Enrolled Courses{% endif %}</span>
+                <span class="card-head-sub">{{ total_credits }} credits</span>
             </div>
+            {% for course in courses %}
             <div class="course-row">
                 <div class="course-dot"></div>
-                <span class="course-name">Intro to Big Data</span>
-                <span class="cr-badge">3 cr</span>
+                <span class="course-name">{{ course.title }}</span>
+                <span class="cr-badge">{{ course.credits }} cr</span>
             </div>
-            <div class="course-row">
-                <div class="course-dot"></div>
-                <span class="course-name">Web Development</span>
-                <span class="cr-badge">3 cr</span>
-            </div>
-            <div class="course-row">
-                <div class="course-dot"></div>
-                <span class="course-name">Database Systems</span>
-                <span class="cr-badge">3 cr</span>
-            </div>
-            <div class="course-row">
-                <div class="course-dot"></div>
-                <span class="course-name">Data Structures</span>
-                <span class="cr-badge">4 cr</span>
-            </div>
-            <div class="course-row">
-                <div class="course-dot"></div>
-                <span class="course-name">Software Engineering</span>
-                <span class="cr-badge">3 cr</span>
-            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No courses yet.</p>
+            {% endfor %}
         </div>
 
         <!-- Grades -->
@@ -554,16 +538,24 @@
             </div>
             <div class="gpa-block">
                 <div class="gpa-circle">
-                    <div class="gpa-num">3.6</div>
-                    <div class="gpa-lbl">GPA</div>
+                    <div class="gpa-num">{{ avg_score|default:"—" }}</div>
+                    <div class="gpa-lbl">Avg</div>
                 </div>
                 <div class="gpa-stats">
-                    <div class="gpa-stat"><strong>82%</strong> Average Score</div>
-                    <div class="gpa-stat"><strong>16</strong> Credits Earned</div>
-                    <div class="gpa-stat"><strong>5</strong> Courses Taken</div>
+                    <div class="gpa-stat"><strong>{{ avg_score }}%</strong> Average Score</div>
+                    <div class="gpa-stat"><strong>{{ total_credits }}</strong> Credits Earned</div>
+                    <div class="gpa-stat"><strong>{{ grades|length }}</strong> Courses Graded</div>
                 </div>
             </div>
-            <a href="#" class="btn btn-navy">Download Transcript</a>
+            {% for grade in grades %}
+            <div class="course-row">
+                <span class="course-name">{{ grade.course.code }}</span>
+                <span class="cr-badge">{{ grade.letter }} ({{ grade.score }}%)</span>
+            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No grades yet.</p>
+            {% endfor %}
+            <a href="#" class="btn btn-navy" style="margin-top:12px;">Download Transcript</a>
         </div>
 
     </div>
@@ -578,39 +570,24 @@
                 <span class="card-head-title">Finances</span>
                 <span class="card-head-sub">Sem 2 &middot; 2024/25</span>
             </div>
+            {% for fee in fees %}
             <div class="fee-row">
-                <span class="fee-label">Tuition Fee</span>
+                <span class="fee-label">{{ fee.name }}</span>
                 <div class="fee-right">
-                    <span class="fee-amount">RWF 450,000</span>
-                    <span class="pill pill-paid">Paid</span>
+                    <span class="fee-amount">RWF {{ fee.amount|floatformat:0 }}</span>
+                    <span class="pill {% if fee.status == 'paid' %}pill-paid{% else %}pill-due{% endif %}">{{ fee.status|capfirst }}</span>
                 </div>
             </div>
-            <div class="fee-row">
-                <span class="fee-label">Registration Fee</span>
-                <div class="fee-right">
-                    <span class="fee-amount">RWF 25,000</span>
-                    <span class="pill pill-paid">Paid</span>
-                </div>
-            </div>
-            <div class="fee-row">
-                <span class="fee-label">Library Fee</span>
-                <div class="fee-right">
-                    <span class="fee-amount">RWF 10,000</span>
-                    <span class="pill pill-due">Due</span>
-                </div>
-            </div>
-            <div class="fee-row">
-                <span class="fee-label">ICT Fee</span>
-                <div class="fee-right">
-                    <span class="fee-amount">RWF 15,000</span>
-                    <span class="pill pill-due">Due</span>
-                </div>
-            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No fee records yet.</p>
+            {% endfor %}
+            {% if fees %}
             <div class="fee-total">
                 <span>Balance Due</span>
-                <span>RWF 25,000</span>
+                <span>RWF {{ balance_due|floatformat:0 }}</span>
             </div>
             <a href="#" class="btn btn-teal">Pay Now</a>
+            {% endif %}
         </div>
 
         <!-- Announcements -->
