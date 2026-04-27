@@ -19,10 +19,21 @@
         h1{font-size:22px;margin-bottom:6px}
         .subtitle{font-size:13px;color:var(--muted);margin-bottom:24px}
         .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
-        .search-box{display:flex;gap:8px;flex:1;min-width:260px}
-        .search-box input{flex:1;border:1px solid #ccc;border-radius:7px;padding:9px 14px;font-size:13px;font-family:inherit}
-        .search-box input:focus{outline:none;border-color:var(--teal)}
-        select{border:1px solid #ccc;border-radius:7px;padding:9px 12px;font-size:13px;font-family:inherit;background:white}
+        .search-wrap{position:relative;flex:1;min-width:260px}
+        .search-wrap input{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 14px 10px 38px;font-size:13px;font-family:inherit;background:white}
+        .search-wrap input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,157,143,0.1)}
+        .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+        .autocomplete-dropdown{position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:100;max-height:280px;overflow-y:auto;display:none}
+        .autocomplete-item{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f4f4f4;display:flex;align-items:center;gap:10px}
+        .autocomplete-item:last-child{border-bottom:none}
+        .autocomplete-item:hover{background:#f0faf8}
+        .autocomplete-item .ac-name{font-weight:600;color:#1a2a3a}
+        .autocomplete-item .ac-meta{font-size:11px;color:var(--muted)}
+        .ac-role{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;text-transform:uppercase;flex-shrink:0}
+        .ac-student{background:#e8f4fd;color:#1565c0}
+        .ac-lecturer{background:#f3e5f5;color:#6a1b9a}
+        .ac-staff{background:#fff3e0;color:var(--amber)}
+        select{border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;background:white;cursor:pointer}
         select:focus{outline:none;border-color:var(--teal)}
         .btn{display:inline-block;padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
         .btn-teal{background:var(--teal);color:white}
@@ -60,28 +71,32 @@
     <h1>User Management</h1>
     <p class="subtitle">{{ total }} user{{ total|pluralize }} found</p>
 
-    <div class="toolbar">
-        <form method="GET" class="search-box">
-            <input type="text" name="q" value="{{ q }}" placeholder="Search by name, email, student ID...">
-            <select name="role">
+    <form method="GET" id="search-form">
+        <div class="toolbar">
+            <div class="search-wrap">
+                <span class="search-icon">&#128269;</span>
+                <input type="text" name="q" id="search-input" value="{{ q }}"
+                       placeholder="Search by name, email, student ID..."
+                       autocomplete="off">
+                <div class="autocomplete-dropdown" id="autocomplete-dropdown"></div>
+            </div>
+            <select name="role" id="role-filter" onchange="document.getElementById('search-form').submit()">
                 <option value="">All Roles</option>
                 <option value="student"  {% if role_filter == 'student'  %}selected{% endif %}>Students</option>
                 <option value="lecturer" {% if role_filter == 'lecturer' %}selected{% endif %}>Lecturers</option>
-                <option value="staff"    {% if role_filter == 'staff'    %}selected{% endif %}>Staff/Admin</option>
+                <option value="staff"    {% if role_filter == 'staff'    %}selected{% endif %}>Staff / Admin</option>
             </select>
             <button type="submit" class="btn btn-teal">Search</button>
             <a href="{% url 'admin_panel:user_list' %}" class="btn" style="background:#eef1f5;color:#555;">Clear</a>
-        </form>
-        <a href="{% url 'admin_panel:user_create' %}" class="btn btn-navy">+ Create Account</a>
-        <a href="{% url 'admin_panel:pdf_users' %}?role={{ role_filter }}" class="btn btn-amber">&#11015; Export PDF</a>
-    </div>
+            <a href="{% url 'admin_panel:user_create' %}" class="btn btn-navy">+ Create Account</a>
+            <a href="{% url 'admin_panel:pdf_users' %}?role={{ role_filter }}" class="btn btn-amber">&#11015; Export</a>
+        </div>
+    </form>
 
     <div class="card">
         <table>
             <thead>
-                <tr>
-                    <th>Name</th><th>Email</th><th>Role</th><th>Student ID</th><th>Status</th><th>Actions</th>
-                </tr>
+                <tr><th>Name</th><th>Email</th><th>Role</th><th>Student ID</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
                 {% for u in users %}
@@ -108,5 +123,47 @@
     </div>
 </main>
 <footer>&copy; 2025 Adventist University of Central Africa</footer>
+
+<script>
+const input    = document.getElementById('search-input');
+const dropdown = document.getElementById('autocomplete-dropdown');
+const roleFilter = document.getElementById('role-filter');
+let debounceTimer;
+
+input.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const q = this.value.trim();
+    if (q.length < 2) { dropdown.style.display = 'none'; return; }
+    debounceTimer = setTimeout(() => {
+        const role = roleFilter.value;
+        fetch(`/api/search/users/?q=${encodeURIComponent(q)}&role=${role}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.results.length) { dropdown.style.display = 'none'; return; }
+                dropdown.innerHTML = data.results.map(u => `
+                    <div class="autocomplete-item" onclick="selectUser('${u.name}', '${u.email}')">
+                        <span class="ac-role ac-${u.role}">${u.role}</span>
+                        <div>
+                            <div class="ac-name">${u.name}</div>
+                            <div class="ac-meta">${u.email}${u.student_id ? ' · ' + u.student_id : ''}</div>
+                        </div>
+                    </div>`).join('');
+                dropdown.style.display = 'block';
+            });
+    }, 250);
+});
+
+function selectUser(name, email) {
+    input.value = email;
+    dropdown.style.display = 'none';
+    document.getElementById('search-form').submit();
+}
+
+document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+</script>
 </body>
 </html>

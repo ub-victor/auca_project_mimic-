@@ -173,10 +173,23 @@
     <!-- ANNOUNCEMENTS -->
     <p class="sec-label">Announcements</p>
     <div class="card" style="margin-bottom:28px;">
-        <div class="card-head"><span class="card-head-title">Latest Updates</span></div>
+        <div class="card-head">
+            <span class="card-head-title">Latest Updates</span>
+            <a href="{% url 'post_announcement' %}" class="btn btn-teal" style="padding:6px 16px;font-size:12px;">+ Post Announcement</a>
+        </div>
+        {% for ann in notifications %}
+        <div class="ann-row">
+            <div class="ann-dot"></div>
+            <div class="ann-body">
+                <div class="ann-title">{{ ann.title }}</div>
+                <div class="ann-date">{{ ann.created_at|date:"M d, Y" }} &middot; {{ ann.created_by.get_full_name|default:ann.created_by.username }}</div>
+                <div style="font-size:12px;color:#555;margin-top:3px;">{{ ann.body|truncatechars:100 }}</div>
+            </div>
+        </div>
+        {% empty %}
         <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">End-of-semester exams schedule released</div><div class="ann-date">June 10, 2025</div></div></div>
         <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Grade submission deadline: June 30, 2025</div><div class="ann-date">June 8, 2025</div></div></div>
-        <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Faculty meeting — Friday 2 PM, Room 204</div><div class="ann-date">June 5, 2025</div></div></div>
+        {% endfor %}
     </div>
 
 </main>

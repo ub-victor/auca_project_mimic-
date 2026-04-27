@@ -232,22 +232,40 @@
             <span class="card-head-title">Open Courses This Semester</span>
             <span class="card-head-sub">{{ available_courses|length }} available</span>
         </div>
-        {% for course in available_courses %}
-        <div class="avail-row">
-            <div>
-                <strong style="font-size:13px;">{{ course.title }}</strong>
-                <span style="font-size:11px;color:var(--muted);margin-left:8px;">
-                    {{ course.code }} &middot; {{ course.credits }} cr &middot; {{ course.lecturer.get_full_name|default:"TBA" }}
-                </span>
-            </div>
-            <form method="POST" action="{% url 'courses:enroll' course.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn-sm" style="background:var(--teal);color:white;">+ Enroll</button>
-            </form>
+        <!-- Search bar for courses -->
+        <div style="position:relative;margin-bottom:14px;">
+            <input type="text" id="course-search" placeholder="Search courses by name or code..."
+                   style="width:100%;border:1px solid #ddd;border-radius:8px;padding:9px 14px 9px 36px;font-size:13px;font-family:inherit;"
+                   oninput="filterCourses(this.value)">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;">&#128269;</span>
         </div>
-        {% empty %}
-        <p style="font-size:13px;color:var(--muted);">You are enrolled in all available courses.</p>
-        {% endfor %}
+        <table style="width:100%;border-collapse:collapse;font-size:13px;" id="courses-table">
+            <thead><tr style="background:#f8f9fa;">
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Code</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Course</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Lecturer</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Credits</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Action</th>
+            </tr></thead>
+            <tbody id="courses-tbody">
+            {% for course in available_courses %}
+            <tr class="course-tr" data-name="{{ course.title|lower }}" data-code="{{ course.code|lower }}">
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;"><strong>{{ course.code }}</strong></td>
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;">{{ course.title }}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;">{{ course.lecturer.get_full_name|default:"TBA" }}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;">{{ course.credits }}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;">
+                    <form method="POST" action="{% url 'courses:enroll' course.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-sm" style="background:var(--teal);color:white;">Enroll</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">You are enrolled in all available courses.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <!-- AI TOOLS -->
@@ -302,6 +320,12 @@
                     <span class="pill {% if fee.is_paid %}pill-paid{% else %}pill-due{% endif %}">
                         {% if fee.is_paid %}Paid{% else %}Due{% endif %}
                     </span>
+                    {% if not fee.is_paid %}
+                    <form method="POST" action="{% url 'pay_fee' fee.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-sm" style="background:var(--teal);color:white;font-size:10px;" onclick="return confirm('Pay {{ fee.get_fee_type_display }}?')">Pay</button>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
             {% empty %}
@@ -321,14 +345,34 @@
                 <span class="card-head-title">Announcements</span>
                 <span class="card-head-sub">Latest updates</span>
             </div>
+            {% for ann in notifications %}
+            <div class="ann-row">
+                <div class="ann-dot"></div>
+                <div class="ann-body">
+                    <div class="ann-title">{{ ann.title }}</div>
+                    <div class="ann-date">{{ ann.created_at|date:"M d, Y" }} &middot; {{ ann.created_by.get_full_name|default:ann.created_by.username }}</div>
+                    <div style="font-size:12px;color:#555;margin-top:4px;">{{ ann.body|truncatechars:100 }}</div>
+                </div>
+            </div>
+            {% empty %}
             <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">End-of-semester exams schedule released</div><div class="ann-date">June 10, 2025</div></div></div>
             <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Library hours extended through exam period</div><div class="ann-date">June 8, 2025</div></div></div>
             <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Registration open for Semester 3 courses</div><div class="ann-date">June 5, 2025</div></div></div>
-            <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Campus Wi-Fi maintenance &mdash; Saturday 2&ndash;4 AM</div><div class="ann-date">June 3, 2025</div></div></div>
+            {% endfor %}
         </div>
     </div>
 
 </main>
 <footer>&copy; 2025 Adventist University of Central Africa &mdash; All rights reserved.</footer>
+<script>
+function filterCourses(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('.course-tr').forEach(function(row) {
+        const name = row.dataset.name || '';
+        const code = row.dataset.code || '';
+        row.style.display = (name.includes(q) || code.includes(q)) ? '' : 'none';
+    });
+}
+</script>
 </body>
 </html>
