@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AUCA — Lecturer Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--amber:#e67e22;--red:#c0392b;--green:#2e7d32;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh;display:flex;flex-direction:column}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.25)}
+        .navbar-brand{display:flex;align-items:center;gap:14px}
+        .navbar-brand img{height:34px}
+        .navbar-brand span{color:white;font-size:15px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}
+        .navbar-right{display:flex;align-items:center;gap:12px}
+        .nav-profile-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:white;text-decoration:none;padding:6px 14px 6px 8px;border-radius:24px;font-size:13px;font-weight:500}
+        .nav-avatar{width:28px;height:28px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0}
+        .nav-signout{color:rgba(255,255,255,0.65);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px}
+        .nav-signout:hover{color:white}
+        .hero{background:linear-gradient(120deg,#0f2744 0%,#1a4a6e 100%);padding:36px 36px 0;color:white}
+        .hero-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px}
+        .hero-text h1{font-size:26px;font-weight:700;margin-bottom:6px}
+        .hero-text p{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:14px}
+        .hero-badge{display:inline-block;background:rgba(42,157,143,0.3);border:1px solid rgba(42,157,143,0.5);color:white;font-size:12px;padding:3px 14px;border-radius:20px}
+        .stat-strip{display:flex;background:rgba(255,255,255,0.07);border-radius:10px 10px 0 0;overflow:hidden;border:1px solid rgba(255,255,255,0.1);border-bottom:none;align-self:flex-end}
+        .stat-item{padding:16px 28px;text-align:center;border-right:1px solid rgba(255,255,255,0.1)}
+        .stat-item:last-child{border-right:none}
+        .stat-val{font-size:22px;font-weight:700;color:white;line-height:1}
+        .stat-lbl{font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+        .main{flex:1;max-width:1100px;width:100%;margin:32px auto;padding:0 36px}
+        .sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:14px}
+        .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:28px}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+        .card{background:var(--white);border-radius:12px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+        .card-head-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#1a2a3a}
+        .card-head-sub{font-size:11px;color:var(--muted)}
+        .card.accent-navy{border-left:4px solid var(--navy)}
+        .card.accent-teal{border-left:4px solid var(--teal)}
+        .card.accent-amber{border-left:4px solid var(--amber)}
+        .card.accent-dark{border-left:4px solid var(--dark)}
+        .card.accent-red{border-left:4px solid var(--red)}
+        .course-card{background:var(--white);border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);border-top:4px solid var(--teal)}
+        .course-card h3{font-size:15px;font-weight:700;margin-bottom:4px}
+        .course-card .meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+        .course-card .enrolled{font-size:13px;color:var(--navy);font-weight:600;margin-bottom:14px}
+        .row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
+        .row:last-child{border-bottom:none}
+        .btn{display:block;text-align:center;text-decoration:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;width:100%}
+        .btn:hover{opacity:0.88}
+        .btn-navy{background:var(--navy);color:white}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-amber{background:var(--amber);color:white}
+        .btn-sm{display:inline-block;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;border:none;cursor:pointer;white-space:nowrap}
+        .pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
+        .pill-pending{background:#fff3e0;color:var(--amber)}
+        .pill-graded{background:#e6f4ea;color:var(--green)}
+        .sub-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f4f4f4;font-size:13px;gap:12px}
+        .sub-row:last-child{border-bottom:none}
+        .sub-info{flex:1}
+        .sub-name{font-weight:600;color:#1a2a3a}
+        .sub-meta{font-size:11px;color:var(--muted);margin-top:2px}
+        .ann-row{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid #f4f4f4;font-size:13px;align-items:flex-start}
+        .ann-row:last-child{border-bottom:none}
+        .ann-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:4px}
+        .ann-body{flex:1}
+        .ann-title{font-weight:600;color:#1a2a3a;margin-bottom:2px}
+        .ann-date{font-size:11px;color:var(--muted)}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white)}
+        @media(max-width:860px){.grid-3{grid-template-columns:1fr 1fr}}
+        @media(max-width:600px){.grid-3,.grid-2{grid-template-columns:1fr}.main{padding:0 18px}.hero{padding:24px 18px 0}.stat-strip{display:none}.navbar{padding:0 18px}.navbar-brand span{display:none}}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand">
+        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/10001.png" alt="AUCA Logo">
+        <span>AUCA Portal</span>
+    </div>
+    <div class="navbar-right">
+        <a href="{% url 'profile' %}" class="nav-profile-btn">
+            <div class="nav-avatar">{{ user.first_name|first|default:'L'|upper }}{{ user.last_name|first|default:''|upper }}</div>
+            {{ user.get_full_name|default:user.username }}
+        </a>
+        <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>
+    </div>
+</nav>
+
+<div class="hero">
+    <div class="hero-inner">
+        <div class="hero-text">
+            <h1>Welcome, {{ user.get_full_name|default:user.first_name }}!</h1>
+            <p>{{ user.email }} &nbsp;&middot;&nbsp; Academic Year 2024/25</p>
+            <span class="hero-badge">Lecturer</span>
+        </div>
+        <div class="stat-strip">
+            <div class="stat-item"><div class="stat-val">{{ my_courses|length }}</div><div class="stat-lbl">Courses</div></div>
+            <div class="stat-item"><div class="stat-val">{{ total_students }}</div><div class="stat-lbl">Students</div></div>
+            <div class="stat-item"><div class="stat-val" style="color:#f39c12;">{{ pending_count }}</div><div class="stat-lbl">To Grade</div></div>
+            <div class="stat-item"><div class="stat-val">{{ my_assessments|length }}</div><div class="stat-lbl">Assessments</div></div>
+        </div>
+    </div>
+</div>
+
+<main class="main">
+
+    <!-- MY COURSES -->
+    <p class="sec-label">My Courses</p>
+    <div class="grid-3">
+        {% for course in my_courses %}
+        <div class="course-card">
+            <h3>{{ course.title }}</h3>
+            <div class="meta">{{ course.code }} &nbsp;·&nbsp; {{ course.credits }} credits</div>
+            <div class="enrolled">{{ course.enrollments.count }} student{{ course.enrollments.count|pluralize }} enrolled</div>
+            <a href="{% url 'assessments:assignment_create' %}" class="btn btn-teal" style="margin-bottom:8px;">+ Post Assignment</a>
+        </div>
+        {% empty %}
+        <div class="card" style="grid-column:1/-1;">
+            <p style="font-size:13px;color:var(--muted);text-align:center;padding:20px;">No courses assigned yet. Contact admin to get courses assigned.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- GRADING -->
+    <p class="sec-label">Grading — Pending Submissions</p>
+    <div class="grid-2">
+        <div class="card accent-amber">
+            <div class="card-head">
+                <span class="card-head-title">Pending Reviews</span>
+                <span class="card-head-sub">{{ pending_count }} waiting</span>
+            </div>
+            {% for answer in pending_submissions|slice:":6" %}
+            <div class="sub-row">
+                <div class="sub-info">
+                    <div class="sub-name">{{ answer.student.get_full_name|default:answer.student.username }}</div>
+                    <div class="sub-meta">{{ answer.question.assessment.title }} · {{ answer.submitted_at|date:"M d, H:i" }}</div>
+                    {% if answer.ai_score is not None %}
+                    <div class="sub-meta" style="color:var(--teal);">AI Score: {{ answer.ai_score }} / {{ answer.question.marks }}</div>
+                    {% endif %}
+                </div>
+                <a href="{% url 'assessments:grade_submissions' answer.question.assessment.pk %}" class="btn-sm" style="background:var(--amber);color:white;">Grade</a>
+            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No pending submissions.</p>
+            {% endfor %}
+            {% if pending_count > 0 %}
+            <a href="{% url 'assessments:assignment_list' %}" class="btn btn-amber" style="margin-top:12px;">View All Submissions</a>
+            {% endif %}
+        </div>
+
+        <div class="card accent-teal">
+            <div class="card-head">
+                <span class="card-head-title">My Assessments</span>
+                <span class="card-head-sub">{{ my_assessments|length }} total</span>
+            </div>
+            {% for a in my_assessments %}
+            <div class="row">
+                <div>
+                    <strong style="font-size:13px;">{{ a.title }}</strong>
+                    <div style="font-size:11px;color:var(--muted);">{{ a.questions.count }} questions · Due {{ a.due_date|date:"M d" }}</div>
+                </div>
+                <a href="{% url 'assessments:grade_submissions' a.pk %}" class="btn-sm" style="background:var(--navy);color:white;">Grade</a>
+            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No assessments yet.</p>
+            {% endfor %}
+            <a href="{% url 'assessments:assignment_create' %}" class="btn btn-teal" style="margin-top:12px;">+ Create New Assessment</a>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <p class="sec-label">Announcements</p>
+    <div class="card" style="margin-bottom:28px;">
+        <div class="card-head"><span class="card-head-title">Latest Updates</span></div>
+        <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">End-of-semester exams schedule released</div><div class="ann-date">June 10, 2025</div></div></div>
+        <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Grade submission deadline: June 30, 2025</div><div class="ann-date">June 8, 2025</div></div></div>
+        <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Faculty meeting — Friday 2 PM, Room 204</div><div class="ann-date">June 5, 2025</div></div></div>
+    </div>
+
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa &mdash; All rights reserved.</footer>
+</body>
+</html>

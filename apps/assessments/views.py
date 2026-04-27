@@ -35,6 +35,7 @@ def assignment_list(request):
 @lecturer_required
 def assignment_create(request):
     from .forms import AssessmentForm
+    from apps.courses.models import Course
     if request.method == 'POST':
         form    = AssessmentForm(request.POST)
         formset = QuestionFormSet(request.POST)
@@ -49,6 +50,9 @@ def assignment_create(request):
     else:
         form    = AssessmentForm()
         formset = QuestionFormSet()
+        # Limit course choices to lecturer's own courses
+        if request.user.role == 'lecturer':
+            form.fields['course'].queryset = Course.objects.filter(lecturer=request.user)
     return render(request, 'assessments/assignment_form.html', {'form': form, 'formset': formset})
 
 
@@ -103,7 +107,11 @@ def assignment_detail(request, pk):
 
 @lecturer_required
 def grade_submissions(request, assignment_pk):
-    assessment = get_object_or_404(Assessment, pk=assignment_pk, created_by=request.user)
+    assessment = get_object_or_404(Assessment, pk=assignment_pk)
+    # Only the creator or staff can grade
+    if request.user.role not in ('staff',) and assessment.created_by != request.user:
+        messages.error(request, 'You can only grade your own assessments.')
+        return redirect('assessments:assignment_list')
     answers    = Answer.objects.filter(
         question__assessment=assessment
     ).select_related('student', 'question').order_by('question__order', 'student__username')

@@ -43,34 +43,79 @@ def forgot_password_view(request):
 def dashboard_view(request):
     from apps.courses.models import Course, CourseEnrollment
     from apps.assessments.models import Assessment, Answer
+    from apps.accounts.models import CustomUser
+    from apps.finances.models import Fee
+    from apps.core.models import Semester
 
     user = request.user
+    context = {'user': user, 'email': user.email, 'role': user.get_role_display()}
 
-    # Courses
-    if user.role == 'lecturer':
-        courses = Course.objects.filter(lecturer=user)
+    if user.role == 'student':
+        semester = Semester.objects.filter(is_current=True).first()
+        enrollments = CourseEnrollment.objects.filter(student=user).select_related('course') if semester else []
+        enrolled_courses = [e.course for e in enrollments]
+        enrolled_ids = [c.id for c in enrolled_courses]
+        available_courses = Course.objects.exclude(id__in=enrolled_ids)
+        fees = Fee.objects.filter(student=user)
+        balance_due = sum(f.amount for f in fees if not f.is_paid)
+        assessments = Assessment.objects.all().prefetch_related('questions')[:5]
+        pending_answers = Answer.objects.filter(student=user, status='pending').count()
+        graded_answers = Answer.objects.filter(student=user, status='graded')
+        avg_score = round(sum(float(a.marks_obtained or 0) for a in graded_answers) / len(graded_answers), 1) if graded_answers else 0
+        context.update({
+            'enrolled_courses': enrolled_courses,
+            'available_courses': available_courses,
+            'fees': fees, 'balance_due': balance_due,
+            'assessments': assessments,
+            'pending_answers': pending_answers,
+            'avg_score': avg_score,
+            'total_credits': sum(c.credits for c in enrolled_courses),
+        })
+
+    elif user.role == 'lecturer':
+        my_courses = Course.objects.filter(lecturer=user).prefetch_related('enrollments')
+        my_assessments = Assessment.objects.filter(created_by=user).prefetch_related('questions')
+        pending_submissions = Answer.objects.filter(
+            question__assessment__created_by=user, status='pending'
+        ).select_related('student', 'question__assessment')
+        total_students = sum(c.enrollments.count() for c in my_courses)
+        context.update({
+            'my_courses': my_courses,
+            'my_assessments': my_assessments,
+            'pending_submissions': pending_submissions,
+            'total_students': total_students,
+            'pending_count': pending_submissions.count(),
+        })
+
+    elif user.role == 'staff':
+        all_courses = Course.objects.all().select_related('lecturer', 'department')
+        total_students = CustomUser.objects.filter(role='student').count()
+        total_lecturers = CustomUser.objects.filter(role='lecturer').count()
+        all_fees = Fee.objects.filter(is_paid=False)
+        unpaid_total = sum(f.amount for f in all_fees)
+        all_assessments = Assessment.objects.all()
+        total_answers = Answer.objects.count()
+        ai_graded = Answer.objects.filter(ai_score__isnull=False).count()
+        overridden = Answer.objects.filter(marks_obtained__isnull=False, status='graded').count()
+        context.update({
+            'all_courses': all_courses,
+            'total_students': total_students,
+            'total_lecturers': total_lecturers,
+            'unpaid_total': unpaid_total,
+            'unpaid_count': all_fees.count(),
+            'total_answers': total_answers,
+            'ai_graded': ai_graded,
+            'overridden': overridden,
+            'all_lecturers': CustomUser.objects.filter(role='lecturer'),
+            'all_users': CustomUser.objects.all().order_by('role'),
+        })
+
+    if user.role == 'student':
+        return render(request, 'accounts/dashboard_student.html', context)
+    elif user.role == 'lecturer':
+        return render(request, 'accounts/dashboard_lecturer.html', context)
     else:
-        enrollments = CourseEnrollment.objects.filter(student=user).select_related('course')
-        courses = [e.course for e in enrollments]
-
-    # Assessments
-    if user.role in ('lecturer', 'staff'):
-        assessments = Assessment.objects.filter(created_by=user)[:5]
-        pending_count = Answer.objects.filter(question__assessment__created_by=user, status='pending').count()
-    else:
-        assessments = Assessment.objects.all()[:5]
-        pending_count = Answer.objects.filter(student=user, status='pending').count()
-
-    context = {
-        'user':          user,
-        'email':         user.email,
-        'role':          user.get_role_display(),
-        'user_role':     user.get_role_display(),
-        'courses':       courses,
-        'assessments':   assessments,
-        'pending_count': pending_count,
-    }
-    return render(request, "accounts/dashboard.html", context)
+        return render(request, 'accounts/dashboard_admin.html', context)
 
 
 def logout_view(request):

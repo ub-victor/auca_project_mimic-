@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if course %}Edit{% else %}Add{% endif %} Course — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--bg:#eef1f5;--white:#fff;--border:#e4e8ed;--muted:#7a8a99}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .main{max-width:680px;margin:40px auto;padding:0 24px}
+        h1{font-size:22px;margin-bottom:24px}
+        .card{background:var(--white);border-radius:12px;padding:28px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px;margin-top:16px}
+        input,select,textarea{width:100%;border:1px solid #ccc;border-radius:7px;padding:9px 12px;font-size:13px;font-family:inherit}
+        input:focus,select:focus{outline:none;border-color:var(--teal)}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .btn{display:inline-block;padding:10px 28px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;color:white;background:var(--teal);text-decoration:none;margin-top:20px}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:#555;margin-left:10px}
+        .msg{padding:10px 16px;border-radius:7px;font-size:13px;margin-bottom:16px;background:#fdecea;color:#c0392b}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <a href="{% url 'dashboard' %}">← Dashboard</a>
+</nav>
+<main class="main">
+    {% if messages %}{% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}{% endif %}
+    <h1>{% if course %}Edit Course{% else %}Add New Course{% endif %}</h1>
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-row">
+                <div>
+                    <label>Course Code *</label>
+                    <input type="text" name="code" value="{{ course.code|default:'' }}" placeholder="e.g. CS301" required>
+                </div>
+                <div>
+                    <label>Credits *</label>
+                    <input type="number" name="credits" value="{{ course.credits|default:3 }}" min="1" max="6" required>
+                </div>
+            </div>
+            <label>Course Title *</label>
+            <input type="text" name="title" value="{{ course.title|default:'' }}" placeholder="e.g. Introduction to Big Data" required>
+            <div class="form-row">
+                <div>
+                    <label>Department *</label>
+                    <select name="department" required>
+                        <option value="">-- Select Department --</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.pk }}" {% if course and course.department_id == dept.pk %}selected{% endif %}>{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Semester *</label>
+                    <select name="semester" required>
+                        <option value="">-- Select Semester --</option>
+                        {% for sem in semesters %}
+                        <option value="{{ sem.pk }}" {% if sem.is_current %}selected{% endif %}>{{ sem.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <label>Assign Lecturer</label>
+            <select name="lecturer">
+                <option value="">-- No Lecturer Assigned --</option>
+                {% for lec in lecturers %}
+                <option value="{{ lec.pk }}" {% if course and course.lecturer_id == lec.pk %}selected{% endif %}>{{ lec.get_full_name|default:lec.username }}</option>
+                {% endfor %}
+            </select>
+            <div>
+                <button type="submit" class="btn">{% if course %}Save Changes{% else %}Create Course{% endif %}</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>
