@@ -354,9 +354,11 @@ auca_project_mimic/
 ## Notes
 
 - No JavaScript frameworks or CSS libraries (Bootstrap, Tailwind, etc.) are used — the entire UI is pure HTML and CSS
-- All dashboard data (courses, grades, finances, announcements) is currently static sample data hardcoded in the template
+- Team 3 frontend templates now extend `templates/base.html` and use external CSS/JS from `static/css/` and `static/js/`
+- Dashboard sections are ready for dynamic context data: `enrolled_courses`, `timetable`, `announcements`, `grades_summary`, `due_tasks`, and `total_credits`
+- Dashboard sections show empty states until Teams 2, 4, and 5 connect real model data
 - Authentication uses a simple in-memory dictionary — no Django `User` model or database authentication is implemented yet
-- The "My Profile", "Download Transcript", and "Pay Now" buttons link to `#` as placeholders for future implementation
+- The "My Profile" and "Download Transcript" links remain placeholders for future implementation
 - Cloudinary is integrated for media storage; local media directories (media/, static/uploads/, static/signupimgs/) have been uploaded and removed
 - Favicon is served via Cloudinary URLs in templates
 - Machine learning models are stored in `ml_models/` directory (answer_evaluator.pkl, vectorizer.pkl) for AI evaluation features
@@ -369,4 +371,4 @@ auca_project_mimic/
 - AI/ML solution
 - Advanced Dashbord
 
-*Last updated: April 11, 2026*
+*Last updated: April 27, 2026*
