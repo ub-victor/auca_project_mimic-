@@ -3,9 +3,11 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
+    path('', lambda request: __import__('django.shortcuts', fromlist=['redirect']).redirect('login')),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
     path('logout/', views.logout_view, name='logout'),
+    path('forgot-password/', views.forgot_password_view, name='forgot_password'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('staff/', views.staff_area, name='staff_dashboard'),
     path('profile/', views.profile_view, name='profile'),
