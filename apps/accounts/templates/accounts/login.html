@@ -16,7 +16,7 @@
     <!-- LEFT SIDE -->
     <div class="left-side">
 
-        <img class="logo" src="{% static 'img/10001.png' %}" alt="AUCA Logo">
+        <img class="logo" src="{% static 'images/aucalogo.png' %}" alt="AUCA Logo">
 
         <form method="POST">
             {% csrf_token %}
@@ -24,8 +24,10 @@
             <h3 class="log">Login</h3>
             <p class="welcome">Welcome! Please enter your details.</p>
 
-            {% if error %}
-            <p style="color:red; text-align:center; margin-bottom:10px;">{{ error }}</p>
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color:{% if message.tags == 'error' %}red{% else %}green{% endif %}; text-align:center; margin-bottom:10px;">{{ message }}</p>
+                {% endfor %}
             {% endif %}
 
             <label for="email">Enter your Email or ID</label>
@@ -58,9 +60,23 @@
 
     <!-- RIGHT SIDE -->
     <div class="right-side">
-        <img src="{% static 'img/10002.jpg' %}" alt="Campus Photo">
+        <img src="{% static 'images/aucacampus.png' %}" alt="Campus Photo">
     </div>
 
 </div>
+
+<script>
+    // Auto-dismiss messages after 5 seconds
+    setTimeout(function() {
+        const messages = document.querySelectorAll('p[style*="color"]');
+        messages.forEach(function(message) {
+            message.style.transition = 'opacity 0.5s';
+            message.style.opacity = '0';
+            setTimeout(function() {
+                message.remove();
+            }, 500);
+        });
+    }, 5000);
+</script>
 </body>
 </html>

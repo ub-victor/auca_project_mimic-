@@ -6,6 +6,7 @@
     <title>AUCA &mdash; Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -23,7 +24,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: var(--bg);
             color: #1a2a3a;
             min-height: 100vh;
@@ -384,7 +385,7 @@
 <!-- Navbar -->
 <nav class="navbar">
     <div class="navbar-brand">
-        <img src="{% static 'img/10001.png' %}" alt="AUCA Logo">
+        <img src="{% static 'images/aucalogo.png' %}" alt="AUCA Logo">
         <span>AUCA Portal</span>
     </div>
     <div class="navbar-right">
@@ -395,6 +396,17 @@
         <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>
     </div>
 </nav>
+
+<!-- Messages -->
+{% if messages %}
+<div style="position: fixed; top: 80px; right: 20px; z-index: 1000; max-width: 400px;">
+    {% for message in messages %}
+        <div class="alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}" style="padding: 12px 16px; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); {% if message.tags == 'error' %}background: #fee; color: #c33; border-left: 4px solid #c33;{% else %}background: #efe; color: #363; border-left: 4px solid #363;{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <!-- Hero -->
 <div class="hero">
@@ -618,6 +630,20 @@
 <footer>
     &copy; 2025 Adventist University of Central Africa &mdash; All rights reserved.
 </footer>
+
+<script>
+    // Auto-dismiss messages after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert-error, .alert-success');
+        alerts.forEach(function(alert) {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(function() {
+                alert.remove();
+            }, 500);
+        });
+    }, 5000);
+</script>
 
 </body>
 </html>
