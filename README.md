@@ -217,7 +217,49 @@ The final dashboard is a full creative redesign with the following structure:
 
 ---
 
-## Project Structure
+## Database Models & Core Structure
+
+The application uses a comprehensive database schema with the following models:
+
+### Core App
+- **Faculty**: Represents academic faculties (e.g., Faculty of Science and Technology)
+- **Department**: Departments within faculties (e.g., Computer Science)
+- **Semester**: Academic semesters with start/end dates
+
+### Courses App
+- **Course**: Course details including code, title, credits, department, lecturer
+- **CourseEnrollment**: Student enrollments in courses for specific semesters
+
+### Assessments App
+- **Assessment**: Exams, quizzes, assignments with due dates and marks
+- **Question**: Individual questions within assessments
+- **Answer**: Student submissions for questions
+
+### Finances App
+- **Fee**: Various fees (tuition, registration, etc.) per student and semester
+- **Payment**: Payment records linked to multiple fees
+
+### Grades App
+- **Grade**: Final grades for course enrollments with GPA points
+
+### Relationships
+- All user-related models use `AUTH_USER_MODEL = 'accounts.CustomUser'`
+- Foreign keys establish proper relationships (e.g., Course -> Department, Enrollment -> Student/Course)
+- Many-to-many relationships for courses and semesters, payments and fees
+
+### Admin Interface
+All models are registered in Django admin with:
+- `list_display` for key fields
+- `search_fields` for quick lookup
+- `list_filter` for filtering options
+
+### Sample Data
+Sample data has been populated including:
+- Demo users (student, lecturer, staff)
+- Faculty, department, semester
+- Courses, enrollments, assessments, grades, fees, payments
+
+Run `python manage.py populate_sample_data` to reload sample data.
 
 ```
 auca_project_mimic/
