@@ -68,17 +68,22 @@ Two demo accounts are available. No registration is required — use these direc
    python manage.py migrate
    ```
 
-6. **Upload media files to Cloudinary** (optional, if local media exists):
+6. **Populate sample data** (recommended for admin/model testing):
+   ```bash
+   python manage.py seed_sample_data
+   ```
+
+7. **Upload media files to Cloudinary** (optional, if local media exists):
    ```bash
    python manage.py upload_to_cloudinary
    ```
 
-7. **Run the development server**:
+8. **Run the development server**:
    ```bash
    python manage.py runserver
    ```
 
-8. **Access the application**:
+9. **Access the application**:
    Open your browser and go to `http://127.0.0.1:8000/`.
 
 ---

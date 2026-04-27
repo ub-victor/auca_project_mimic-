@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
+from .models import User
 
 
 class SignupForm(UserCreationForm):
@@ -9,7 +9,7 @@ class SignupForm(UserCreationForm):
     student_id = forms.CharField(max_length=30, required=False)
 
     class Meta:
-        model  = CustomUser
+        model = User
         fields = ['first_name', 'email', 'student_id', 'password1', 'password2']
 
     def save(self, commit=True):
@@ -23,5 +23,5 @@ class SignupForm(UserCreationForm):
 
 class ProfileForm(forms.ModelForm):
     class Meta:
-        model  = CustomUser
+        model = User
         fields = ['first_name', 'last_name', 'email', 'bio', 'phone', 'profile_picture']

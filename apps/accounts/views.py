@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .models import CustomUser as User
+from .models import User
 from .decorators import student_required, lecturer_required, staff_required
 from django.contrib.auth.decorators import login_required
 
