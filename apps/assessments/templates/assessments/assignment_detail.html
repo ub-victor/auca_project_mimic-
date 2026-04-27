@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ assignment.title }} — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --navy:#2d4d68; --dark:#0f1f2e; --teal:#2a9d8f; --bg:#eef1f5; --white:#fff; --border:#e4e8ed; --muted:#7a8a99; --green:#2e7d32; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #1a2a3a; }
+        .navbar { background: var(--dark); height: 62px; padding: 0 36px; display: flex; align-items: center; justify-content: space-between; }
+        .navbar a { color: white; text-decoration: none; font-size: 14px; }
+        .navbar-brand { font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
+        .main { max-width: 860px; margin: 36px auto; padding: 0 24px; }
+        .hero-card { background: linear-gradient(120deg, var(--dark), var(--navy)); color: white; border-radius: 12px; padding: 28px; margin-bottom: 28px; }
+        .hero-card h1 { font-size: 22px; margin-bottom: 8px; }
+        .hero-card p { font-size: 13px; color: rgba(255,255,255,0.65); }
+        .card { background: var(--white); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid var(--navy); }
+        .q-number { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .q-text { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; }
+        textarea { width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 10px; font-size: 13px; font-family: inherit; min-height: 100px; }
+        textarea:focus { outline: none; border-color: var(--teal); }
+        input[type=file] { font-size: 13px; }
+        .submitted-box { background: #f0faf8; border: 1px solid #b2dfdb; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+        .submitted-box .label { font-size: 11px; font-weight: 700; color: var(--teal); text-transform: uppercase; margin-bottom: 6px; }
+        .ai-result { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
+        .ai-pill { background: #eef1f5; border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; color: var(--navy); }
+        .ai-pill.good { background: #e6f4ea; color: var(--green); }
+        .btn { display: inline-block; padding: 11px 28px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; color: white; background: var(--teal); }
+        .btn:hover { opacity: 0.88; }
+        .msg { padding: 10px 16px; border-radius: 7px; font-size: 13px; margin-bottom: 16px; }
+        .msg-success { background: #e6f4ea; color: #2e7d32; }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <div style="display:flex;gap:16px;">
+        <a href="{% url 'assessments:assignment_list' %}">← Assignments</a>
+        <a href="{% url 'logout' %}">Sign out</a>
+    </div>
+</nav>
+<main class="main">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="msg msg-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="hero-card">
+        <h1>{{ assignment.title }}</h1>
+        <p>{{ assignment.description }}</p>
+        {% if assignment.due_date %}<p style="margin-top:8px;">Due: {{ assignment.due_date|date:"M d, Y H:i" }}</p>{% endif %}
+    </div>
+
+    {% if request.user.role == 'student' %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for question in questions %}
+        <div class="card">
+            <div class="q-number">Question {{ forloop.counter }} &nbsp;·&nbsp; Max: {{ question.max_score }} pts</div>
+            <div class="q-text">{{ question.text }}</div>
+
+            {% if existing|default_if_none:'' %}
+                {% with sub=existing|default_if_none:'' %}
+                {% endwith %}
+            {% endif %}
+
+            {% for qid, sub in existing.items %}
+                {% if qid == question.pk %}
+                <div class="submitted-box">
+                    <div class="label">Your submitted answer</div>
+                    <p style="font-size:13px;">{{ sub.answer_text|truncatechars:200 }}</p>
+                    {% if sub.ai_score is not None %}
+                    <hr class="divider">
+                    <div class="ai-result">
+                        <span class="ai-pill good">AI Score: {{ sub.ai_score }} / {{ question.max_score }}</span>
+                        <span class="ai-pill">Similarity: {{ sub.similarity_score|floatformat:2 }}</span>
+                        {% if sub.final_score is not None %}<span class="ai-pill good">Final: {{ sub.final_score }}</span>{% endif %}
+                    </div>
+                    <p style="font-size:12px;color:#555;margin-top:8px;">{{ sub.ai_feedback }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            <label>Your Answer (text)</label>
+            <textarea name="answer_{{ question.pk }}" placeholder="Type your answer here..."></textarea>
+            <label style="margin-top:10px;">Or upload a file (.txt)</label>
+            <input type="file" name="file_{{ question.pk }}" accept=".txt">
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn">Submit Answers</button>
+    </form>
+
+    {% else %}
+    <!-- Lecturer/Staff view -->
+    {% for question in questions %}
+    <div class="card">
+        <div class="q-number">Question {{ forloop.counter }}</div>
+        <div class="q-text">{{ question.text }}</div>
+        <p style="font-size:12px;color:var(--muted);">Model answer: {{ question.model_answer|truncatechars:120 }}</p>
+    </div>
+    {% endfor %}
+    {% if request.user.role in 'lecturer staff' %}
+    <a href="{% url 'assessments:grade_submissions' assignment.pk %}" class="btn">Grade Submissions</a>
+    {% endif %}
+    {% endif %}
+</main>
+</body>
+</html>

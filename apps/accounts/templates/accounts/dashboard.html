@@ -384,7 +384,7 @@
 <!-- Navbar -->
 <nav class="navbar">
     <div class="navbar-brand">
-        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858116/static/img/static/img/10001.png" alt="AUCA Logo">
+        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/10001.png" alt="AUCA Logo">
         <span>AUCA Portal</span>
     </div>
     <div class="navbar-right">
@@ -532,7 +532,6 @@
 
     <!-- Row 2: Finances + Announcements -->
     <p class="sec-label">Finance &amp; Updates</p>
-
     <div class="grid-2">
 
         <!-- Finances -->
@@ -613,34 +612,6 @@
         </div>
 
     </div>
-
-    {% if user_role == 'Staff' or user_role == 'Lecturer' %}
-    <p class="sec-label" style="margin-top:8px;">AI Tools</p>
-    <div class="card accent-teal" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px;">
-        <div>
-            <div style="font-size:14px;font-weight:700;color:#1a2a3a;margin-bottom:4px;">AI Answer Evaluator</div>
-            <div style="font-size:13px;color:var(--muted);">Automatically score student answers using semantic similarity &amp; keyword analysis.</div>
-        </div>
-        <a href="/assessments/" style="
-            display:inline-flex;align-items:center;gap:9px;
-            background:linear-gradient(135deg,var(--dark),var(--navy));
-            color:white;text-decoration:none;
-            padding:11px 22px;border-radius:8px;
-            font-size:13px;font-weight:700;letter-spacing:0.4px;
-            box-shadow:0 4px 14px rgba(15,31,46,0.25);
-            white-space:nowrap;
-            transition:opacity 0.2s,transform 0.15s;"
-            onmouseover="this.style.opacity='.88';this.style.transform='translateY(-2px)'"
-            onmouseout="this.style.opacity='1';this.style.transform='translateY(0)'">
-            <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-                <rect x="9" y="3" width="6" height="4" rx="1"/>
-                <path d="M9 12h6M9 16h4"/>
-            </svg>
-            Open Evaluator
-        </a>
-    </div>
-    {% endif %}
 
 </main>
 

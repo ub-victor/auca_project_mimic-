@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assignments — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --navy:#2d4d68; --dark:#0f1f2e; --teal:#2a9d8f; --bg:#eef1f5; --white:#fff; --border:#e4e8ed; --muted:#7a8a99; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #1a2a3a; }
+        .navbar { background: var(--dark); height: 62px; padding: 0 36px; display: flex; align-items: center; justify-content: space-between; }
+        .navbar a { color: white; text-decoration: none; font-size: 14px; }
+        .navbar-brand { font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
+        .navbar-right { display: flex; gap: 16px; align-items: center; }
+        .main { max-width: 900px; margin: 36px auto; padding: 0 24px; }
+        h1 { font-size: 22px; margin-bottom: 24px; color: var(--dark); }
+        .btn { display: inline-block; padding: 9px 20px; border-radius: 7px; font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; border: none; }
+        .btn-teal { background: var(--teal); color: white; }
+        .btn-navy { background: var(--navy); color: white; }
+        .card { background: var(--white); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid var(--navy); }
+        .card-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .card-meta { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+        .card-actions { display: flex; gap: 10px; }
+        .empty { text-align: center; padding: 60px; color: var(--muted); }
+        .messages { margin-bottom: 16px; }
+        .msg { padding: 10px 16px; border-radius: 7px; font-size: 13px; margin-bottom: 8px; }
+        .msg-success { background: #e6f4ea; color: #2e7d32; }
+        .msg-error   { background: #fdecea; color: #c0392b; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <div class="navbar-right">
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        {% if request.user.role in 'lecturer staff' %}
+        <a href="{% url 'assessments:assignment_create' %}" class="btn btn-teal">+ New Assignment</a>
+        {% endif %}
+        <a href="{% url 'logout' %}">Sign out</a>
+    </div>
+</nav>
+<main class="main">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="msg {% if message.tags == 'error' %}msg-error{% else %}msg-success{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h1>Assignments</h1>
+
+    {% if assignments %}
+        {% for assignment in assignments %}
+        <div class="card">
+            <div class="card-title">{{ assignment.title }}</div>
+            <div class="card-meta">
+                {{ assignment.questions.count }} question{{ assignment.questions.count|pluralize }}
+                {% if assignment.due_date %} &nbsp;·&nbsp; Due: {{ assignment.due_date|date:"M d, Y H:i" }}{% endif %}
+                {% if assignment.course %} &nbsp;·&nbsp; {{ assignment.course }}{% endif %}
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'assessments:assignment_detail' assignment.pk %}" class="btn btn-navy">
+                    {% if request.user.role == 'student' %}Submit Answers{% else %}View{% endif %}
+                </a>
+                {% if request.user.role in 'lecturer staff' and assignment.lecturer == request.user %}
+                <a href="{% url 'assessments:grade_submissions' assignment.pk %}" class="btn btn-teal">Grade Submissions</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">No assignments yet.</div>
+    {% endif %}
+
+    {% if request.user.role == 'student' %}
+    <p style="margin-top:20px;"><a href="{% url 'assessments:my_results' %}" class="btn btn-teal">My Results</a></p>
+    {% endif %}
+</main>
+</body>
+</html>
