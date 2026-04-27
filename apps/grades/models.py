@@ -1,29 +1,40 @@
 from django.db import models
 from django.conf import settings
-from apps.courses.models import CourseEnrollment
 
 
-class Grade(models.Model):
-    GRADE_CHOICES = [
-        ('A', 'A'),
-        ('A-', 'A-'),
-        ('B+', 'B+'),
-        ('B', 'B'),
-        ('B-', 'B-'),
-        ('C+', 'C+'),
-        ('C', 'C'),
-        ('C-', 'C-'),
-        ('D+', 'D+'),
-        ('D', 'D'),
-        ('F', 'F'),
+class GradeRecord(models.Model):
+    LETTER_CHOICES = [
+        ("A", "A"),
+        ("B", "B"),
+        ("C", "C"),
+        ("D", "D"),
+        ("F", "F"),
     ]
 
-    enrollment = models.OneToOneField(CourseEnrollment, on_delete=models.CASCADE, related_name='grade')
-    grade = models.CharField(max_length=5, choices=GRADE_CHOICES)
-    points = models.DecimalField(max_digits=3, decimal_places=2)  # GPA points
-    remarks = models.TextField(blank=True)
-    graded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='graded_grades')
+    enrollment = models.ForeignKey(
+        "courses.Enrollment", on_delete=models.CASCADE, related_name="grades"
+    )
+    submission = models.OneToOneField(
+        "assessments.Submission",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="grade_record",
+    )
+    graded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="graded_records"
+    )
+    score = models.DecimalField(max_digits=6, decimal_places=2)
+    letter_grade = models.CharField(max_length=2, choices=LETTER_CHOICES)
+    feedback = models.TextField(blank=True)
     graded_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["enrollment", "submission"], name="unique_grade_per_enrollment_submission"
+            )
+        ]
+
     def __str__(self):
-        return f"{self.enrollment} - {self.grade}"
+        return f"{self.enrollment.student} - {self.letter_grade}"
