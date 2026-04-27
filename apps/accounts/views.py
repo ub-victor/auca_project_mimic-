@@ -24,6 +24,9 @@ def _log(request, action, target='', detail=''):
 
 
 def login_view(request):
+    # Clear any stale session messages
+    from django.contrib.messages import get_messages
+    list(get_messages(request))  # consuming clears them
     form = LoginForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         email    = form.cleaned_data['email']
@@ -150,6 +153,8 @@ def logout_view(request):
     if request.user.is_authenticated:
         _log(request, 'logout', 'login', 'User logged out')
     logout(request)
+    # Flush session completely so no messages bleed to login page
+    request.session.flush()
     return redirect("login")
 
 
