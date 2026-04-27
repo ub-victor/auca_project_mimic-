@@ -80,22 +80,30 @@ def course_enroll(request, pk):
     if not semester:
         messages.error(request, 'No active semester found.')
         return redirect('dashboard')
-    _, created = CourseEnrollment.objects.get_or_create(student=request.user, course=course, semester=semester)
+    _, created = CourseEnrollment.objects.get_or_create(
+        student=request.user, course=course, semester=semester
+    )
     if created:
-        # Add tuition fee increment for this course
         from apps.finances.models import Fee
-        import datetime
-        fee_per_credit = 50000  # RWF per credit
-        fee_amount = course.credits * fee_per_credit
-        Fee.objects.get_or_create(
+        # Each course gets its own fee line: 50,000 RWF per credit
+        fee_per_credit = 50000
+        fee_amount     = course.credits * fee_per_credit
+        Fee.objects.create(
             student=request.user,
             fee_type='tuition',
+            description=f'{course.code} — {course.title}',
             semester=semester,
-            defaults={'amount': fee_amount, 'is_paid': False, 'due_date': semester.end_date}
+            amount=fee_amount,
+            is_paid=False,
+            due_date=semester.end_date
         )
-        messages.success(request, f'Enrolled in {course.title}. Tuition fee of RWF {fee_amount:,} added.')
+        messages.success(
+            request,
+            f'Enrolled in {course.title} ({course.credits} credits). '
+            f'RWF {fee_amount:,} tuition fee added to your account.'
+        )
     else:
-        messages.info(request, f'Already enrolled in {course.title}.')
+        messages.info(request, f'You are already enrolled in {course.title}.')
     return redirect('dashboard')
 
 

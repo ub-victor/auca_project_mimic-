@@ -78,7 +78,14 @@ def dashboard_view(request):
         available_courses = Course.objects.exclude(id__in=enrolled_ids)
         fees = Fee.objects.filter(student=user)
         balance_due = sum(f.amount for f in fees if not f.is_paid)
-        assessments = Assessment.objects.all().prefetch_related('questions')[:5]
+        # Only show assessments for courses the student is enrolled in
+        # New students with no courses see empty assignments
+        if enrolled_courses:
+            assessments = Assessment.objects.filter(
+                course__in=enrolled_courses
+            ).prefetch_related('questions')[:5]
+        else:
+            assessments = Assessment.objects.none()
         pending_answers = Answer.objects.filter(student=user, status='pending').count()
         graded_answers = Answer.objects.filter(student=user, status='graded')
         graded_count = graded_answers.count()
@@ -227,14 +234,21 @@ def post_announcement(request):
 @login_required(login_url='login')
 def pay_fee(request, fee_id):
     from apps.finances.models import Fee
+    from django.utils import timezone
     if request.user.role != 'student':
         return redirect('dashboard')
     fee = get_object_or_404(Fee, pk=fee_id, student=request.user)
     if not fee.is_paid:
         fee.is_paid = True
-        fee.save()
-        _log(request, 'update', f'fee:{fee_id}', f'Fee paid: {fee.get_fee_type_display()}')
-        messages.success(request, f'{fee.get_fee_type_display()} of RWF {fee.amount:,.0f} marked as paid!')
+        fee.paid_at = timezone.now()
+        fee.save(update_fields=['is_paid', 'paid_at'])
+        _log(request, 'update', f'fee:{fee_id}', f'Fee paid: {fee.display_name()}')
+        messages.success(
+            request,
+            f'Payment successful! {fee.display_name()} — RWF {fee.amount:,.0f} has been paid.'
+        )
+    else:
+        messages.info(request, f'{fee.display_name()} is already marked as paid.')
     return redirect('dashboard')
 
 
