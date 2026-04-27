@@ -171,11 +171,9 @@ def profile_view(request):
 
         update_fields = ['first_name', 'last_name', 'email', 'username', 'phone', 'bio']
 
-        if cloudinary_ok and request.FILES.get('profile_picture'):
+        if request.FILES.get('profile_picture'):
             user.profile_picture = request.FILES['profile_picture']
             update_fields.append('profile_picture')
-        elif not cloudinary_ok and request.FILES.get('profile_picture'):
-            messages.warning(request, 'Profile picture upload requires Cloudinary keys in .env. Other changes saved.')
 
         user.save(update_fields=update_fields)
         _log(request, 'update', f'user:{user.email}', 'Profile updated')

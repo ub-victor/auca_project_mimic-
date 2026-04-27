@@ -228,19 +228,21 @@
                     {% csrf_token %}
 
                     <div class="form-group">
-                        <label class="field-label" for="id_student_id">Enter your ID</label>
-                        {{ form.student_id }}
-                        {% for error in form.student_id.errors %}
-                            <p class="alert-error">{{ error }}</p>
-                        {% endfor %}
+                        <label class="field-label" for="id_first_name">First Name *</label>
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}<p class="alert-error">{{ error }}</p>{% endfor %}
                     </div>
 
                     <div class="form-group">
-                        <label class="field-label" for="id_first_name">Enter your Firstname</label>
-                        {{ form.first_name }}
-                        {% for error in form.first_name.errors %}
-                            <p class="alert-error">{{ error }}</p>
-                        {% endfor %}
+                        <label class="field-label" for="id_last_name">Last Name *</label>
+                        {{ form.last_name }}
+                        {% for error in form.last_name.errors %}<p class="alert-error">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="field-label" for="id_student_id">Student Registration No</label>
+                        {{ form.student_id }}
+                        {% for error in form.student_id.errors %}<p class="alert-error">{{ error }}</p>{% endfor %}
                     </div>
 
                     <div class="form-group">

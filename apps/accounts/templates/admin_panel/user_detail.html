@@ -68,6 +68,7 @@
 
     <div class="actions">
         <a href="{% url 'admin_panel:user_edit' u.pk %}" class="btn btn-teal">&#9998; Edit Profile</a>
+        <a href="{% url 'admin_panel:manage_privileges' u.pk %}" class="btn btn-navy">&#128274; Privileges</a>
         <form method="POST" action="{% url 'admin_panel:impersonate' u.pk %}" style="display:inline;">
             {% csrf_token %}
             <button type="submit" class="btn btn-amber" onclick="return confirm('Login as {{ u.get_full_name }}?')">&#128100; Login As This User</button>

@@ -12,4 +12,5 @@ urlpatterns = [
     path('evaluator/',                          views.evaluator_page,     name='evaluator'),
     path('evaluate/',                           views.evaluate_view,      name='evaluate'),
     path('evaluate/batch/',                     views.batch_evaluate_view,name='batch_evaluate'),
+    path('<int:assessment_pk>/cheating/',        views.cheating_report,    name='cheating_report'),
 ]

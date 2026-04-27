@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>Privileges — {{ u.get_full_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--amber:#e67e22;--red:#c0392b;--green:#2e7d32;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .navbar-right{display:flex;gap:12px}
+        .nav-link{color:rgba(255,255,255,0.75);font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;text-decoration:none}
+        .main{max-width:800px;margin:32px auto;padding:0 24px}
+        h1{font-size:22px;margin-bottom:6px}
+        .subtitle{font-size:13px;color:var(--muted);margin-bottom:24px}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        .card{background:var(--white);border-radius:12px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        .card h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+        .group-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
+        .group-row:last-child{border-bottom:none}
+        .group-name{font-weight:600;color:#1a2a3a}
+        .group-perms{font-size:11px;color:var(--muted);margin-top:2px}
+        .btn{display:inline-block;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-red{background:var(--red);color:white}
+        .btn-navy{background:var(--navy);color:white}
+        .pill-group{display:inline-block;background:#e8f4fd;color:#1565c0;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;margin:2px}
+        .empty{color:var(--muted);font-size:13px;padding:16px 0}
+        .msg{padding:10px 16px;border-radius:7px;font-size:13px;margin-bottom:16px;background:#e6f4ea;color:var(--green)}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white);margin-top:40px}
+        @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <div class="navbar-right">
+        <a href="{% url 'admin_panel:user_detail' u.pk %}" class="nav-link">&#8592; Back to User</a>
+        <a href="{% url 'admin_panel:group_list' %}" class="nav-link">Manage Groups</a>
+    </div>
+</nav>
+<main class="main">
+    {% if messages %}{% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}{% endif %}
+
+    <h1>Privileges: {{ u.get_full_name|default:u.username }}</h1>
+    <p class="subtitle">{{ u.email }} &middot; {{ u.get_role_display }}</p>
+
+    <div class="grid-2">
+        <!-- Current groups -->
+        <div class="card">
+            <h2>Current Groups</h2>
+            {% for group in user_groups %}
+            <div class="group-row">
+                <div>
+                    <div class="group-name">{{ group.name }}</div>
+                    <div class="group-perms">{{ group.permissions.count }} permission{{ group.permissions.count|pluralize }}</div>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="group_id" value="{{ group.pk }}">
+                    <button type="submit" class="btn btn-red">Remove</button>
+                </form>
+            </div>
+            {% empty %}
+            <p class="empty">No groups assigned yet.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Available groups to add -->
+        <div class="card">
+            <h2>Add to Group</h2>
+            {% for group in all_groups %}
+            {% if group not in user_groups %}
+            <div class="group-row">
+                <div>
+                    <div class="group-name">{{ group.name }}</div>
+                    <div class="group-perms">{{ group.permissions.count }} permission{{ group.permissions.count|pluralize }}</div>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="group_id" value="{{ group.pk }}">
+                    <button type="submit" class="btn btn-teal">Add</button>
+                </form>
+            </div>
+            {% endif %}
+            {% empty %}
+            <p class="empty">No groups available. <a href="{% url 'admin_panel:group_create' %}">Create one</a>.</p>
+            {% endfor %}
+            <div style="margin-top:16px;">
+                <a href="{% url 'admin_panel:group_create' %}" class="btn btn-navy">+ Create New Group</a>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa</footer>
+</body>
+</html>

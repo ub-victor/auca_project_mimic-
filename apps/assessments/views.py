@@ -193,3 +193,38 @@ def batch_evaluate_view(request):
 @login_required(login_url='login')
 def evaluator_page(request):
     return render(request, 'assessments/evaluator.html')
+
+
+@lecturer_required
+def cheating_report(request, assessment_pk):
+    """Run ML cheating detection for an assessment and notify lecturer."""
+    from .ai_evaluator import detect_cheating_for_assessment
+    from apps.accounts.models import Announcement
+
+    assessment = get_object_or_404(Assessment, pk=assessment_pk)
+    if request.user.role not in ('staff',) and assessment.created_by != request.user:
+        messages.error(request, 'Access denied.')
+        return redirect('assessments:assignment_list')
+
+    suspects = detect_cheating_for_assessment(assessment_pk)
+
+    # Auto-post notification to lecturer dashboard if suspects found
+    if suspects and request.method == 'POST':
+        names = ', '.join(set(
+            f"{s['student_a'].get_full_name()} & {s['student_b'].get_full_name()}"
+            for s in suspects[:3]
+        ))
+        Announcement.objects.create(
+            title=f'Cheating Alert: {assessment.title}',
+            body=f'ML detected {len(suspects)} suspected cheating case(s). Students: {names}. Please review.',
+            audience='lecturers',
+            created_by=request.user,
+            is_active=True
+        )
+        messages.warning(request, f'Cheating alert posted to your dashboard. {len(suspects)} case(s) detected.')
+
+    return render(request, 'assessments/cheating_report.html', {
+        'assessment': assessment,
+        'suspects':   suspects,
+        'threshold':  0.92,
+    })

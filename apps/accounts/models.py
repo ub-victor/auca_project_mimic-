@@ -1,6 +1,14 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from cloudinary.models import CloudinaryField
+
+
+def _profile_pic_field():
+    """Use CloudinaryField if configured, else local ImageField."""
+    from decouple import config
+    if config('CLOUDINARY_CLOUD_NAME', default='placeholder') != 'placeholder':
+        from cloudinary.models import CloudinaryField
+        return CloudinaryField('image', blank=True, null=True)
+    return models.ImageField(upload_to='profile_pics/', blank=True, null=True)
 
 
 class CustomUser(AbstractUser):
@@ -13,10 +21,19 @@ class CustomUser(AbstractUser):
     student_id      = models.CharField(max_length=30, blank=True, null=True)
     bio             = models.TextField(blank=True)
     phone           = models.CharField(max_length=20, blank=True)
-    profile_picture = CloudinaryField('image', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.get_full_name() or self.username} ({self.role})"
+
+    def get_profile_pic_url(self):
+        """Returns profile picture URL regardless of storage backend."""
+        if not self.profile_picture:
+            return None
+        try:
+            return self.profile_picture.url
+        except Exception:
+            return None
 
 
 class AuditLog(models.Model):

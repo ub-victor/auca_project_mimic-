@@ -82,7 +82,18 @@ def course_enroll(request, pk):
         return redirect('dashboard')
     _, created = CourseEnrollment.objects.get_or_create(student=request.user, course=course, semester=semester)
     if created:
-        messages.success(request, f'Enrolled in {course.title}.')
+        # Add tuition fee increment for this course
+        from apps.finances.models import Fee
+        import datetime
+        fee_per_credit = 50000  # RWF per credit
+        fee_amount = course.credits * fee_per_credit
+        Fee.objects.get_or_create(
+            student=request.user,
+            fee_type='tuition',
+            semester=semester,
+            defaults={'amount': fee_amount, 'is_paid': False, 'due_date': semester.end_date}
+        )
+        messages.success(request, f'Enrolled in {course.title}. Tuition fee of RWF {fee_amount:,} added.')
     else:
         messages.info(request, f'Already enrolled in {course.title}.')
     return redirect('dashboard')

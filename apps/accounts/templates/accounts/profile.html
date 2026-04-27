@@ -161,16 +161,12 @@
 
             <div class="card">
                 <h3>Profile Picture</h3>
-                {% if not cloudinary_ok %}
-                <div class="no-cloudinary">Profile picture upload requires Cloudinary API keys in your .env file.</div>
-                {% endif %}
                 <div class="file-upload-area" onclick="document.getElementById('pic-input').click()">
                     <div class="upload-icon">&#128247;</div>
                     <p>Click to upload a new profile picture</p>
                     <p style="font-size:11px;color:#aaa;">JPG, PNG — max 5MB</p>
                     <div class="file-name" id="file-name-display"></div>
                     <input type="file" id="pic-input" name="profile_picture" accept="image/*"
-                           {% if not cloudinary_ok %}disabled{% endif %}
                            onchange="document.getElementById('file-name-display').textContent = this.files[0]?.name || ''">
                 </div>
             </div>

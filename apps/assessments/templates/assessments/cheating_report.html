@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>Cheating Report — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--amber:#e67e22;--red:#c0392b;--green:#2e7d32;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .navbar-right{display:flex;gap:12px}
+        .nav-link{color:rgba(255,255,255,0.75);font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;text-decoration:none}
+        .main{max-width:960px;margin:32px auto;padding:0 24px}
+        .hero{background:linear-gradient(120deg,#7b1a1a,#c0392b);border-radius:14px;padding:28px;color:white;margin-bottom:28px}
+        .hero h1{font-size:22px;margin-bottom:6px}
+        .hero p{font-size:13px;color:rgba(255,255,255,0.75)}
+        .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+        .stat-box{background:var(--white);border-radius:12px;padding:20px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        .stat-box .val{font-size:28px;font-weight:800;margin-bottom:4px}
+        .stat-box .lbl{font-size:11px;color:var(--muted);text-transform:uppercase}
+        .card{background:var(--white);border-radius:12px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:16px}
+        .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+        .card-title{font-size:14px;font-weight:700;color:#1a2a3a}
+        .suspect-row{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
+        .suspect-row:last-child{border-bottom:none}
+        .sim-bar-wrap{flex:1;background:#f0f0f0;border-radius:20px;height:8px;overflow:hidden}
+        .sim-bar{height:100%;border-radius:20px;background:var(--red)}
+        .pill{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;text-transform:uppercase;flex-shrink:0}
+        .pill-high{background:#fdecea;color:var(--red)}
+        .pill-medium{background:#fff3e0;color:var(--amber)}
+        .btn{display:inline-block;padding:9px 20px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
+        .btn-red{background:var(--red);color:white}
+        .btn-navy{background:var(--navy);color:white}
+        .msg{padding:10px 16px;border-radius:7px;font-size:13px;margin-bottom:16px}
+        .msg-warning{background:#fff3e0;color:#e65100}
+        .empty{text-align:center;padding:40px;color:var(--muted)}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white);margin-top:40px}
+        @media(max-width:600px){.stats-row{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <div class="navbar-right">
+        <a href="{% url 'assessments:grade_submissions' assessment.pk %}" class="nav-link">Grade Submissions</a>
+        <a href="{% url 'assessments:assignment_list' %}" class="nav-link">&#8592; Assessments</a>
+    </div>
+</nav>
+<main class="main">
+    {% if messages %}
+    {% for m in messages %}<div class="msg msg-warning">{{ m }}</div>{% endfor %}
+    {% endif %}
+
+    <div class="hero">
+        <h1>ML Cheating Detection Report</h1>
+        <p>{{ assessment.title }} &middot; {{ assessment.course }} &middot; Similarity threshold: {{ threshold }}</p>
+        <p style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.6);">
+            The AI compares every student answer against every other student answer using semantic similarity.
+            Pairs above {{ threshold }} similarity are flagged as probable cheating.
+        </p>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-box" style="border-top:4px solid var(--red);">
+            <div class="val" style="color:var(--red);">{{ suspects|length }}</div>
+            <div class="lbl">Suspected Cases</div>
+        </div>
+        <div class="stat-box" style="border-top:4px solid var(--amber);">
+            <div class="val" style="color:var(--amber);">
+                {% with high=0 %}
+                {% for s in suspects %}{% if s.risk_level == 'HIGH' %}{% with high=high|add:1 %}{% endwith %}{% endif %}{% endfor %}
+                {{ suspects|length }}
+                {% endwith %}
+            </div>
+            <div class="lbl">High Risk</div>
+        </div>
+        <div class="stat-box" style="border-top:4px solid var(--navy);">
+            <div class="val" style="color:var(--navy);">{{ threshold }}</div>
+            <div class="lbl">Threshold</div>
+        </div>
+    </div>
+
+    {% if suspects %}
+    {% if request.method != 'POST' %}
+    <form method="POST" style="margin-bottom:20px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-red">Send Alert to My Dashboard</button>
+        <a href="{% url 'assessments:grade_submissions' assessment.pk %}" class="btn btn-navy" style="margin-left:10px;">Grade Submissions</a>
+    </form>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-head">
+            <span class="card-title">Suspected Cheating Pairs</span>
+            <span style="font-size:12px;color:var(--muted);">Sorted by similarity (highest first)</span>
+        </div>
+        {% for s in suspects %}
+        <div class="suspect-row">
+            <span class="pill {% if s.risk_level == 'HIGH' %}pill-high{% else %}pill-medium{% endif %}">{{ s.risk_level }}</span>
+            <div style="flex:1;">
+                <strong>{{ s.student_a.get_full_name|default:s.student_a.username }}</strong>
+                <span style="color:var(--muted);margin:0 8px;">&amp;</span>
+                <strong>{{ s.student_b.get_full_name|default:s.student_b.username }}</strong>
+                {% if s.question_text %}
+                <div style="font-size:11px;color:var(--muted);margin-top:2px;">Q: {{ s.question_text }}</div>
+                {% endif %}
+            </div>
+            <div style="text-align:right;min-width:80px;">
+                <strong style="color:var(--red);">{{ s.similarity|floatformat:1 }}%</strong>
+                <div class="sim-bar-wrap" style="margin-top:4px;">
+                    <div class="sim-bar" style="width:{{ s.similarity|floatformat:0 }}%;"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+        <p style="font-size:16px;font-weight:600;color:var(--green);">No cheating detected!</p>
+        <p style="margin-top:8px;">All student answers have similarity below {{ threshold }} threshold.</p>
+    </div>
+    {% endif %}
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa</footer>
+</body>
+</html>
