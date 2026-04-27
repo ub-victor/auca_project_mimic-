@@ -11,11 +11,11 @@ class Fee(models.Model):
         ('other', 'Other'),
     ]
 
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='fees')
+    student  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='fees')
     fee_type = models.CharField(max_length=20, choices=FEE_TYPES)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount   = models.DecimalField(max_digits=10, decimal_places=2)
     due_date = models.DateField()
-    is_paid = models.BooleanField(default=False)
+    is_paid  = models.BooleanField(default=False)
     semester = models.ForeignKey('core.Semester', on_delete=models.CASCADE, related_name='fees')
 
     def __str__(self):
@@ -23,11 +23,11 @@ class Fee(models.Model):
 
 
 class Payment(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payments')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    student      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payments')
+    amount       = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
-    reference = models.CharField(max_length=100, unique=True)
-    fees = models.ManyToManyField(Fee, related_name='payments')  # Many-to-many for partial payments
+    reference    = models.CharField(max_length=100, unique=True)
+    fees         = models.ManyToManyField(Fee, related_name='payments')
 
     def __str__(self):
         return f"{self.student} - {self.amount} - {self.reference}"

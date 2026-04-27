@@ -1,109 +1,195 @@
 import json
 import logging
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.forms import inlineformset_factory
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from .ai_evaluator import evaluate_answer
+from apps.accounts.decorators import lecturer_required, student_required
+from .ai_evaluator import evaluate_answer, batch_evaluate
+from .models import Assessment, Question, Answer
 
 logger = logging.getLogger(__name__)
 
-ALLOWED_ROLES = {"Staff", "Lecturer"}
+QuestionFormSet = inlineformset_factory(
+    Assessment, Question,
+    fields=['question_text', 'model_answer', 'marks', 'order'],
+    extra=3, can_delete=True
+)
 
 
-def _extract_text(uploaded_file) -> str:
-    """Extract plain text from an uploaded .txt or .pdf file."""
-    name = uploaded_file.name.lower()
-    if name.endswith(".txt"):
-        return uploaded_file.read().decode("utf-8", errors="ignore").strip()
-    if name.endswith(".pdf"):
-        try:
-            import pypdf
-            reader = pypdf.PdfReader(uploaded_file)
-            return " ".join(page.extract_text() or "" for page in reader.pages).strip()
-        except ImportError:
-            raise ValueError("PDF support requires pypdf. Run: pip install pypdf")
-    raise ValueError(f"Unsupported file type: {uploaded_file.name}. Use .txt or .pdf")
+@login_required(login_url='login')
+def assignment_list(request):
+    user = request.user
+    if user.role in ('lecturer', 'staff'):
+        assessments = Assessment.objects.filter(created_by=user).prefetch_related('questions')
+    else:
+        assessments = Assessment.objects.all().prefetch_related('questions')
+    return render(request, 'assessments/assignment_list.html', {'assignments': assessments})
 
 
-def evaluator_page(request):
-    """Renders the evaluator UI — Staff/Lecturer only."""
-    role = request.session.get("user_role", "")
-    if role not in ALLOWED_ROLES:
-        return redirect("login")
-    return render(request, "assessments/evaluator.html", {"user_role": role})
+@lecturer_required
+def assignment_create(request):
+    from .forms import AssessmentForm
+    from apps.courses.models import Course
+    if request.method == 'POST':
+        form    = AssessmentForm(request.POST)
+        formset = QuestionFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            assessment             = form.save(commit=False)
+            assessment.created_by  = request.user
+            assessment.save()
+            formset.instance = assessment
+            formset.save()
+            messages.success(request, f'Assessment "{assessment.title}" created.')
+            return redirect('assessments:assignment_list')
+    else:
+        form    = AssessmentForm()
+        formset = QuestionFormSet()
+        # Limit course choices to lecturer's own courses
+        if request.user.role == 'lecturer':
+            form.fields['course'].queryset = Course.objects.filter(lecturer=request.user)
+    return render(request, 'assessments/assignment_form.html', {'form': form, 'formset': formset})
+
+
+@login_required(login_url='login')
+def assignment_detail(request, pk):
+    assessment = get_object_or_404(Assessment, pk=pk)
+    questions  = assessment.questions.all()
+    user       = request.user
+
+    existing = {}
+    if user.role == 'student':
+        for ans in Answer.objects.filter(student=user, question__assessment=assessment):
+            existing[ans.question_id] = ans
+
+    if request.method == 'POST' and user.role == 'student':
+        for question in questions:
+            answer_text = request.POST.get(f'answer_{question.pk}', '').strip()
+            answer_file = request.FILES.get(f'file_{question.pk}')
+            if not answer_text and not answer_file:
+                continue
+
+            ans, _ = Answer.objects.get_or_create(question=question, student=user)
+
+            if answer_file:
+                try:
+                    content = answer_file.read().decode('utf-8', errors='ignore').strip()
+                    answer_text = content or answer_text
+                    answer_file.seek(0)
+                    ans.answer_file = answer_file
+                except Exception:
+                    pass
+
+            ans.answer_text = answer_text
+
+            if answer_text and question.model_answer:
+                result = evaluate_answer(answer_text, question.model_answer, question.marks)
+                ans.similarity_score = result['similarity_score']
+                ans.ai_score         = result['ai_score']
+                ans.ai_feedback      = result['ai_feedback']
+
+            ans.save()
+
+        messages.success(request, 'Answers submitted successfully!')
+        return redirect('assessments:assignment_detail', pk=pk)
+
+    return render(request, 'assessments/assignment_detail.html', {
+        'assignment': assessment,
+        'questions':  questions,
+        'existing':   existing,
+    })
+
+
+@lecturer_required
+def grade_submissions(request, assignment_pk):
+    assessment = get_object_or_404(Assessment, pk=assignment_pk)
+    # Only the creator or staff can grade
+    if request.user.role not in ('staff',) and assessment.created_by != request.user:
+        messages.error(request, 'You can only grade your own assessments.')
+        return redirect('assessments:assignment_list')
+    answers    = Answer.objects.filter(
+        question__assessment=assessment
+    ).select_related('student', 'question').order_by('question__order', 'student__username')
+
+    if request.method == 'POST':
+        ans_id   = request.POST.get('submission_id')
+        score    = request.POST.get('final_score')
+        feedback = request.POST.get('lecturer_feedback', '')
+        ans      = get_object_or_404(Answer, pk=ans_id, question__assessment=assessment)
+        ans.marks_obtained    = float(score) if score else ans.ai_score
+        ans.lecturer_feedback = feedback
+        ans.status            = 'graded'
+        ans.graded_by         = request.user
+        ans.save()
+        messages.success(request, f'Grade saved for {ans.student.username}.')
+        return redirect('assessments:grade_submissions', assignment_pk=assignment_pk)
+
+    return render(request, 'assessments/grade_submissions.html', {
+        'assignment':  assessment,
+        'submissions': answers,
+    })
+
+
+@student_required
+def my_results(request):
+    answers = Answer.objects.filter(
+        student=request.user
+    ).select_related('question', 'question__assessment').order_by('-submitted_at')
+    return render(request, 'assessments/my_results.html', {'submissions': answers})
 
 
 @csrf_exempt
 @require_POST
 def evaluate_view(request):
-    """
-    POST /assessments/evaluate/
-    Accepts JSON body OR multipart form with optional file uploads.
-    """
-    # --- parse input (JSON or multipart) ---
     content_type = request.content_type or ""
-
     if "application/json" in content_type:
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON body."}, status=400)
+            return JsonResponse({"error": "Invalid JSON."}, status=400)
         student_answer = data.get("student_answer", "").strip()
         model_answer   = data.get("model_answer", "").strip()
     else:
-        # multipart/form-data — text fields + optional file uploads
         student_answer = request.POST.get("student_answer", "").strip()
         model_answer   = request.POST.get("model_answer", "").strip()
-
-        # File overrides text if provided
         if "student_file" in request.FILES:
-            try:
-                student_answer = _extract_text(request.FILES["student_file"])
-            except ValueError as e:
-                return JsonResponse({"error": str(e)}, status=400)
-
+            student_answer = request.FILES["student_file"].read().decode("utf-8", errors="ignore").strip()
         if "model_file" in request.FILES:
-            try:
-                model_answer = _extract_text(request.FILES["model_file"])
-            except ValueError as e:
-                return JsonResponse({"error": str(e)}, status=400)
+            model_answer = request.FILES["model_file"].read().decode("utf-8", errors="ignore").strip()
 
     if not student_answer or not model_answer:
-        return JsonResponse(
-            {"error": "Both student_answer and model_answer are required (text or file)."},
-            status=400,
-        )
+        return JsonResponse({"error": "Both answers are required."}, status=400)
 
     try:
         result = evaluate_answer(student_answer, model_answer)
-        logger.info("Evaluation complete — final_score=%.2f", result["final_score"])
         return JsonResponse(result)
     except Exception as exc:
         logger.exception("Evaluation failed: %s", exc)
-        return JsonResponse({"error": "Evaluation failed.", "detail": str(exc)}, status=500)
+        return JsonResponse({"error": str(exc)}, status=500)
 
 
 @csrf_exempt
 @require_POST
 def batch_evaluate_view(request):
-    """POST /assessments/evaluate/batch/"""
-    from .ai_evaluator import batch_evaluate
-
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON body."}, status=400)
-
+        return JsonResponse({"error": "Invalid JSON."}, status=400)
     pairs = data.get("pairs", [])
     if not isinstance(pairs, list) or not pairs:
         return JsonResponse({"error": "'pairs' must be a non-empty list."}, status=400)
-
     try:
         results = batch_evaluate([(s, m) for s, m in pairs])
         return JsonResponse({"results": results})
     except Exception as exc:
-        logger.exception("Batch evaluation failed: %s", exc)
-        return JsonResponse({"error": "Batch evaluation failed.", "detail": str(exc)}, status=500)
+        return JsonResponse({"error": str(exc)}, status=500)
+
+
+@login_required(login_url='login')
+def evaluator_page(request):
+    return render(request, 'assessments/evaluator.html')

@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analytics — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--amber:#e67e22;--red:#c0392b;--green:#2e7d32;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .navbar-right{display:flex;gap:16px;align-items:center}
+        .main{max-width:1100px;margin:36px auto;padding:0 24px}
+        h1{font-size:24px;margin-bottom:6px}
+        .subtitle{font-size:13px;color:var(--muted);margin-bottom:28px}
+        .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:32px}
+        .stat-box{background:var(--white);border-radius:12px;padding:20px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        .stat-box .val{font-size:28px;font-weight:800;margin-bottom:4px}
+        .stat-box .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+        .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px}
+        .chart-card{background:var(--white);border-radius:12px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        .chart-card h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#1a2a3a;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+        .chart-card img{width:100%;height:auto;border-radius:8px}
+        .chart-full{grid-column:1/-1}
+        .badge-risk{display:inline-block;background:#fdecea;color:var(--red);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white);margin-top:40px}
+        @media(max-width:700px){.charts-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal — Analytics</a>
+    <div class="navbar-right">
+        <a href="{% url 'dashboard' %}">&#8592; Dashboard</a>
+        <a href="{% url 'logout' %}">Sign out</a>
+    </div>
+</nav>
+
+<main class="main">
+    <h1>ML Analytics & Performance Dashboard</h1>
+    <p class="subtitle">Real-time insights powered by machine learning — grade predictions, AI scoring analysis, at-risk detection</p>
+
+    <div class="stats-row">
+        <div class="stat-box" style="border-top:4px solid #1565c0;">
+            <div class="val" style="color:#1565c0;">{{ total_students }}</div>
+            <div class="lbl">Total Students</div>
+        </div>
+        <div class="stat-box" style="border-top:4px solid var(--teal);">
+            <div class="val" style="color:var(--teal);">{{ total_lecturers }}</div>
+            <div class="lbl">Lecturers</div>
+        </div>
+        <div class="stat-box" style="border-top:4px solid var(--navy);">
+            <div class="val" style="color:var(--navy);">{{ total_answers }}</div>
+            <div class="lbl">Submissions</div>
+        </div>
+        <div class="stat-box" style="border-top:4px solid var(--green);">
+            <div class="val" style="color:var(--green);">{{ ai_graded }}</div>
+            <div class="lbl">AI Evaluated</div>
+        </div>
+        <div class="stat-box" style="border-top:4px solid var(--red);">
+            <div class="val" style="color:var(--red);">{{ at_risk_count }}</div>
+            <div class="lbl">At Risk <span class="badge-risk">ML</span></div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        {% if charts.grade_dist %}
+        <div class="chart-card">
+            <h3>Grade Distribution</h3>
+            <img src="data:image/png;base64,{{ charts.grade_dist }}" alt="Grade Distribution">
+        </div>
+        {% endif %}
+
+        {% if charts.ai_vs_lec %}
+        <div class="chart-card">
+            <h3>AI Score vs Lecturer Score</h3>
+            <img src="data:image/png;base64,{{ charts.ai_vs_lec }}" alt="AI vs Lecturer">
+        </div>
+        {% endif %}
+
+        {% if charts.at_risk %}
+        <div class="chart-card chart-full">
+            <h3>ML Prediction — Students at Risk of Failing</h3>
+            <img src="data:image/png;base64,{{ charts.at_risk }}" alt="At Risk Students">
+        </div>
+        {% endif %}
+
+        {% if charts.submissions %}
+        <div class="chart-card chart-full">
+            <h3>Submissions per Assessment</h3>
+            <img src="data:image/png;base64,{{ charts.submissions }}" alt="Submissions">
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not charts %}
+    <div style="text-align:center;padding:60px;color:var(--muted);">
+        <p style="font-size:16px;">No data yet. Run <code>py manage.py simulate</code> to generate sample data.</p>
+    </div>
+    {% endif %}
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa &mdash; All rights reserved.</footer>
+</body>
+</html>

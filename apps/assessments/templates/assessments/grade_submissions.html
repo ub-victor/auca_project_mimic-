@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grade Submissions — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --navy:#2d4d68; --dark:#0f1f2e; --teal:#2a9d8f; --amber:#e67e22; --bg:#eef1f5; --white:#fff; --border:#e4e8ed; --muted:#7a8a99; --green:#2e7d32; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #1a2a3a; }
+        .navbar { background: var(--dark); height: 62px; padding: 0 36px; display: flex; align-items: center; justify-content: space-between; }
+        .navbar a { color: white; text-decoration: none; font-size: 14px; }
+        .navbar-brand { font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
+        .main { max-width: 1000px; margin: 36px auto; padding: 0 24px; }
+        h1 { font-size: 22px; margin-bottom: 6px; }
+        .sub-title { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+        .card { background: var(--white); border-radius: 12px; padding: 22px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+        .student-name { font-weight: 700; font-size: 15px; }
+        .q-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .answer-box { background: #f9fafb; border: 1px solid var(--border); border-radius: 7px; padding: 12px; font-size: 13px; margin-bottom: 14px; max-height: 120px; overflow-y: auto; }
+        .ai-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+        .pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .pill-ai   { background: #e8f4fd; color: #1565c0; }
+        .pill-sim  { background: #f3e5f5; color: #6a1b9a; }
+        .pill-done { background: #e6f4ea; color: var(--green); }
+        .pill-pend { background: #fff3e0; color: var(--amber); }
+        .ai-feedback { font-size: 12px; color: #555; margin-bottom: 14px; font-style: italic; }
+        label { font-size: 12px; font-weight: 600; color: #555; display: block; margin-bottom: 4px; }
+        input[type=number], textarea { width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 8px 10px; font-size: 13px; font-family: inherit; }
+        .grade-row { display: grid; grid-template-columns: 160px 1fr; gap: 14px; align-items: start; }
+        .btn { padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; color: white; background: var(--teal); }
+        .msg { padding: 10px 16px; border-radius: 7px; font-size: 13px; margin-bottom: 16px; background: #e6f4ea; color: #2e7d32; }
+        .empty { text-align: center; padding: 60px; color: var(--muted); }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <a href="{% url 'assessments:assignment_list' %}">← Assignments</a>
+</nav>
+<main class="main">
+    {% if messages %}
+        {% for message in messages %}<div class="msg">{{ message }}</div>{% endfor %}
+    {% endif %}
+
+    <h1>Grade: {{ assignment.title }}</h1>
+    <p class="sub-title">{{ submissions.count }} submission{{ submissions.count|pluralize }}</p>
+
+    {% if submissions %}
+        {% for sub in submissions %}
+        <div class="card">
+            <div class="card-head">
+                <div>
+                    <div class="student-name">{{ sub.student.get_full_name|default:sub.student.username }}</div>
+                    <div class="q-label">{{ sub.question.text|truncatechars:80 }}</div>
+                </div>
+                <span class="pill {% if sub.status == 'graded' %}pill-done{% else %}pill-pend{% endif %}">
+                    {{ sub.get_status_display }}
+                </span>
+            </div>
+
+            <div class="answer-box">{{ sub.answer_text|default:"(file submission)" }}</div>
+
+            <div class="ai-row">
+                {% if sub.ai_score is not None %}
+                <span class="pill pill-ai">AI Score: {{ sub.ai_score }} / {{ sub.question.max_score }}</span>
+                <span class="pill pill-sim">Similarity: {{ sub.similarity_score|floatformat:3 }}</span>
+                {% endif %}
+                {% if sub.final_score is not None %}
+                <span class="pill pill-done">Final: {{ sub.final_score }}</span>
+                {% endif %}
+            </div>
+
+            {% if sub.ai_feedback %}<p class="ai-feedback">AI: {{ sub.ai_feedback }}</p>{% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="submission_id" value="{{ sub.pk }}">
+                <div class="grade-row">
+                    <div>
+                        <label>Final Score (max {{ sub.question.max_score }})</label>
+                        <input type="number" name="final_score" step="0.5" min="0" max="{{ sub.question.max_score }}"
+                               value="{{ sub.final_score|default:sub.ai_score|default:'' }}">
+                    </div>
+                    <div>
+                        <label>Feedback to student</label>
+                        <textarea name="lecturer_feedback" rows="2">{{ sub.lecturer_feedback }}</textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="margin-top:12px;">Save Grade</button>
+            </form>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">No submissions yet for this assignment.</div>
+    {% endif %}
+</main>
+</body>
+</html>

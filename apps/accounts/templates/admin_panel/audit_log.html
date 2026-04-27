@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>Audit Log — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--amber:#e67e22;--red:#c0392b;--green:#2e7d32;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .navbar-right{display:flex;gap:12px;align-items:center}
+        .nav-link{color:rgba(255,255,255,0.75);font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;text-decoration:none}
+        .main{max-width:1100px;margin:32px auto;padding:0 24px}
+        h1{font-size:22px;margin-bottom:6px}
+        .subtitle{font-size:13px;color:var(--muted);margin-bottom:24px}
+        .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+        .search-box{display:flex;gap:8px;flex:1;min-width:260px}
+        .search-box input{flex:1;border:1px solid #ccc;border-radius:7px;padding:9px 14px;font-size:13px;font-family:inherit}
+        .search-box input:focus{outline:none;border-color:var(--teal)}
+        select{border:1px solid #ccc;border-radius:7px;padding:9px 12px;font-size:13px;font-family:inherit;background:white}
+        .btn{display:inline-block;padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-amber{background:var(--amber);color:white}
+        .card{background:var(--white);border-radius:12px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th{background:#f8f9fa;padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);border-bottom:2px solid var(--border)}
+        td{padding:9px 12px;border-bottom:1px solid #f4f4f4;vertical-align:middle}
+        tr:last-child td{border-bottom:none}
+        tr:hover td{background:#f9fafb}
+        .pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
+        .pill-login{background:#e8f4fd;color:#1565c0}
+        .pill-logout{background:#f3e5f5;color:#6a1b9a}
+        .pill-create{background:#e6f4ea;color:var(--green)}
+        .pill-update{background:#fff3e0;color:var(--amber)}
+        .pill-delete{background:#fdecea;color:var(--red)}
+        .pill-grade{background:#e8f5e9;color:#2e7d32}
+        .pill-view{background:#f5f5f5;color:#555}
+        .pill-impersonate{background:#fce4ec;color:#c62828}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white);margin-top:40px}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <div class="navbar-right">
+        <a href="{% url 'admin_panel:user_list' %}" class="nav-link">Users</a>
+        <a href="{% url 'dashboard' %}" class="nav-link">&#8592; Dashboard</a>
+    </div>
+</nav>
+<main class="main">
+    <h1>Audit Log</h1>
+    <p class="subtitle">Complete record of all system activity</p>
+
+    <div class="toolbar">
+        <form method="GET" class="search-box">
+            <input type="text" name="q" value="{{ q }}" placeholder="Search by user, target, detail...">
+            <select name="action">
+                <option value="">All Actions</option>
+                {% for val, label in action_choices %}
+                <option value="{{ val }}" {% if action_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-teal">Filter</button>
+            <a href="{% url 'admin_panel:audit_log' %}" class="btn" style="background:#eef1f5;color:#555;">Clear</a>
+        </form>
+        <a href="{% url 'admin_panel:pdf_audit_log' %}" class="btn btn-amber">&#11015; Export PDF</a>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr><th>Timestamp</th><th>User</th><th>Action</th><th>Target</th><th>Detail</th><th>IP</th></tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td style="white-space:nowrap;font-size:12px;color:var(--muted);">{{ log.timestamp|date:"M d, Y H:i:s" }}</td>
+                    <td>
+                        {% if log.user %}
+                        <a href="{% url 'admin_panel:user_detail' log.user.pk %}" style="color:var(--navy);text-decoration:none;font-weight:600;">{{ log.user.email }}</a>
+                        {% else %}Anonymous{% endif %}
+                    </td>
+                    <td><span class="pill pill-{{ log.action }}">{{ log.get_action_display }}</span></td>
+                    <td style="font-size:12px;">{{ log.target|truncatechars:30 }}</td>
+                    <td style="font-size:12px;color:#555;">{{ log.detail|truncatechars:50 }}</td>
+                    <td style="font-size:11px;color:var(--muted);">{{ log.ip_address|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px;">No audit logs yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa</footer>
+</body>
+</html>

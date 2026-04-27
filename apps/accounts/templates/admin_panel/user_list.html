@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>User Management — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--amber:#e67e22;--red:#c0392b;--green:#2e7d32;--purple:#6c3483;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .navbar-right{display:flex;gap:12px;align-items:center}
+        .nav-link{color:rgba(255,255,255,0.75);font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;text-decoration:none}
+        .nav-link:hover{color:white}
+        .main{max-width:1100px;margin:32px auto;padding:0 24px}
+        h1{font-size:22px;margin-bottom:6px}
+        .subtitle{font-size:13px;color:var(--muted);margin-bottom:24px}
+        .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+        .search-wrap{position:relative;flex:1;min-width:260px}
+        .search-wrap input{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 14px 10px 38px;font-size:13px;font-family:inherit;background:white}
+        .search-wrap input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,157,143,0.1)}
+        .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+        .autocomplete-dropdown{position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:100;max-height:280px;overflow-y:auto;display:none}
+        .autocomplete-item{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f4f4f4;display:flex;align-items:center;gap:10px}
+        .autocomplete-item:last-child{border-bottom:none}
+        .autocomplete-item:hover{background:#f0faf8}
+        .autocomplete-item .ac-name{font-weight:600;color:#1a2a3a}
+        .autocomplete-item .ac-meta{font-size:11px;color:var(--muted)}
+        .ac-role{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;text-transform:uppercase;flex-shrink:0}
+        .ac-student{background:#e8f4fd;color:#1565c0}
+        .ac-lecturer{background:#f3e5f5;color:#6a1b9a}
+        .ac-staff{background:#fff3e0;color:var(--amber)}
+        select{border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;background:white;cursor:pointer}
+        select:focus{outline:none;border-color:var(--teal)}
+        .btn{display:inline-block;padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-navy{background:var(--navy);color:white}
+        .btn-amber{background:var(--amber);color:white}
+        .btn-sm{display:inline-block;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;border:none;cursor:pointer;white-space:nowrap}
+        .card{background:var(--white);border-radius:12px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th{background:#f8f9fa;padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);border-bottom:2px solid var(--border)}
+        td{padding:10px 12px;border-bottom:1px solid #f4f4f4;vertical-align:middle}
+        tr:last-child td{border-bottom:none}
+        tr:hover td{background:#f9fafb}
+        .pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
+        .pill-student{background:#e8f4fd;color:#1565c0}
+        .pill-lecturer{background:#f3e5f5;color:#6a1b9a}
+        .pill-staff{background:#fff3e0;color:var(--amber)}
+        .pill-active{background:#e6f4ea;color:var(--green)}
+        .pill-inactive{background:#fdecea;color:var(--red)}
+        .msg{padding:10px 16px;border-radius:7px;font-size:13px;margin-bottom:16px;background:#e6f4ea;color:var(--green)}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white);margin-top:40px}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <div class="navbar-right">
+        <a href="{% url 'admin_panel:audit_log' %}" class="nav-link">Audit Log</a>
+        <a href="{% url 'core:analytics' %}" class="nav-link">Analytics</a>
+        <a href="{% url 'dashboard' %}" class="nav-link">&#8592; Dashboard</a>
+    </div>
+</nav>
+<main class="main">
+    {% if messages %}{% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}{% endif %}
+
+    <h1>User Management</h1>
+    <p class="subtitle">{{ total }} user{{ total|pluralize }} found</p>
+
+    <form method="GET" id="search-form">
+        <div class="toolbar">
+            <div class="search-wrap">
+                <span class="search-icon">&#128269;</span>
+                <input type="text" name="q" id="search-input" value="{{ q }}"
+                       placeholder="Search by name, email, student ID..."
+                       autocomplete="off">
+                <div class="autocomplete-dropdown" id="autocomplete-dropdown"></div>
+            </div>
+            <select name="role" id="role-filter" onchange="document.getElementById('search-form').submit()">
+                <option value="">All Roles</option>
+                <option value="student"  {% if role_filter == 'student'  %}selected{% endif %}>Students</option>
+                <option value="lecturer" {% if role_filter == 'lecturer' %}selected{% endif %}>Lecturers</option>
+                <option value="staff"    {% if role_filter == 'staff'    %}selected{% endif %}>Staff / Admin</option>
+            </select>
+            <button type="submit" class="btn btn-teal">Search</button>
+            <a href="{% url 'admin_panel:user_list' %}" class="btn" style="background:#eef1f5;color:#555;">Clear</a>
+            <a href="{% url 'admin_panel:user_create' %}" class="btn btn-navy">+ Create Account</a>
+            <a href="{% url 'admin_panel:pdf_users' %}?role={{ role_filter }}" class="btn btn-amber">&#11015; Export</a>
+        </div>
+    </form>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr><th>Name</th><th>Email</th><th>Role</th><th>Student ID</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td><strong>{{ u.get_full_name|default:u.username }}</strong></td>
+                    <td>{{ u.email }}</td>
+                    <td><span class="pill pill-{{ u.role }}">{{ u.get_role_display }}</span></td>
+                    <td>{{ u.student_id|default:"—" }}</td>
+                    <td><span class="pill {% if u.is_active %}pill-active{% else %}pill-inactive{% endif %}">{% if u.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+                    <td style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <a href="{% url 'admin_panel:user_detail' u.pk %}" class="btn-sm" style="background:var(--navy);color:white;">View</a>
+                        <a href="{% url 'admin_panel:user_edit' u.pk %}" class="btn-sm" style="background:var(--teal);color:white;">Edit</a>
+                        <form method="POST" action="{% url 'admin_panel:impersonate' u.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-sm" style="background:var(--amber);color:white;" onclick="return confirm('Login as {{ u.get_full_name }}?')">Login As</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px;">No users found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa</footer>
+
+<script>
+const input    = document.getElementById('search-input');
+const dropdown = document.getElementById('autocomplete-dropdown');
+const roleFilter = document.getElementById('role-filter');
+let debounceTimer;
+
+input.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const q = this.value.trim();
+    if (q.length < 2) { dropdown.style.display = 'none'; return; }
+    debounceTimer = setTimeout(() => {
+        const role = roleFilter.value;
+        fetch(`/api/search/users/?q=${encodeURIComponent(q)}&role=${role}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.results.length) { dropdown.style.display = 'none'; return; }
+                dropdown.innerHTML = data.results.map(u => `
+                    <div class="autocomplete-item" onclick="selectUser('${u.name}', '${u.email}')">
+                        <span class="ac-role ac-${u.role}">${u.role}</span>
+                        <div>
+                            <div class="ac-name">${u.name}</div>
+                            <div class="ac-meta">${u.email}${u.student_id ? ' · ' + u.student_id : ''}</div>
+                        </div>
+                    </div>`).join('');
+                dropdown.style.display = 'block';
+            });
+    }, 250);
+});
+
+function selectUser(name, email) {
+    input.value = email;
+    dropdown.style.display = 'none';
+    document.getElementById('search-form').submit();
+}
+
+document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+</script>
+</body>
+</html>

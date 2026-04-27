@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>{{ u.get_full_name }} — AUCA Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--amber:#e67e22;--red:#c0392b;--green:#2e7d32;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .navbar-right{display:flex;gap:12px;align-items:center}
+        .nav-link{color:rgba(255,255,255,0.75);font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;text-decoration:none}
+        .main{max-width:900px;margin:32px auto;padding:0 24px}
+        .profile-header{background:linear-gradient(120deg,var(--dark),var(--navy));border-radius:14px;padding:28px;color:white;margin-bottom:24px;display:flex;align-items:center;gap:24px}
+        .avatar{width:80px;height:80px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:white;flex-shrink:0}
+        .profile-header h1{font-size:22px;margin-bottom:4px}
+        .profile-header p{font-size:13px;color:rgba(255,255,255,0.65)}
+        .badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-top:8px}
+        .badge-student{background:rgba(21,101,192,0.3);color:#90caf9}
+        .badge-lecturer{background:rgba(106,27,154,0.3);color:#ce93d8}
+        .badge-staff{background:rgba(230,126,34,0.3);color:#ffcc80}
+        .actions{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+        .btn{display:inline-block;padding:9px 20px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-amber{background:var(--amber);color:white}
+        .btn-navy{background:var(--navy);color:white}
+        .btn-red{background:var(--red);color:white}
+        .card{background:var(--white);border-radius:12px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:20px}
+        .card h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+        .info-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
+        .info-row:last-child{border-bottom:none}
+        .info-label{color:var(--muted);font-weight:600}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th{background:#f8f9fa;padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border)}
+        td{padding:9px 12px;border-bottom:1px solid #f4f4f4}
+        tr:last-child td{border-bottom:none}
+        .pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
+        .pill-graded{background:#e6f4ea;color:var(--green)}
+        .pill-pending{background:#fff3e0;color:var(--amber)}
+        .msg{padding:10px 16px;border-radius:7px;font-size:13px;margin-bottom:16px;background:#e6f4ea;color:var(--green)}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white);margin-top:40px}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <div class="navbar-right">
+        <a href="{% url 'admin_panel:user_list' %}" class="nav-link">&#8592; All Users</a>
+        <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+    </div>
+</nav>
+<main class="main">
+    {% if messages %}{% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}{% endif %}
+
+    <div class="profile-header">
+        <div class="avatar">{{ u.first_name|first|default:'U'|upper }}{{ u.last_name|first|default:''|upper }}</div>
+        <div>
+            <h1>{{ u.get_full_name|default:u.username }}</h1>
+            <p>{{ u.email }}</p>
+            {% if u.student_id %}<p>ID: {{ u.student_id }}</p>{% endif %}
+            <span class="badge badge-{{ u.role }}">{{ u.get_role_display }}</span>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'admin_panel:user_edit' u.pk %}" class="btn btn-teal">&#9998; Edit Profile</a>
+        <form method="POST" action="{% url 'admin_panel:impersonate' u.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-amber" onclick="return confirm('Login as {{ u.get_full_name }}?')">&#128100; Login As This User</button>
+        </form>
+        <a href="{% url 'admin_panel:user_list' %}" class="btn btn-navy">&#8592; Back</a>
+    </div>
+
+    <div class="card">
+        <h2>Account Information</h2>
+        <div class="info-row"><span class="info-label">Full Name</span><span>{{ u.get_full_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="info-label">Email</span><span>{{ u.email }}</span></div>
+        <div class="info-row"><span class="info-label">Role</span><span>{{ u.get_role_display }}</span></div>
+        <div class="info-row"><span class="info-label">Student ID</span><span>{{ u.student_id|default:"—" }}</span></div>
+        <div class="info-row"><span class="info-label">Phone</span><span>{{ u.phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="info-label">Status</span><span>{% if u.is_active %}Active{% else %}Inactive{% endif %}</span></div>
+        <div class="info-row"><span class="info-label">Joined</span><span>{{ u.date_joined|date:"M d, Y" }}</span></div>
+        <div class="info-row"><span class="info-label">Last Login</span><span>{{ u.last_login|date:"M d, Y H:i"|default:"Never" }}</span></div>
+    </div>
+
+    {% if enrollments %}
+    <div class="card">
+        <h2>Enrolled Courses</h2>
+        <table>
+            <thead><tr><th>Code</th><th>Course</th><th>Credits</th><th>Lecturer</th></tr></thead>
+            <tbody>
+                {% for e in enrollments %}
+                <tr>
+                    <td><strong>{{ e.course.code }}</strong></td>
+                    <td>{{ e.course.title }}</td>
+                    <td>{{ e.course.credits }}</td>
+                    <td>{{ e.course.lecturer.get_full_name|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if answers %}
+    <div class="card">
+        <h2>Recent Submissions</h2>
+        <table>
+            <thead><tr><th>Assessment</th><th>Question</th><th>AI Score</th><th>Final Score</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for a in answers %}
+                <tr>
+                    <td>{{ a.question.assessment.title }}</td>
+                    <td>{{ a.question.question_text|truncatechars:40 }}</td>
+                    <td>{% if a.ai_score is not None %}{{ a.ai_score }}/{{ a.question.marks }}{% else %}—{% endif %}</td>
+                    <td>{% if a.marks_obtained is not None %}{{ a.marks_obtained }}{% else %}—{% endif %}</td>
+                    <td><span class="pill {% if a.status == 'graded' %}pill-graded{% else %}pill-pending{% endif %}">{{ a.get_status_display }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa</footer>
+</body>
+</html>

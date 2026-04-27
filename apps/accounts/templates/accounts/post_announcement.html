@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>Post Announcement — AUCA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .main{max-width:640px;margin:36px auto;padding:0 24px}
+        h1{font-size:22px;margin-bottom:24px}
+        .card{background:var(--white);border-radius:12px;padding:28px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        .form-group{margin-bottom:16px}
+        label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px}
+        input,select,textarea{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 14px;font-size:13px;font-family:inherit;background:#fafafa}
+        input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);background:white}
+        textarea{min-height:120px;resize:vertical}
+        .btn{display:inline-block;padding:11px 28px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:#555;margin-left:10px}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white);margin-top:40px}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
+    <a href="{% url 'dashboard' %}">&#8592; Dashboard</a>
+</nav>
+<main class="main">
+    <h1>Post Announcement</h1>
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" required placeholder="Announcement title">
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <textarea name="body" required placeholder="Write your announcement here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Audience</label>
+                <select name="audience">
+                    <option value="all">Everyone</option>
+                    <option value="students">Students Only</option>
+                    <option value="lecturers">Lecturers Only</option>
+                </select>
+            </div>
+            {% if courses %}
+            <div class="form-group">
+                <label>Course (optional — targets enrolled students)</label>
+                <select name="course">
+                    <option value="">All courses</option>
+                    {% for c in courses %}
+                    <option value="{{ c.pk }}">{{ c.code }} — {{ c.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <button type="submit" class="btn btn-teal">Post Announcement</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline">Cancel</a>
+        </form>
+    </div>
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa</footer>
+</body>
+</html>

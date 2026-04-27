@@ -1,0 +1,378 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AUCA — Student Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/favicon.png">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:rgb(45,77,104);--dark:#0f1f2e;--teal:#2a9d8f;--amber:#e67e22;--red:#c0392b;--green:#2e7d32;--bg:#eef1f5;--white:#fff;--muted:#7a8a99;--border:#e4e8ed}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a;min-height:100vh;display:flex;flex-direction:column}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.25)}
+        .navbar-brand{display:flex;align-items:center;gap:14px}
+        .navbar-brand img{height:34px}
+        .navbar-brand span{color:white;font-size:15px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}
+        .navbar-right{display:flex;align-items:center;gap:12px}
+        .nav-profile-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:white;text-decoration:none;padding:6px 14px 6px 8px;border-radius:24px;font-size:13px;font-weight:500}
+        .nav-avatar{width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0}
+        .nav-signout{color:rgba(255,255,255,0.65);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px}
+        .nav-signout:hover{color:white}
+        .hero{background:linear-gradient(120deg,var(--dark) 0%,var(--navy) 100%);padding:36px 36px 0;color:white}
+        .hero-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px}
+        .hero-text h1{font-size:26px;font-weight:700;margin-bottom:6px}
+        .hero-text p{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:14px}
+        .hero-badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:white;font-size:12px;padding:3px 14px;border-radius:20px}
+        .stat-strip{display:flex;background:rgba(255,255,255,0.07);border-radius:10px 10px 0 0;overflow:hidden;border:1px solid rgba(255,255,255,0.1);border-bottom:none;align-self:flex-end}
+        .stat-item{padding:16px 28px;text-align:center;border-right:1px solid rgba(255,255,255,0.1)}
+        .stat-item:last-child{border-right:none}
+        .stat-val{font-size:22px;font-weight:700;color:white;line-height:1}
+        .stat-lbl{font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+        .main{flex:1;max-width:1100px;width:100%;margin:32px auto;padding:0 36px}
+        .sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:14px}
+        .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:28px}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+        .card{background:var(--white);border-radius:12px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+        .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+        .card-head-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#1a2a3a}
+        .card-head-sub{font-size:11px;color:var(--muted)}
+        .card.accent-navy{border-left:4px solid var(--navy)}
+        .card.accent-teal{border-left:4px solid var(--teal)}
+        .card.accent-amber{border-left:4px solid var(--amber)}
+        .card.accent-dark{border-left:4px solid var(--dark)}
+        .card.accent-green{border-left:4px solid var(--green)}
+        .tt-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
+        .tt-row:last-child{border-bottom:none}
+        .tt-day{width:36px;height:36px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--navy);flex-shrink:0}
+        .tt-info{flex:1}
+        .tt-course{font-weight:600;color:#1a2a3a;font-size:13px}
+        .tt-time{font-size:11px;color:var(--muted);margin-top:1px}
+        .course-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
+        .course-row:last-child{border-bottom:none}
+        .course-dot{width:8px;height:8px;border-radius:50%;background:var(--navy);flex-shrink:0;margin-right:10px}
+        .course-name{color:#1a2a3a;flex:1}
+        .cr-badge{font-size:11px;background:#eef1f5;color:#4a6070;padding:2px 9px;border-radius:10px;font-weight:600}
+        .gpa-block{display:flex;align-items:center;gap:20px;padding:10px 0 18px}
+        .gpa-circle{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--dark),var(--navy));display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(45,77,104,0.3)}
+        .gpa-num{font-size:22px;font-weight:800;color:white;line-height:1}
+        .gpa-lbl{font-size:9px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.5px}
+        .gpa-stats{display:flex;flex-direction:column;gap:6px}
+        .gpa-stat{font-size:13px;color:#555}
+        .gpa-stat strong{color:#1a2a3a}
+        .fee-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
+        .fee-row:last-of-type{border-bottom:none}
+        .fee-label{color:#555}
+        .fee-right{display:flex;align-items:center;gap:8px}
+        .fee-amount{font-weight:600;color:#1a2a3a;font-size:13px}
+        .pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
+        .pill-paid{background:#e6f4ea;color:var(--green)}
+        .pill-due{background:#fdecea;color:var(--red)}
+        .fee-total{display:flex;justify-content:space-between;padding:12px 0 14px;font-size:14px;font-weight:700;color:#1a2a3a;border-top:2px solid var(--border);margin-top:6px}
+        .fee-total span:last-child{color:var(--red)}
+        .btn{display:block;text-align:center;text-decoration:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;width:100%;margin-top:10px}
+        .btn:hover{opacity:0.88}
+        .btn-navy{background:var(--navy);color:white}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-amber{background:var(--amber);color:white}
+        .btn-green{background:var(--green);color:white}
+        .btn-sm{display:inline-block;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;border:none;cursor:pointer;white-space:nowrap}
+        .avail-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f4f4f4;font-size:13px;gap:12px}
+        .avail-row:last-child{border-bottom:none}
+        .ann-row{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid #f4f4f4;font-size:13px;align-items:flex-start}
+        .ann-row:last-child{border-bottom:none}
+        .ann-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:4px}
+        .ann-body{flex:1}
+        .ann-title{font-weight:600;color:#1a2a3a;margin-bottom:2px}
+        .ann-date{font-size:11px;color:var(--muted)}
+        .msg{padding:10px 16px;border-radius:7px;font-size:13px;margin-bottom:16px}
+        .msg-success{background:#e6f4ea;color:var(--green)}
+        .msg-error{background:#fdecea;color:var(--red)}
+        .msg-info{background:#e8f4fd;color:#1565c0}
+        footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white)}
+        @media(max-width:860px){.grid-3{grid-template-columns:1fr 1fr}}
+        @media(max-width:600px){.grid-3,.grid-2{grid-template-columns:1fr}.main{padding:0 18px}.hero{padding:24px 18px 0}.stat-strip{display:none}.navbar{padding:0 18px}.navbar-brand span{display:none}}
+    </style>
+</head>
+<body>
+{% if request.session.original_admin %}
+<div style="background:#e65100;color:white;text-align:center;padding:10px;font-size:13px;font-weight:600;position:sticky;top:0;z-index:300;">
+    &#9888; You are impersonating another user.
+    <a href="{% url 'stop_impersonate' %}" style="color:white;margin-left:16px;text-decoration:underline;font-weight:700;">&#8592; Return to Admin</a>
+</div>
+{% endif %}
+
+<nav class="navbar">
+    <div class="navbar-brand">
+        <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/10001.png" alt="AUCA Logo">
+        <span>AUCA Portal</span>
+    </div>
+    <div class="navbar-right">
+        <a href="{% url 'profile' %}" class="nav-profile-btn">
+            <div class="nav-avatar">{{ user.first_name|first|default:'S'|upper }}{{ user.last_name|first|default:''|upper }}</div>
+            {{ user.get_full_name|default:user.username }}
+        </a>
+        <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>
+    </div>
+</nav>
+
+<div class="hero">
+    <div class="hero-inner">
+        <div class="hero-text">
+            <h1>Welcome back, {{ user.first_name|default:'Student' }}!</h1>
+            <p>{{ user.email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
+            <span class="hero-badge">Student &mdash; {{ user.student_id|default:"" }}</span>
+        </div>
+        <div class="stat-strip">
+            <div class="stat-item"><div class="stat-val">{{ enrolled_courses|length }}</div><div class="stat-lbl">Courses</div></div>
+            <div class="stat-item"><div class="stat-val">{{ avg_score|default:"—" }}</div><div class="stat-lbl">Avg Score</div></div>
+            <div class="stat-item"><div class="stat-val">{{ total_credits|default:0 }}</div><div class="stat-lbl">Credits</div></div>
+            <div class="stat-item"><div class="stat-val" style="color:#f39c12;">{{ pending_answers }}</div><div class="stat-lbl">Pending</div></div>
+        </div>
+    </div>
+</div>
+
+<main class="main">
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="msg {% if message.tags == 'error' %}msg-error{% elif message.tags == 'success' %}msg-success{% else %}msg-info{% endif %}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- ACADEMIC OVERVIEW -->
+    <p class="sec-label">Academic Overview</p>
+    <div class="grid-3">
+
+        <!-- Timetable -->
+        <div class="card accent-teal">
+            <div class="card-head">
+                <span class="card-head-title">Timetable</span>
+                <span class="card-head-sub">Sem 2 &middot; 2024/25</span>
+            </div>
+            {% with days="MON,TUE,WED,THU,FRI,MON,TUE,WED" %}
+            {% for course in enrolled_courses %}
+            <div class="tt-row">
+                <div class="tt-day">
+                    {% if forloop.counter == 1 %}MON
+                    {% elif forloop.counter == 2 %}TUE
+                    {% elif forloop.counter == 3 %}WED
+                    {% elif forloop.counter == 4 %}THU
+                    {% elif forloop.counter == 5 %}FRI
+                    {% else %}MON{% endif %}
+                </div>
+                <div class="tt-info">
+                    <div class="tt-course">{{ course.title }}</div>
+                    <div class="tt-time">
+                        {% if forloop.counter == 1 %}08:00 &ndash; 10:00
+                        {% elif forloop.counter == 2 %}10:00 &ndash; 12:00
+                        {% elif forloop.counter == 3 %}14:00 &ndash; 16:00
+                        {% elif forloop.counter == 4 %}08:00 &ndash; 10:00
+                        {% elif forloop.counter == 5 %}10:00 &ndash; 12:00
+                        {% else %}14:00 &ndash; 16:00{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No courses enrolled yet.</p>
+            {% endfor %}
+            {% endwith %}
+            <a href="{% url 'core:timetable_download' %}" class="btn btn-navy">&#11015; Download Timetable</a>
+        </div>
+
+        <!-- Enrolled Courses -->
+        <div class="card accent-navy">
+            <div class="card-head">
+                <span class="card-head-title">Enrolled Courses</span>
+                <span class="card-head-sub">{{ total_credits }} credits</span>
+            </div>
+            {% for course in enrolled_courses %}
+            <div class="course-row">
+                <div class="course-dot"></div>
+                <span class="course-name">{{ course.title }}</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="cr-badge">{{ course.credits }} cr</span>
+                    <form method="POST" action="{% url 'courses:drop' course.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-sm" style="background:#fdecea;color:var(--red);font-size:10px;" onclick="return confirm('Drop {{ course.title }}?')">Drop</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No courses yet. Enroll below.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Grades -->
+        <div class="card accent-dark">
+            <div class="card-head">
+                <span class="card-head-title">Grades</span>
+                <span class="card-head-sub">Sem 2 &middot; 2024/25</span>
+            </div>
+            <div class="gpa-block">
+                <div class="gpa-circle">
+                    <div class="gpa-num">{{ avg_score|default:"—" }}</div>
+                    <div class="gpa-lbl">Avg</div>
+                </div>
+                <div class="gpa-stats">
+                    <div class="gpa-stat"><strong>{{ avg_score }}%</strong> Average Score</div>
+                    <div class="gpa-stat"><strong>{{ total_credits }}</strong> Credits</div>
+                    <div class="gpa-stat"><strong>{{ enrolled_courses|length }}</strong> Courses</div>
+                </div>
+            </div>
+            <a href="{% url 'assessments:my_results' %}" class="btn btn-navy">&#11015; Download Transcript</a>
+        </div>
+
+    </div>
+
+    <!-- COURSE ENROLLMENT -->
+    <p class="sec-label">Available Courses &mdash; Enroll Now</p>
+    <div class="card accent-green" style="margin-bottom:28px;">
+        <div class="card-head">
+            <span class="card-head-title">Open Courses This Semester</span>
+            <span class="card-head-sub">{{ available_courses|length }} available</span>
+        </div>
+        <!-- Search bar for courses -->
+        <div style="position:relative;margin-bottom:14px;">
+            <input type="text" id="course-search" placeholder="Search courses by name or code..."
+                   style="width:100%;border:1px solid #ddd;border-radius:8px;padding:9px 14px 9px 36px;font-size:13px;font-family:inherit;"
+                   oninput="filterCourses(this.value)">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;">&#128269;</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;" id="courses-table">
+            <thead><tr style="background:#f8f9fa;">
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Code</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Course</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Lecturer</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Credits</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);">Action</th>
+            </tr></thead>
+            <tbody id="courses-tbody">
+            {% for course in available_courses %}
+            <tr class="course-tr" data-name="{{ course.title|lower }}" data-code="{{ course.code|lower }}">
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;"><strong>{{ course.code }}</strong></td>
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;">{{ course.title }}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;">{{ course.lecturer.get_full_name|default:"TBA" }}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;">{{ course.credits }}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #f4f4f4;">
+                    <form method="POST" action="{% url 'courses:enroll' course.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-sm" style="background:var(--teal);color:white;">Enroll</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">You are enrolled in all available courses.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- AI TOOLS -->
+    <p class="sec-label">Assignments &amp; AI Evaluation</p>
+    <div class="grid-2">
+        <div class="card accent-teal">
+            <div class="card-head">
+                <span class="card-head-title">My Assignments</span>
+                <span class="card-head-sub">Submit &amp; get AI scored</span>
+            </div>
+            {% for a in assessments %}
+            <div class="avail-row">
+                <div>
+                    <strong style="font-size:13px;">{{ a.title }}</strong>
+                    <div style="font-size:11px;color:var(--muted);">{{ a.questions.count }} question{{ a.questions.count|pluralize }} &middot; Due {{ a.due_date|date:"M d" }}</div>
+                </div>
+                <a href="{% url 'assessments:assignment_detail' a.pk %}" class="btn-sm" style="background:var(--navy);color:white;">Open</a>
+            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No assignments yet.</p>
+            {% endfor %}
+            <a href="{% url 'assessments:assignment_list' %}" class="btn btn-navy">View All Assignments</a>
+        </div>
+
+        <div class="card accent-navy">
+            <div class="card-head">
+                <span class="card-head-title">My Results</span>
+                <span class="card-head-sub">AI scores + lecturer feedback</span>
+            </div>
+            <p style="font-size:13px;color:#555;margin-bottom:8px;">
+                Pending: <strong style="color:var(--amber);">{{ pending_answers }}</strong> &nbsp;&middot;&nbsp;
+                Graded: <strong style="color:var(--green);">{{ graded_count|default:0 }}</strong>
+            </p>
+            <p style="font-size:13px;color:#555;margin-bottom:16px;">View your submitted answers, AI evaluation scores, and lecturer feedback.</p>
+            <a href="{% url 'assessments:my_results' %}" class="btn btn-teal">View My Results</a>
+        </div>
+    </div>
+
+    <!-- FINANCE & UPDATES -->
+    <p class="sec-label">Finance &amp; Updates</p>
+    <div class="grid-2">
+        <div class="card accent-amber">
+            <div class="card-head">
+                <span class="card-head-title">Finances</span>
+                <span class="card-head-sub">Sem 2 &middot; 2024/25</span>
+            </div>
+            {% for fee in fees %}
+            <div class="fee-row">
+                <span class="fee-label">{{ fee.get_fee_type_display }}</span>
+                <div class="fee-right">
+                    <span class="fee-amount">RWF {{ fee.amount|floatformat:0 }}</span>
+                    <span class="pill {% if fee.is_paid %}pill-paid{% else %}pill-due{% endif %}">
+                        {% if fee.is_paid %}Paid{% else %}Due{% endif %}
+                    </span>
+                    {% if not fee.is_paid %}
+                    <form method="POST" action="{% url 'pay_fee' fee.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-sm" style="background:var(--teal);color:white;font-size:10px;" onclick="return confirm('Pay {{ fee.get_fee_type_display }}?')">Pay</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No fee records.</p>
+            {% endfor %}
+            {% if fees %}
+            <div class="fee-total">
+                <span>Balance Due</span>
+                <span>RWF {{ balance_due|floatformat:0 }}</span>
+            </div>
+            <a href="#" class="btn btn-teal">Pay Now</a>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <span class="card-head-title">Announcements</span>
+                <span class="card-head-sub">Latest updates</span>
+            </div>
+            {% for ann in notifications %}
+            <div class="ann-row">
+                <div class="ann-dot"></div>
+                <div class="ann-body">
+                    <div class="ann-title">{{ ann.title }}</div>
+                    <div class="ann-date">{{ ann.created_at|date:"M d, Y" }} &middot; {{ ann.created_by.get_full_name|default:ann.created_by.username }}</div>
+                    <div style="font-size:12px;color:#555;margin-top:4px;">{{ ann.body|truncatechars:100 }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">End-of-semester exams schedule released</div><div class="ann-date">June 10, 2025</div></div></div>
+            <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Library hours extended through exam period</div><div class="ann-date">June 8, 2025</div></div></div>
+            <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Registration open for Semester 3 courses</div><div class="ann-date">June 5, 2025</div></div></div>
+            {% endfor %}
+        </div>
+    </div>
+
+</main>
+<footer>&copy; 2025 Adventist University of Central Africa &mdash; All rights reserved.</footer>
+<script>
+function filterCourses(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('.course-tr').forEach(function(row) {
+        const name = row.dataset.name || '';
+        const code = row.dataset.code || '';
+        row.style.display = (name.includes(q) || code.includes(q)) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>
