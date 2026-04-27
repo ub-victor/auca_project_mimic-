@@ -428,6 +428,44 @@
 <!-- Main -->
 <main class="main">
 
+    <!-- Assessments Quick Access -->
+    <p class="sec-label">Assessments & AI Evaluation</p>
+    <div class="grid-3" style="margin-bottom:28px;">
+        {% if user.role == 'lecturer' or user.role == 'staff' %}
+        <a href="{% url 'assessments:assignment_create' %}" class="card accent-teal" style="text-decoration:none;display:block;">
+            <div class="card-head">
+                <span class="card-head-title">+ Create Assignment</span>
+            </div>
+            <p style="font-size:13px;color:#555;">Add a new assignment with questions for students.</p>
+        </a>
+        <a href="{% url 'assessments:assignment_list' %}" class="card accent-navy" style="text-decoration:none;display:block;">
+            <div class="card-head">
+                <span class="card-head-title">View Assignments</span>
+            </div>
+            <p style="font-size:13px;color:#555;">See all assignments and grade student submissions.</p>
+        </a>
+        <a href="{% url 'assessments:evaluator' %}" class="card accent-dark" style="text-decoration:none;display:block;">
+            <div class="card-head">
+                <span class="card-head-title">AI Evaluator</span>
+            </div>
+            <p style="font-size:13px;color:#555;">Instantly evaluate any answer using AI similarity scoring.</p>
+        </a>
+        {% else %}
+        <a href="{% url 'assessments:assignment_list' %}" class="card accent-teal" style="text-decoration:none;display:block;">
+            <div class="card-head">
+                <span class="card-head-title">My Assignments</span>
+            </div>
+            <p style="font-size:13px;color:#555;">View and submit answers to your assignments.</p>
+        </a>
+        <a href="{% url 'assessments:my_results' %}" class="card accent-navy" style="text-decoration:none;display:block;">
+            <div class="card-head">
+                <span class="card-head-title">My Results</span>
+            </div>
+            <p style="font-size:13px;color:#555;">See your AI scores and lecturer feedback.</p>
+        </a>
+        {% endif %}
+    </div>
+
     <!-- Row 1: Schedule + Courses + Grades -->
     <p class="sec-label">Academic Overview</p>
     <div class="grid-3">
