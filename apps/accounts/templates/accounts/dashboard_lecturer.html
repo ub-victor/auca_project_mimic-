@@ -81,7 +81,11 @@
     </div>
     <div class="navbar-right">
         <a href="{% url 'profile' %}" class="nav-profile-btn">
+            {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="">
+            {% else %}
             <div class="nav-avatar">{{ user.first_name|first|default:'L'|upper }}{{ user.last_name|first|default:''|upper }}</div>
+            {% endif %}
             {{ user.get_full_name|default:user.username }}
         </a>
         <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>

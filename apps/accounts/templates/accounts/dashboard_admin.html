@@ -86,7 +86,11 @@
         <a href="{% url 'admin_panel:group_list' %}" style="color:rgba(255,255,255,0.75);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;">Groups</a>
         <a href="/admin/" style="color:rgba(255,255,255,0.75);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;">Site Admin</a>
         <a href="{% url 'profile' %}" class="nav-profile-btn">
+            {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="">
+            {% else %}
             <div class="nav-avatar">{{ user.first_name|first|default:'A'|upper }}{{ user.last_name|first|default:''|upper }}</div>
+            {% endif %}
             {{ user.get_full_name|default:user.username }}
         </a>
         <a href="{% url 'logout' %}" class="nav-signout">Sign out</a>
