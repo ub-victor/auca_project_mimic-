@@ -141,6 +141,203 @@ label {
     object-fit: cover;
 }
 
+/* ── Profile Page ─────────────────────────────────────────────── */
+.profile-wrap {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.profile-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 36px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+
+.profile-card h2 {
+    color: rgb(45, 77, 104);
+    margin-bottom: 24px;
+    font-size: 1.5rem;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgb(45, 77, 104);
+    display: block;
+    margin: 0 auto 24px;
+}
+
+.profile-avatar-initials {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgb(45, 77, 104);
+    color: white;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-weight: bold;
+}
+
+.profile-field {
+    margin-bottom: 16px;
+}
+
+.profile-field label {
+    font-size: 0.82rem;
+    color: #333;
+    display: block;
+    margin-bottom: 4px;
+    margin-top: 0;
+    font-weight: 500;
+}
+
+.profile-field input {
+    width: 100%;
+    border: 1px solid #9dc0e9;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.profile-field input:focus {
+    border-color: rgb(45, 77, 104);
+    box-shadow: 0 0 10px rgba(97, 156, 245, 0.25);
+}
+
+.profile-btn {
+    width: 100%;
+    background: rgb(45, 77, 104);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.profile-btn:hover {
+    background: rgb(44, 84, 117);
+}
+
+.profile-back {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    color: rgb(45, 77, 104);
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+.alert-success {
+    background: #e6f4ea;
+    border: 1px solid #a8d5b5;
+    color: #2e7d32;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+}
+
+.alert-error {
+    background: #fdecea;
+    border: 1px solid #e8a49a;
+    color: #c0392b;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+}
+
+/* ── Password Reset Pages ─────────────────────────────────────── */
+.auth-wrap {
+    max-width: 440px;
+    margin: 80px auto;
+    padding: 0 20px;
+}
+
+.auth-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 36px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+
+.auth-card h2 {
+    color: rgb(45, 77, 104);
+    margin-bottom: 8px;
+}
+
+.auth-card p {
+    color: #7a8a99;
+    font-size: 0.88rem;
+    margin-bottom: 24px;
+}
+
+.auth-card input {
+    width: 100%;
+    border: 1px solid #9dc0e9;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.auth-card input:focus {
+    border-color: rgb(45, 77, 104);
+    box-shadow: 0 0 10px rgba(97, 156, 245, 0.25);
+}
+
+.auth-btn {
+    width: 100%;
+    background: rgb(45, 77, 104);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.auth-btn:hover {
+    background: rgb(44, 84, 117);
+}
+
+.auth-icon {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.auth-center {
+    text-align: center;
+}
+
+.auth-link {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    color: rgb(45, 77, 104);
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
 /* Media Queries for Responsive Design */
 @media (max-width: 768px) {
     .container {

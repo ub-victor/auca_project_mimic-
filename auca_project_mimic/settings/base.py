@@ -36,6 +36,10 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = []
 
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 # APPLICATIONS
 
@@ -101,16 +105,15 @@ DATABASES = {
     'default': get_database_config()
 }
 
-
+SECRET_KEY = config('SECRET_KEY', default='unsafe-secret-key')
 
 
 # CLOUDINARY CONFIG 
 
-
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': config('CLOUDINARY_API_KEY'),
-    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default='test'),
+    'API_KEY': config('CLOUDINARY_API_KEY', default='test'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default='test'),
 }
 
 # Set Cloudinary as default storage
@@ -156,3 +159,4 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
+AUTH_USER_MODEL = 'accounts.CustomUser'
