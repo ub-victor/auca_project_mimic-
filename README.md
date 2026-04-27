@@ -367,6 +367,6 @@ auca_project_mimic/
 - Backend
 - Autentication / Authorization
 - AI/ML solution
-- Advanced Dashbord
+- Advanced Dashbord.
 
 *Last updated: April 11, 2026*
