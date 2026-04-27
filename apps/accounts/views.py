@@ -61,13 +61,15 @@ def dashboard_view(request):
         assessments = Assessment.objects.all().prefetch_related('questions')[:5]
         pending_answers = Answer.objects.filter(student=user, status='pending').count()
         graded_answers = Answer.objects.filter(student=user, status='graded')
-        avg_score = round(sum(float(a.marks_obtained or 0) for a in graded_answers) / len(graded_answers), 1) if graded_answers else 0
+        graded_count = graded_answers.count()
+        avg_score = round(sum(float(a.marks_obtained or 0) for a in graded_answers) / graded_count, 1) if graded_count else 0
         context.update({
             'enrolled_courses': enrolled_courses,
             'available_courses': available_courses,
             'fees': fees, 'balance_due': balance_due,
             'assessments': assessments,
             'pending_answers': pending_answers,
+            'graded_count': graded_count,
             'avg_score': avg_score,
             'total_credits': sum(c.credits for c in enrolled_courses),
         })

@@ -44,7 +44,7 @@
         .card.accent-green{border-left:4px solid var(--green)}
         .tt-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
         .tt-row:last-child{border-bottom:none}
-        .tt-day{width:34px;height:34px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--navy);flex-shrink:0}
+        .tt-day{width:36px;height:36px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--navy);flex-shrink:0}
         .tt-info{flex:1}
         .tt-course{font-weight:600;color:#1a2a3a;font-size:13px}
         .tt-time{font-size:11px;color:var(--muted);margin-top:1px}
@@ -70,27 +70,32 @@
         .pill-due{background:#fdecea;color:var(--red)}
         .fee-total{display:flex;justify-content:space-between;padding:12px 0 14px;font-size:14px;font-weight:700;color:#1a2a3a;border-top:2px solid var(--border);margin-top:6px}
         .fee-total span:last-child{color:var(--red)}
-        .btn{display:block;text-align:center;text-decoration:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;width:100%}
+        .btn{display:block;text-align:center;text-decoration:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;width:100%;margin-top:10px}
         .btn:hover{opacity:0.88}
         .btn-navy{background:var(--navy);color:white}
         .btn-teal{background:var(--teal);color:white}
         .btn-amber{background:var(--amber);color:white}
         .btn-green{background:var(--green);color:white}
-        .btn-sm{display:inline-block;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;border:none;cursor:pointer}
+        .btn-sm{display:inline-block;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;border:none;cursor:pointer;white-space:nowrap}
+        .avail-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f4f4f4;font-size:13px;gap:12px}
+        .avail-row:last-child{border-bottom:none}
         .ann-row{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid #f4f4f4;font-size:13px;align-items:flex-start}
         .ann-row:last-child{border-bottom:none}
         .ann-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:4px}
         .ann-body{flex:1}
         .ann-title{font-weight:600;color:#1a2a3a;margin-bottom:2px}
         .ann-date{font-size:11px;color:var(--muted)}
-        .avail-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f4f4f4;font-size:13px}
-        .avail-row:last-child{border-bottom:none}
+        .msg{padding:10px 16px;border-radius:7px;font-size:13px;margin-bottom:16px}
+        .msg-success{background:#e6f4ea;color:var(--green)}
+        .msg-error{background:#fdecea;color:var(--red)}
+        .msg-info{background:#e8f4fd;color:#1565c0}
         footer{text-align:center;padding:24px;font-size:12px;color:#b0bec5;border-top:1px solid var(--border);background:var(--white)}
         @media(max-width:860px){.grid-3{grid-template-columns:1fr 1fr}}
         @media(max-width:600px){.grid-3,.grid-2{grid-template-columns:1fr}.main{padding:0 18px}.hero{padding:24px 18px 0}.stat-strip{display:none}.navbar{padding:0 18px}.navbar-brand span{display:none}}
     </style>
 </head>
 <body>
+
 <nav class="navbar">
     <div class="navbar-brand">
         <img src="https://res.cloudinary.com/dhqrnqcwa/image/upload/v1775858111/static/img/static/img/10001.png" alt="AUCA Logo">
@@ -110,7 +115,7 @@
         <div class="hero-text">
             <h1>Welcome back, {{ user.first_name|default:'Student' }}!</h1>
             <p>{{ user.email }} &nbsp;&middot;&nbsp; Semester 2 &middot; Academic Year 2024/25</p>
-            <span class="hero-badge">Student</span>
+            <span class="hero-badge">Student &mdash; {{ user.student_id|default:"" }}</span>
         </div>
         <div class="stat-strip">
             <div class="stat-item"><div class="stat-val">{{ enrolled_courses|length }}</div><div class="stat-lbl">Courses</div></div>
@@ -123,40 +128,81 @@
 
 <main class="main">
 
+    {% if messages %}
+    {% for message in messages %}
+    <div class="msg {% if message.tags == 'error' %}msg-error{% elif message.tags == 'success' %}msg-success{% else %}msg-info{% endif %}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
     <!-- ACADEMIC OVERVIEW -->
     <p class="sec-label">Academic Overview</p>
     <div class="grid-3">
+
         <!-- Timetable -->
         <div class="card accent-teal">
-            <div class="card-head"><span class="card-head-title">Timetable</span><span class="card-head-sub">Sem 2 · 2024/25</span></div>
-            {% for enrollment in enrolled_courses %}
+            <div class="card-head">
+                <span class="card-head-title">Timetable</span>
+                <span class="card-head-sub">Sem 2 &middot; 2024/25</span>
+            </div>
+            {% with days="MON,TUE,WED,THU,FRI,MON,TUE,WED" %}
+            {% for course in enrolled_courses %}
             <div class="tt-row">
-                <div class="tt-day">{{ forloop.counter|add:0|stringformat:"s" }}{% if forloop.counter == 1 %}MON{% elif forloop.counter == 2 %}TUE{% elif forloop.counter == 3 %}WED{% elif forloop.counter == 4 %}THU{% else %}FRI{% endif %}</div>
+                <div class="tt-day">
+                    {% if forloop.counter == 1 %}MON
+                    {% elif forloop.counter == 2 %}TUE
+                    {% elif forloop.counter == 3 %}WED
+                    {% elif forloop.counter == 4 %}THU
+                    {% elif forloop.counter == 5 %}FRI
+                    {% else %}MON{% endif %}
+                </div>
                 <div class="tt-info">
-                    <div class="tt-course">{{ enrollment.title }}</div>
-                    <div class="tt-time">08:00 – 10:00</div>
+                    <div class="tt-course">{{ course.title }}</div>
+                    <div class="tt-time">
+                        {% if forloop.counter == 1 %}08:00 &ndash; 10:00
+                        {% elif forloop.counter == 2 %}10:00 &ndash; 12:00
+                        {% elif forloop.counter == 3 %}14:00 &ndash; 16:00
+                        {% elif forloop.counter == 4 %}08:00 &ndash; 10:00
+                        {% elif forloop.counter == 5 %}10:00 &ndash; 12:00
+                        {% else %}14:00 &ndash; 16:00{% endif %}
+                    </div>
                 </div>
             </div>
-            {% empty %}<p style="font-size:13px;color:var(--muted);">No courses enrolled yet.</p>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No courses enrolled yet.</p>
             {% endfor %}
+            {% endwith %}
+            <a href="{% url 'core:timetable_download' %}" class="btn btn-navy">&#11015; Download Timetable</a>
         </div>
 
         <!-- Enrolled Courses -->
         <div class="card accent-navy">
-            <div class="card-head"><span class="card-head-title">Enrolled Courses</span><span class="card-head-sub">{{ total_credits }} credits</span></div>
+            <div class="card-head">
+                <span class="card-head-title">Enrolled Courses</span>
+                <span class="card-head-sub">{{ total_credits }} credits</span>
+            </div>
             {% for course in enrolled_courses %}
             <div class="course-row">
                 <div class="course-dot"></div>
                 <span class="course-name">{{ course.title }}</span>
-                <span class="cr-badge">{{ course.credits }} cr</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="cr-badge">{{ course.credits }} cr</span>
+                    <form method="POST" action="{% url 'courses:drop' course.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-sm" style="background:#fdecea;color:var(--red);font-size:10px;" onclick="return confirm('Drop {{ course.title }}?')">Drop</button>
+                    </form>
+                </div>
             </div>
-            {% empty %}<p style="font-size:13px;color:var(--muted);">No courses yet.</p>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No courses yet. Enroll below.</p>
             {% endfor %}
         </div>
 
-        <!-- Grades + Transcript -->
+        <!-- Grades -->
         <div class="card accent-dark">
-            <div class="card-head"><span class="card-head-title">Grades</span><span class="card-head-sub">Sem 2 · 2024/25</span></div>
+            <div class="card-head">
+                <span class="card-head-title">Grades</span>
+                <span class="card-head-sub">Sem 2 &middot; 2024/25</span>
+            </div>
             <div class="gpa-block">
                 <div class="gpa-circle">
                     <div class="gpa-num">{{ avg_score|default:"—" }}</div>
@@ -168,48 +214,67 @@
                     <div class="gpa-stat"><strong>{{ enrolled_courses|length }}</strong> Courses</div>
                 </div>
             </div>
-            <a href="{% url 'assessments:my_results' %}" class="btn btn-navy">Download Transcript</a>
+            <a href="{% url 'assessments:my_results' %}" class="btn btn-navy">&#11015; Download Transcript</a>
         </div>
+
     </div>
 
     <!-- COURSE ENROLLMENT -->
-    <p class="sec-label">Available Courses — Enroll</p>
+    <p class="sec-label">Available Courses &mdash; Enroll Now</p>
     <div class="card accent-green" style="margin-bottom:28px;">
-        <div class="card-head"><span class="card-head-title">Open Courses This Semester</span></div>
+        <div class="card-head">
+            <span class="card-head-title">Open Courses This Semester</span>
+            <span class="card-head-sub">{{ available_courses|length }} available</span>
+        </div>
         {% for course in available_courses %}
         <div class="avail-row">
             <div>
                 <strong style="font-size:13px;">{{ course.title }}</strong>
-                <span style="font-size:11px;color:var(--muted);margin-left:8px;">{{ course.code }} · {{ course.credits }} cr · {{ course.lecturer.get_full_name|default:"TBA" }}</span>
+                <span style="font-size:11px;color:var(--muted);margin-left:8px;">
+                    {{ course.code }} &middot; {{ course.credits }} cr &middot; {{ course.lecturer.get_full_name|default:"TBA" }}
+                </span>
             </div>
-            <form method="POST" action="{% url 'courses:enroll' course.pk %}" style="display:inline;">
+            <form method="POST" action="{% url 'courses:enroll' course.pk %}">
                 {% csrf_token %}
-                <button type="submit" class="btn-sm btn-teal" style="background:var(--teal);color:white;">Enroll</button>
+                <button type="submit" class="btn-sm" style="background:var(--teal);color:white;">+ Enroll</button>
             </form>
         </div>
-        {% empty %}<p style="font-size:13px;color:var(--muted);">You are enrolled in all available courses.</p>
+        {% empty %}
+        <p style="font-size:13px;color:var(--muted);">You are enrolled in all available courses.</p>
         {% endfor %}
     </div>
 
     <!-- AI TOOLS -->
-    <p class="sec-label">AI Tools</p>
-    <div class="grid-2" style="margin-bottom:28px;">
+    <p class="sec-label">Assignments &amp; AI Evaluation</p>
+    <div class="grid-2">
         <div class="card accent-teal">
-            <div class="card-head"><span class="card-head-title">My Assignments</span><span class="card-head-sub">Submit & get AI scored</span></div>
+            <div class="card-head">
+                <span class="card-head-title">My Assignments</span>
+                <span class="card-head-sub">Submit &amp; get AI scored</span>
+            </div>
             {% for a in assessments %}
             <div class="avail-row">
                 <div>
                     <strong style="font-size:13px;">{{ a.title }}</strong>
-                    <span style="font-size:11px;color:var(--muted);margin-left:8px;">{{ a.questions.count }} questions · Due {{ a.due_date|date:"M d" }}</span>
+                    <div style="font-size:11px;color:var(--muted);">{{ a.questions.count }} question{{ a.questions.count|pluralize }} &middot; Due {{ a.due_date|date:"M d" }}</div>
                 </div>
                 <a href="{% url 'assessments:assignment_detail' a.pk %}" class="btn-sm" style="background:var(--navy);color:white;">Open</a>
             </div>
-            {% empty %}<p style="font-size:13px;color:var(--muted);">No assignments yet.</p>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No assignments yet.</p>
             {% endfor %}
-            <a href="{% url 'assessments:assignment_list' %}" class="btn btn-navy" style="margin-top:12px;">View All Assignments</a>
+            <a href="{% url 'assessments:assignment_list' %}" class="btn btn-navy">View All Assignments</a>
         </div>
+
         <div class="card accent-navy">
-            <div class="card-head"><span class="card-head-title">My Results</span><span class="card-head-sub">AI scores + lecturer feedback</span></div>
+            <div class="card-head">
+                <span class="card-head-title">My Results</span>
+                <span class="card-head-sub">AI scores + lecturer feedback</span>
+            </div>
+            <p style="font-size:13px;color:#555;margin-bottom:8px;">
+                Pending: <strong style="color:var(--amber);">{{ pending_answers }}</strong> &nbsp;&middot;&nbsp;
+                Graded: <strong style="color:var(--green);">{{ graded_count|default:0 }}</strong>
+            </p>
             <p style="font-size:13px;color:#555;margin-bottom:16px;">View your submitted answers, AI evaluation scores, and lecturer feedback.</p>
             <a href="{% url 'assessments:my_results' %}" class="btn btn-teal">View My Results</a>
         </div>
@@ -219,28 +284,41 @@
     <p class="sec-label">Finance &amp; Updates</p>
     <div class="grid-2">
         <div class="card accent-amber">
-            <div class="card-head"><span class="card-head-title">Finances</span><span class="card-head-sub">Sem 2 · 2024/25</span></div>
+            <div class="card-head">
+                <span class="card-head-title">Finances</span>
+                <span class="card-head-sub">Sem 2 &middot; 2024/25</span>
+            </div>
             {% for fee in fees %}
             <div class="fee-row">
                 <span class="fee-label">{{ fee.get_fee_type_display }}</span>
                 <div class="fee-right">
                     <span class="fee-amount">RWF {{ fee.amount|floatformat:0 }}</span>
-                    <span class="pill {% if fee.is_paid %}pill-paid{% else %}pill-due{% endif %}">{% if fee.is_paid %}Paid{% else %}Due{% endif %}</span>
+                    <span class="pill {% if fee.is_paid %}pill-paid{% else %}pill-due{% endif %}">
+                        {% if fee.is_paid %}Paid{% else %}Due{% endif %}
+                    </span>
                 </div>
             </div>
-            {% empty %}<p style="font-size:13px;color:var(--muted);">No fee records.</p>
+            {% empty %}
+            <p style="font-size:13px;color:var(--muted);">No fee records.</p>
             {% endfor %}
             {% if fees %}
-            <div class="fee-total"><span>Balance Due</span><span>RWF {{ balance_due|floatformat:0 }}</span></div>
+            <div class="fee-total">
+                <span>Balance Due</span>
+                <span>RWF {{ balance_due|floatformat:0 }}</span>
+            </div>
             <a href="#" class="btn btn-teal">Pay Now</a>
             {% endif %}
         </div>
+
         <div class="card">
-            <div class="card-head"><span class="card-head-title">Announcements</span><span class="card-head-sub">Latest updates</span></div>
+            <div class="card-head">
+                <span class="card-head-title">Announcements</span>
+                <span class="card-head-sub">Latest updates</span>
+            </div>
             <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">End-of-semester exams schedule released</div><div class="ann-date">June 10, 2025</div></div></div>
             <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Library hours extended through exam period</div><div class="ann-date">June 8, 2025</div></div></div>
             <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Registration open for Semester 3 courses</div><div class="ann-date">June 5, 2025</div></div></div>
-            <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Campus Wi-Fi maintenance — Saturday 2–4 AM</div><div class="ann-date">June 3, 2025</div></div></div>
+            <div class="ann-row"><div class="ann-dot"></div><div class="ann-body"><div class="ann-title">Campus Wi-Fi maintenance &mdash; Saturday 2&ndash;4 AM</div><div class="ann-date">June 3, 2025</div></div></div>
         </div>
     </div>
 
