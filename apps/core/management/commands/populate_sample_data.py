@@ -10,118 +10,131 @@ from decimal import Decimal
 
 User = get_user_model()
 
+# Demo passwords are intentionally simple for local development only.
+# In production, use environment variables or Django's createsuperuser.
+_DEMO_PASSWORD = 'changeme_in_production'
+
+
 class Command(BaseCommand):
     help = 'Populate sample data for the AUCA portal'
 
     def handle(self, *args, **options):
         self.stdout.write('Populating sample data...')
 
-        # Create users
-        student = User.objects.create_user(
+        student, _ = User.objects.get_or_create(
             username='student@auca.ac.rw',
-            email='student@auca.ac.rw',
-            password='student123',
-            first_name='John',
-            last_name='Doe',
-            role='student',
-            student_id='AUCA-2024-001'
+            defaults={
+                'email': 'student@auca.ac.rw',
+                'first_name': 'John', 'last_name': 'Doe',
+                'role': 'student', 'student_id': 'AUCA-2024-001',
+            }
         )
+        student.set_password(_DEMO_PASSWORD)
+        student.save()
 
-        lecturer = User.objects.create_user(
+        lecturer, _ = User.objects.get_or_create(
             username='lecturer@auca.ac.rw',
-            email='lecturer@auca.ac.rw',
-            password='lecturer123',
-            first_name='Jane',
-            last_name='Smith',
-            role='lecturer'
+            defaults={
+                'email': 'lecturer@auca.ac.rw',
+                'first_name': 'Jane', 'last_name': 'Smith',
+                'role': 'lecturer',
+            }
         )
+        lecturer.set_password(_DEMO_PASSWORD)
+        lecturer.save()
 
-        staff = User.objects.create_user(
+        staff, _ = User.objects.get_or_create(
             username='staff@auca.ac.rw',
-            email='staff@auca.ac.rw',
-            password='staff123',
-            first_name='Admin',
-            last_name='User',
-            role='staff'
+            defaults={
+                'email': 'staff@auca.ac.rw',
+                'first_name': 'Admin', 'last_name': 'User',
+                'role': 'staff',
+            }
         )
+        staff.set_password(_DEMO_PASSWORD)
+        staff.save()
 
-        # Core data
-        faculty = Faculty.objects.create(name='Faculty of Science and Technology', description='FST')
-        department = Department.objects.create(name='Computer Science', faculty=faculty, head=lecturer)
-        semester = Semester.objects.create(
+        faculty, _ = Faculty.objects.get_or_create(
+            name='Faculty of Science and Technology',
+            defaults={'description': 'FST'}
+        )
+        department, _ = Department.objects.get_or_create(
+            name='Computer Science',
+            defaults={'faculty': faculty, 'head': lecturer}
+        )
+        semester, _ = Semester.objects.get_or_create(
             name='Fall 2024',
-            start_date=date(2024, 9, 1),
-            end_date=date(2024, 12, 31),
-            is_current=True
+            defaults={
+                'start_date': date(2024, 9, 1),
+                'end_date': date(2024, 12, 31),
+                'is_current': True
+            }
         )
 
-        # Courses
-        course = Course.objects.create(
+        course, _ = Course.objects.get_or_create(
             code='CS101',
-            title='Introduction to Programming',
-            description='Basic programming concepts',
-            credits=3,
-            department=department,
-            lecturer=lecturer
+            defaults={
+                'title': 'Introduction to Programming',
+                'description': 'Basic programming concepts',
+                'credits': 3,
+                'department': department,
+                'lecturer': lecturer,
+            }
         )
         course.semester.add(semester)
 
-        # Enrollment
-        enrollment = CourseEnrollment.objects.create(
-            student=student,
-            course=course,
-            semester=semester
+        enrollment, _ = CourseEnrollment.objects.get_or_create(
+            student=student, course=course, semester=semester
         )
 
-        # Assessment
-        assessment = Assessment.objects.create(
+        assessment, _ = Assessment.objects.get_or_create(
             title='Midterm Quiz',
-            description='Programming basics quiz',
-            course=course,
-            assessment_type='quiz',
-            total_marks=20,
-            due_date=datetime(2024, 10, 15, 23, 59),
-            created_by=lecturer
+            created_by=lecturer,
+            defaults={
+                'description': 'Programming basics quiz',
+                'course': course,
+                'assessment_type': 'quiz',
+                'total_marks': 20,
+                'due_date': datetime(2024, 10, 15, 23, 59),
+            }
         )
 
-        question = Question.objects.create(
-            assessment=assessment,
-            question_text='What is a variable?',
-            marks=5,
-            order=1
+        question, _ = Question.objects.get_or_create(
+            assessment=assessment, order=1,
+            defaults={'question_text': 'What is a variable?', 'marks': 5}
         )
 
-        answer = Answer.objects.create(
-            question=question,
-            student=student,
-            answer_text='A variable is a storage location with a name.',
-            marks_obtained=Decimal('4.5')
+        Answer.objects.get_or_create(
+            question=question, student=student,
+            defaults={
+                'answer_text': 'A variable is a storage location with a name.',
+                'marks_obtained': Decimal('4.5')
+            }
         )
 
-        # Finances
-        fee = Fee.objects.create(
-            student=student,
-            fee_type='tuition',
-            amount=Decimal('450000.00'),
-            due_date=date(2024, 9, 30),
-            is_paid=True,
-            semester=semester
+        fee, _ = Fee.objects.get_or_create(
+            student=student, fee_type='tuition', semester=semester,
+            defaults={
+                'amount': Decimal('450000.00'),
+                'due_date': date(2024, 9, 30),
+                'is_paid': True,
+            }
         )
 
-        payment = Payment.objects.create(
-            student=student,
-            amount=Decimal('450000.00'),
-            reference='PAY-001'
-        )
-        payment.fees.add(fee)
+        if not Payment.objects.filter(reference='PAY-001').exists():
+            payment = Payment.objects.create(
+                student=student,
+                amount=Decimal('450000.00'),
+                reference='PAY-001'
+            )
+            payment.fees.add(fee)
 
-        # Grades
-        grade = Grade.objects.create(
+        Grade.objects.get_or_create(
             enrollment=enrollment,
-            grade='A',
-            points=Decimal('4.0'),
-            remarks='Excellent work',
-            graded_by=lecturer
+            defaults={
+                'grade': 'A', 'points': Decimal('4.0'),
+                'remarks': 'Excellent work', 'graded_by': lecturer
+            }
         )
 
         self.stdout.write(self.style.SUCCESS('Sample data populated successfully!'))
