@@ -449,7 +449,6 @@ auca_project_mimic/
 │   │   ├── templates/
 │   │   │   └── accounts/
 │   │   │       ├── dashboard.html
-│   │   │       ├── forgot_password.html
 │   │   │       ├── login.html
 │   │   │       └── signup.html
 │   │   ├── urls.py
