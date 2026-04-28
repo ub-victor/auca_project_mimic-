@@ -26,9 +26,19 @@ QuestionFormSet = inlineformset_factory(
 def assignment_list(request):
     user = request.user
     if user.role in ('lecturer', 'staff'):
-        assessments = Assessment.objects.filter(created_by=user).prefetch_related('questions')
+        # Lecturers see only their own assessments
+        assessments = Assessment.objects.filter(created_by=user).prefetch_related('questions').order_by('-id')
     else:
-        assessments = Assessment.objects.all().prefetch_related('questions')
+        # Students see only assessments for courses they are enrolled in
+        from apps.courses.models import CourseEnrollment
+        from apps.core.models import Semester
+        semester = Semester.objects.filter(is_current=True).first()
+        enrolled_courses = CourseEnrollment.objects.filter(
+            student=user, semester=semester
+        ).values_list('course_id', flat=True) if semester else []
+        assessments = Assessment.objects.filter(
+            course_id__in=enrolled_courses
+        ).prefetch_related('questions').order_by('-id')
     return render(request, 'assessments/assignment_list.html', {'assignments': assessments})
 
 
@@ -36,23 +46,31 @@ def assignment_list(request):
 def assignment_create(request):
     from .forms import AssessmentForm
     from apps.courses.models import Course
+
+    # Always limit course choices to lecturer's own courses
+    lecturer_courses = Course.objects.filter(lecturer=request.user) if request.user.role == 'lecturer' else Course.objects.all()
+
     if request.method == 'POST':
         form    = AssessmentForm(request.POST)
+        form.fields['course'].queryset = lecturer_courses
         formset = QuestionFormSet(request.POST)
         if form.is_valid() and formset.is_valid():
-            assessment             = form.save(commit=False)
-            assessment.created_by  = request.user
+            assessment            = form.save(commit=False)
+            assessment.created_by = request.user
             assessment.save()
             formset.instance = assessment
             formset.save()
-            messages.success(request, f'Assessment "{assessment.title}" created.')
+            messages.success(request, f'Assessment "{assessment.title}" created and visible to enrolled students.')
             return redirect('assessments:assignment_list')
+        else:
+            # Show form errors so lecturer knows what went wrong
+            if form.errors:
+                messages.error(request, f'Please fix the errors below: {form.errors}')
     else:
         form    = AssessmentForm()
+        form.fields['course'].queryset = lecturer_courses
         formset = QuestionFormSet()
-        # Limit course choices to lecturer's own courses
-        if request.user.role == 'lecturer':
-            form.fields['course'].queryset = Course.objects.filter(lecturer=request.user)
+
     return render(request, 'assessments/assignment_form.html', {'form': form, 'formset': formset})
 
 

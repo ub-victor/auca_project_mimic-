@@ -6,72 +6,119 @@
     <title>Create Assignment — AUCA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --navy:#2d4d68; --dark:#0f1f2e; --teal:#2a9d8f; --bg:#eef1f5; --white:#fff; --border:#e4e8ed; --muted:#7a8a99; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #1a2a3a; }
-        .navbar { background: var(--dark); height: 62px; padding: 0 36px; display: flex; align-items: center; justify-content: space-between; }
-        .navbar a { color: white; text-decoration: none; font-size: 14px; }
-        .navbar-brand { font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
-        .main { max-width: 800px; margin: 36px auto; padding: 0 24px; }
-        h1 { font-size: 22px; margin-bottom: 24px; }
-        .card { background: var(--white); border-radius: 12px; padding: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
-        .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 18px; color: var(--navy); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px; margin-top: 14px; }
-        input, textarea, select { width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
-        input:focus, textarea:focus { outline: none; border-color: var(--teal); }
-        .question-block { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; background: #f9fafb; }
-        .question-block h3 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
-        .btn { display: inline-block; padding: 10px 24px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; }
-        .btn-teal { background: var(--teal); color: white; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: #555; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .actions { display: flex; gap: 12px; margin-top: 20px; }
-        .delete-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: #c0392b; }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--navy:#2d4d68;--dark:#0f1f2e;--teal:#2a9d8f;--bg:#eef1f5;--white:#fff;--border:#e4e8ed;--muted:#7a8a99;--red:#c0392b}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a2a3a}
+        .navbar{background:var(--dark);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between}
+        .navbar a{color:white;text-decoration:none;font-size:14px}
+        .navbar-brand{font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+        .main{max-width:800px;margin:36px auto;padding:0 24px}
+        h1{font-size:22px;margin-bottom:24px}
+        .card{background:var(--white);border-radius:12px;padding:28px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:24px}
+        .card h2{font-size:15px;font-weight:700;margin-bottom:18px;color:var(--navy);border-bottom:1px solid var(--border);padding-bottom:10px}
+        label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:4px;margin-top:14px}
+        input,textarea,select{width:100%;border:1px solid #ccc;border-radius:6px;padding:8px 12px;font-size:13px;font-family:inherit}
+        input:focus,textarea:focus,select:focus{outline:none;border-color:var(--teal)}
+        .question-block{border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;background:#f9fafb}
+        .question-block h3{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px}
+        .btn{display:inline-block;padding:10px 24px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:#555}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .actions{display:flex;gap:12px;margin-top:20px}
+        .delete-row{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--red)}
+        .error-box{background:#fdecea;border:1px solid #e8a49a;border-radius:8px;padding:12px 16px;font-size:13px;color:var(--red);margin-bottom:16px}
+        .field-error{font-size:11px;color:var(--red);margin-top:3px}
+        .info-box{background:#e8f4fd;border:1px solid #90caf9;border-radius:8px;padding:12px 16px;font-size:13px;color:#1565c0;margin-bottom:16px}
     </style>
 </head>
 <body>
 <nav class="navbar">
     <a class="navbar-brand" href="{% url 'dashboard' %}">AUCA Portal</a>
-    <a href="{% url 'assessments:assignment_list' %}" style="color:white;">← Back</a>
+    <a href="{% url 'assessments:assignment_list' %}">&#8592; Back</a>
 </nav>
 <main class="main">
     <h1>Create Assignment</h1>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="{% if message.tags == 'error' %}error-box{% else %}info-box{% endif %}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    <div class="error-box">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="info-box">
+        Students enrolled in the selected course will automatically see this assignment on their dashboard.
+    </div>
+
     <form method="POST">
         {% csrf_token %}
 
         <div class="card">
             <h2>Assignment Details</h2>
-            <label>Title</label>
+
+            <label>Title *</label>
             {{ form.title }}
+            {% if form.title.errors %}<div class="field-error">{{ form.title.errors }}</div>{% endif %}
+
             <label>Description</label>
             {{ form.description }}
+
             <div class="form-row">
                 <div>
-                    <label>Course</label>
+                    <label>Course * <small style="color:var(--muted);font-weight:400;">(only your assigned courses)</small></label>
                     {{ form.course }}
+                    {% if form.course.errors %}<div class="field-error">{{ form.course.errors }}</div>{% endif %}
                 </div>
                 <div>
-                    <label>Due Date</label>
+                    <label>Assessment Type *</label>
+                    {{ form.assessment_type }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div>
+                    <label>Total Marks *</label>
+                    {{ form.total_marks }}
+                </div>
+                <div>
+                    <label>Due Date *</label>
                     {{ form.due_date }}
+                    {% if form.due_date.errors %}<div class="field-error">{{ form.due_date.errors }}</div>{% endif %}
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>Questions</h2>
+            <h2>Questions <small style="color:var(--muted);font-weight:400;font-size:12px;">— Add at least 1 question with a model answer for AI evaluation</small></h2>
             {{ formset.management_form }}
             {% for qform in formset %}
             <div class="question-block">
                 <h3>Question {{ forloop.counter }}</h3>
                 {{ qform.id }}
-                <label>Question Text</label>
-                {{ qform.text }}
-                <label>Model Answer (used for AI evaluation)</label>
+
+                <label>Question Text *</label>
+                {{ qform.question_text }}
+                {% if qform.question_text.errors %}<div class="field-error">{{ qform.question_text.errors }}</div>{% endif %}
+
+                <label>Model Answer * <small style="color:var(--muted);font-weight:400;">(AI compares student answers to this)</small></label>
                 {{ qform.model_answer }}
+                {% if qform.model_answer.errors %}<div class="field-error">{{ qform.model_answer.errors }}</div>{% endif %}
+
                 <div class="form-row">
-                    <div><label>Max Score</label>{{ qform.max_score }}</div>
-                    <div><label>Order</label>{{ qform.order }}</div>
+                    <div>
+                        <label>Marks *</label>
+                        {{ qform.marks }}
+                    </div>
+                    <div>
+                        <label>Order</label>
+                        {{ qform.order }}
+                    </div>
                 </div>
+
                 {% if qform.DELETE %}
                 <div class="delete-row">{{ qform.DELETE }} Delete this question</div>
                 {% endif %}
@@ -80,7 +127,7 @@
         </div>
 
         <div class="actions">
-            <button type="submit" class="btn btn-teal">Save Assignment</button>
+            <button type="submit" class="btn btn-teal">Save &amp; Publish Assignment</button>
             <a href="{% url 'assessments:assignment_list' %}" class="btn btn-outline">Cancel</a>
         </div>
     </form>
