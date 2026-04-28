@@ -23,6 +23,13 @@ def _log(request, action, target='', detail=''):
         pass
 
 
+def landing_view(request):
+    """Public landing page — no login required."""
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'accounts/landing.html')
+
+
 def login_view(request):
     # Clear any stale session messages
     from django.contrib.messages import get_messages

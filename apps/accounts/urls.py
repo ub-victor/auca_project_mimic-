@@ -4,7 +4,7 @@ from . import views
 from .admin_views import stop_impersonate
 
 urlpatterns = [
-    path('', lambda request: __import__('django.shortcuts', fromlist=['redirect']).redirect('login')),
+    path('', views.landing_view, name='landing'),
     path('login/',            views.login_view,           name='login'),
     path('signup/',           views.signup_view,          name='signup'),
     path('logout/',           views.logout_view,          name='logout'),
