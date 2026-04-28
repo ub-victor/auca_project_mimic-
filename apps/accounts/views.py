@@ -229,7 +229,7 @@ def post_announcement(request):
     return render(request, 'accounts/post_announcement.html', {'courses': courses})
 
 
-# ── Pay fee ───────────────────────────────────────────────────────────
+# ── Pay fee (single) ─────────────────────────────────────────────────
 
 @login_required(login_url='login')
 def pay_fee(request, fee_id):
@@ -249,6 +249,30 @@ def pay_fee(request, fee_id):
         )
     else:
         messages.info(request, f'{fee.display_name()} is already marked as paid.')
+    return redirect('dashboard')
+
+
+# ── Pay all unpaid fees ───────────────────────────────────────────────
+
+@login_required(login_url='login')
+def pay_all_fees(request):
+    from apps.finances.models import Fee
+    from django.utils import timezone
+    if request.user.role != 'student':
+        return redirect('dashboard')
+    unpaid = Fee.objects.filter(student=request.user, is_paid=False)
+    count  = unpaid.count()
+    total  = sum(f.amount for f in unpaid)
+    if count:
+        now = timezone.now()
+        unpaid.update(is_paid=True, paid_at=now)
+        _log(request, 'update', 'pay_all', f'Paid all {count} fees, total RWF {total:,.0f}')
+        messages.success(
+            request,
+            f'All {count} outstanding fee(s) paid! Total: RWF {total:,.0f}. Your balance is now RWF 0.'
+        )
+    else:
+        messages.info(request, 'You have no outstanding fees.')
     return redirect('dashboard')
 
 

@@ -13,7 +13,8 @@ urlpatterns = [
     path('profile/',          views.profile_view,         name='profile'),
     path('stop-impersonate/', stop_impersonate,           name='stop_impersonate'),
     path('announce/',         views.post_announcement,    name='post_announcement'),
-    path('pay/<int:fee_id>/', views.pay_fee,              name='pay_fee'),
+    path('pay/<int:fee_id>/', views.pay_fee,       name='pay_fee'),
+    path('pay-all/',           views.pay_all_fees,  name='pay_all_fees'),
     path('staff/',            views.staff_area,           name='staff_dashboard'),
 
     # Search APIs

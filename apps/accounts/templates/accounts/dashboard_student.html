@@ -318,7 +318,7 @@
             </div>
             {% for fee in fees %}
             <div class="fee-row">
-                <span class="fee-label">{{ fee.get_fee_type_display }}</span>
+                <span class="fee-label">{{ fee.display_name }}</span>
                 <div class="fee-right">
                     <span class="fee-amount">RWF {{ fee.amount|floatformat:0 }}</span>
                     <span class="pill {% if fee.is_paid %}pill-paid{% else %}pill-due{% endif %}">
@@ -327,20 +327,25 @@
                     {% if not fee.is_paid %}
                     <form method="POST" action="{% url 'pay_fee' fee.pk %}" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" class="btn-sm" style="background:var(--teal);color:white;font-size:10px;" onclick="return confirm('Pay {{ fee.get_fee_type_display }}?')">Pay</button>
+                        <button type="submit" class="btn-sm" style="background:var(--teal);color:white;font-size:10px;" onclick="return confirm('Pay {{ fee.display_name }}?')">Pay</button>
                     </form>
                     {% endif %}
                 </div>
             </div>
             {% empty %}
-            <p style="font-size:13px;color:var(--muted);">No fee records.</p>
+            <p style="font-size:13px;color:var(--muted);">No fee records. Enroll in courses to see fees.</p>
             {% endfor %}
-            {% if fees %}
+            {% if balance_due %}
             <div class="fee-total">
                 <span>Balance Due</span>
                 <span>RWF {{ balance_due|floatformat:0 }}</span>
             </div>
-            <a href="#" class="btn btn-teal">Pay Now</a>
+            <form method="POST" action="{% url 'pay_all_fees' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-teal" onclick="return confirm('Pay all outstanding fees? Total: RWF {{ balance_due|floatformat:0 }}')" style="width:100%;margin-top:4px;">Pay Now (All Balance)</button>
+            </form>
+            {% elif fees %}
+            <p style="font-size:13px;color:var(--green);text-align:center;padding:12px 0;font-weight:600;">All fees paid!</p>
             {% endif %}
         </div>
 
