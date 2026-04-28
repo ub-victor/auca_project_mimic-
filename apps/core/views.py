@@ -79,7 +79,7 @@ def analytics_dashboard(request):
         student_grades = Grade.objects.filter(enrollment__student=student)
         if student_grades.exists():
             avg_gpa = sum(float(g.points) for g in student_grades) / student_grades.count()
-            name = f"{student.first_name} {student.last_name[0]}."
+            name = f"{student.first_name} {student.last_name[0]+'.' if student.last_name else ''}"
             if avg_gpa < 2.0:
                 at_risk_names.append(name)
                 at_risk_gpas.append(avg_gpa)
