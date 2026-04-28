@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}{{ assessment.title }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/assessments.css' %}">
+{% endblock %}
+{% block content %}
+<div class="assessment-page">
+    <div class="detail-header">
+        <div>
+            <h1>{{ assessment.title }}</h1>
+            <p class="subtitle">{{ assessment.course.code }} · {{ assessment.course.title }}</p>
+        </div>
+        <div class="detail-summary">
+            <span class="pill">{{ assessment.get_assessment_type_display }}</span>
+            <span>Due {{ assessment.due_date|date:'M d, Y H:i' }}</span>
+            <span>{{ assessment.total_marks }} marks</span>
+        </div>
+    </div>
+
+    <div class="detail-card">
+        <div class="section-header">
+            <h2>Overview</h2>
+        </div>
+        <p>{{ assessment.description|linebreaksbr }}</p>
+    </div>
+
+    <div class="detail-card">
+        <div class="section-header">
+            <h2>Questions</h2>
+        </div>
+        {% for question in assessment.questions.all %}
+        <div class="question-preview">
+            <div class="question-top">
+                <span class="question-count">Question {{ question.order }}</span>
+                <span class="question-marks">{{ question.marks }} pts</span>
+            </div>
+            <p>{{ question.question_text|linebreaksbr }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if submission %}
+    <div class="detail-card">
+        <div class="section-header">
+            <h2>Your Submission</h2>
+        </div>
+        <div class="submission-summary">
+            <p><strong>Status:</strong> {{ submission.get_status_display }}</p>
+            <p><strong>AI Score:</strong> {{ submission.ai_score|default:'Pending' }}</p>
+            <p><strong>Similarity:</strong> {{ submission.similarity_score|default:'Pending' }}%</p>
+            <p><strong>Submitted on:</strong> {{ submission.submitted_at|date:'M d, Y H:i' }}</p>
+            {% if submission.final_grade %}
+            <p><strong>Final Grade:</strong> {{ submission.final_grade }}</p>
+            {% endif %}
+        </div>
+
+        {% if submission.ai_feedback %}
+        <div class="feedback-block">
+            <h3>AI Feedback</h3>
+            <pre>{{ submission.ai_feedback }}</pre>
+        </div>
+        {% endif %}
+
+        {% if user.role in ['lecturer', 'staff'] and can_grade %}
+        <div class="grading-actions">
+            <a href="{% url 'assessments:submission_detail' submission.id %}" class="btn btn-primary">Review Submission</a>
+        </div>
+        {% endif %}
+    </div>
+    {% elif can_submit %}
+    <div class="detail-card">
+        <div class="section-header">
+            <h2>Submit Assignment</h2>
+        </div>
+        <a href="{% url 'assessments:submit_assessment' assessment.id %}" class="btn btn-primary">Submit Now</a>
+    </div>
+    {% endif %}
+
+    <div class="page-actions">
+        <a href="{% url 'assessments:assessment_list' %}" class="btn btn-secondary">Back to Assessments</a>
+    </div>
+</div>
+{% endblock %}

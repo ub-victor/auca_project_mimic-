@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}My Submissions{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/assessments.css' %}">
+{% endblock %}
+{% block content %}
+<div class="assessment-page">
+    <div class="page-heading">
+        <div>
+            <h1>My Submissions</h1>
+            <p>Track your submitted assignments and review AI evaluation suggestions.</p>
+        </div>
+    </div>
+
+    <div class="submission-table-wrap">
+        <table class="submission-table">
+            <thead>
+                <tr>
+                    <th>Assessment</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                    <th>AI Score</th>
+                    <th>Similarity</th>
+                    <th>Final Grade</th>
+                    <th>Submitted</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                <tr>
+                    <td>{{ submission.assessment.title }}</td>
+                    <td>{{ submission.assessment.course.code }}</td>
+                    <td>{{ submission.get_status_display }}</td>
+                    <td>{{ submission.ai_score|default:'—' }}</td>
+                    <td>{{ submission.similarity_score|default:'—' }}{% if submission.similarity_score %}%{% endif %}</td>
+                    <td>{{ submission.final_grade|default:'—' }}</td>
+                    <td>{{ submission.submitted_at|date:'M d, Y' }}</td>
+                    <td><a href="{% url 'assessments:submission_detail' submission.id %}" class="link-button">View</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="empty-state">You have not submitted any assessments yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="page-actions">
+        <a href="{% url 'assessments:assessment_list' %}" class="btn btn-secondary">Back to Assessments</a>
+    </div>
+</div>
+{% endblock %}

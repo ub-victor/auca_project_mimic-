@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Create Assignment{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/assessments.css' %}">
+{% endblock %}
+{% block content %}
+<div class="assessment-page">
+    <div class="page-heading">
+        <div>
+            <h1>Create Assessment</h1>
+            <p>Build an assignment with multiple questions and reference answers.</p>
+        </div>
+    </div>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-card">
+            <h2>Assignment Details</h2>
+            <div class="form-grid">
+                {{ form.as_p }}
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="card-header">
+                <h2>Questions</h2>
+                <p>Add question text, reference answer, marks, and order.</p>
+            </div>
+            {% for form in formset.forms %}
+                <div class="question-block">
+                    <div class="question-heading">
+                        <h3>Question {{ forloop.counter }}</h3>
+                        {% if form.DELETE %}
+                        <div class="delete-control">{{ form.DELETE }} <label>Delete</label></div>
+                        {% endif %}
+                    </div>
+                    <div class="question-fields">
+                        {{ form.as_p }}
+                    </div>
+                </div>
+            {% endfor %}
+            {{ formset.management_form }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Publish Assignment</button>
+            <a href="{% url 'assessments:assessment_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 # AUCA Project Mimic — Updated Documentation
 
-A Django-based web application that mimics the AUCA (Adventist University of Central Africa) student portal, featuring a login page and a fully designed student dashboard with Cloudinary integration for media storage.
+A Django-based web application that mimics the AUCA (Adventist University of Central Africa) student portal, featuring authentication, dashboard, course management, and AI-powered assessment evaluation.
 
 ---
 
@@ -9,28 +9,22 @@ A Django-based web application that mimics the AUCA (Adventist University of Cen
 - [Demo Credentials](#demo-credentials)
 - [How to Run](#how-to-run)
 - [Cloudinary Integration](#cloudinary-integration)
+- [AI Assessment Evaluation](#ai-assessment-evaluation)
 - [What Was Built](#what-was-built)
-  - [Login Page](#1-login-page)
-  - [Dashboard — Initial Version](#2-dashboard--initial-version)
-  - [Dashboard — Redesign Iterations](#3-dashboard--redesign-iterations)
-  - [Final Dashboard](#4-final-dashboard)
+  - [Authentication & Profile Management](#authentication--profile-management)
+  - [Dashboard](#dashboard)
+  - [Courses & Timetable Management](#courses--timetable-management)
+  - [Assessments & AI Evaluation](#assessments--ai-evaluation)
 - [Project Structure](#project-structure)
 - [URL Routes](#url-routes)
 - [Tech Stack](#tech-stack)
 
 ---
 
-## Authentication & Profile Management
+## Demo Credentials
 
-This application now uses Django authentication with a custom `CustomUser` model stored in the database.
-
-- Users can register using the signup page.
-- Login uses `django.contrib.auth.authenticate()` and `login()`.
-- Password reset is enabled through Django's built-in password reset views and the console email backend for local development.
-- Users can edit their profile, including uploading a profile picture to Cloudinary.
-- Role-based access control is implemented through decorators: `@student_required`, `@lecturer_required`, and `@staff_required`.
-
-> Use Django admin or the signup page to create accounts; there are no hard-coded in-memory demo credentials in the final auth flow.
+- **Admin User**: Username: `admin`, Email: `admin@auca.edu`, Password: `admin@123!`
+- Create additional users via signup or Django admin.
 
 ---
 
@@ -69,17 +63,22 @@ This application now uses Django authentication with a custom `CustomUser` model
    python manage.py migrate
    ```
 
-6. **Upload media files to Cloudinary** (optional, if local media exists):
+6. **Create superuser** (optional, for admin access):
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+7. **Upload media files to Cloudinary** (optional, if local media exists):
    ```bash
    python manage.py upload_to_cloudinary
    ```
 
-7. **Run the development server**:
+8. **Run the development server**:
    ```bash
    python manage.py runserver
    ```
 
-8. **Access the application**:
+9. **Access the application**:
    Open your browser and go to `http://127.0.0.1:8000/`.
 
 ---
@@ -101,202 +100,297 @@ This project uses Cloudinary for media storage to handle images, favicons, and o
 
 ---
 
+## AI Assessment Evaluation
+
+The application features an AI-powered assessment evaluation system using Sentence Transformers for automated grading and feedback.
+
+### Features
+- **Automated Scoring**: Uses semantic similarity to compare student answers with reference answers
+- **Feedback Generation**: Provides detailed AI feedback based on similarity scores
+- **Lecturer Override**: Lecturers can review AI suggestions and assign final grades
+- **File Upload Support**: Students can submit text files or PDFs, automatically extracted
+- **Similarity Detection**: Identifies potential plagiarism through text similarity analysis
+
+### Technical Implementation
+- **ML Model**: Sentence Transformers (`all-MiniLM-L6-v2`) for embedding and similarity calculation
+- **Singleton Pattern**: Model loaded once to avoid repeated initialization overhead
+- **Batch Processing**: Supports evaluating multiple answers efficiently
+- **Database Storage**: AI scores, similarity percentages, and feedback stored in Submission model
+
+### Workflow
+1. Lecturer creates assessment with questions and reference answers
+2. Students submit answers via text input or file upload
+3. AI evaluates submissions immediately upon submission
+4. Lecturers review AI suggestions and can override grades
+5. Final grades and feedback are recorded
+
+---
+
 ## What Was Built
 
-### Frontend & Dashboard Improvements
+### Authentication & Profile Management
 
-The frontend was refactored to use a shared `base.html` layout, external CSS files, and centralized JavaScript enhancements.
+This application uses Django authentication with a custom `CustomUser` model stored in the database.
 
-- Global theme and responsive page structure moved into `static/css/main.css`.
-- Auth pages now use `static/css/auth.css` and share a consistent form experience.
-- Dashboard styling moved into `static/css/dashboard.css` with reusable card and grid layouts.
-- Templates were updated to extend `base.html` and remove inline styling.
-- JavaScript supports client-side form validation, loading feedback, and AJAX password reset submission.
-- Accessibility improved with ARIA labels, semantic headings, and responsive mobile-first layouts.
-
-### 1. Login Page
-
-The login page (`accounts/templates/accounts/login.html`) replicates the AUCA portal login interface.
-
-**Features:**
-- Email and password input fields
-- "I am a staff" checkbox for role selection
-- "Forgot Password?" link
-- "Sign Up" link for new users
-- Responsive layout — left side has the form, right side has a cover image
-- On mobile, the right-side image is hidden and the form takes full width
-- Error message displayed on invalid credentials
-
-**Authentication flow (`apps/accounts/views.py`):**
-- `POST` request validates the login form and authenticates against the database using Django auth.
-- On success: logs the user in with `login(request, user)` and redirects to `/dashboard/`.
-- On failure: redisplays the login page with validation or credential errors.
-- Password reset routes use Django's built-in views and the console email backend in development.
-- Profile editing uses a `ProfileForm` to update first name, last name, email, bio, phone, and Cloudinary profile picture.
+- Users can register using the signup page.
+- Login uses `django.contrib.auth.authenticate()` and `login()`.
+- Password reset is enabled through Django's built-in password reset views and the console email backend for local development.
+- Users can edit their profile, including uploading a profile picture to Cloudinary.
+- Role-based access control is implemented through decorators: `@student_required`, `@lecturer_required`, and `@staff_required`.
 
 ---
 
-### 2. Dashboard — Initial Version
+### Dashboard
 
-The first dashboard (`accounts/templates/accounts/dashboard.html`) was a simple layout with:
+The dashboard provides a comprehensive overview of student information with role-based access.
 
-- A top navbar with the AUCA logo and a logout button
-- A welcome card showing the logged-in email and role badge
-- Four basic quick-access cards: My Courses, Grades, Schedule, Profile — each with an emoji icon and a short description
+#### Features
+- **Personalized Welcome**: Displays user name, email, and role
+- **Academic Stats**: Courses enrolled, GPA, credits, due tasks
+- **Timetable**: Weekly schedule with course details
+- **Enrolled Courses**: List of current courses with credits
+- **Grades Overview**: GPA display with download transcript option
+- **Finances**: Fee breakdown and payment status
+- **Announcements**: Latest campus updates
 
----
-
-### 3. Dashboard — Redesign Iterations
-
-The dashboard went through several improvement rounds based on feedback:
-
-#### Iteration 1 — Professional Redesign (Remove Emoji Icons)
-- Replaced all emoji icons with colored top-border accent cards
-- Added a sticky navbar with a user email pill
-- Introduced a stats row (Courses, Avg. Grade, Assignments Due, Current Term)
-- Added a two-column panel: Enrolled Courses table + Announcements list
-- "AUCA Portal" navbar title made bold white uppercase
-
-#### Iteration 2 — Sample Data & Richer Cards
-- Stats row updated with real sample numbers
-- Cards converted to a 2×2 grid, each with real content:
-  - **Schedule**: compact timetable (day, time, course)
-  - **Grades**: per-course grade pills (A/B/C color coded) + Download Transcript button
-  - **Enrolled Courses**: course list with credit badges
-  - **Profile**: student details with a "View Profile →" link in the card header
-- Announcements moved to a full-width panel below the grid
-
-#### Iteration 3 — Grades Simplified + Finances Added
-- **Grades card**: stripped grade rows, replaced with a large GPA number (3.6), three meta stats (Avg. Score, Credits, Courses), and a single "Download Transcript" button
-- **Finances card** (new): replaced the old plain slot with a fee breakdown table:
-  - Tuition Fee — RWF 450,000 — Paid
-  - Registration Fee — RWF 25,000 — Paid
-  - Library Fee — RWF 10,000 — Due
-  - ICT Fee — RWF 15,000 — Due
-  - Balance Due total row — RWF 25,000
-  - Green "Pay Now" button
-
-#### Iteration 4 — Profile Moved to Navbar
-- Profile card removed from the grid entirely
-- Profile replaced with a pill button in the navbar showing an avatar circle with initials ("JV") and a "My Profile" label
+#### Responsive Design
+- Mobile-first approach with adaptive layouts
+- Card-based design with accent colors
+- Accessible with ARIA labels and semantic HTML
 
 ---
 
-### 4. Final Dashboard
+### Courses & Timetable Management
 
-The final dashboard is a full creative redesign with the following structure:
+The application includes comprehensive course browsing, enrollment, and timetable functionality.
 
-#### Navbar
-- Dark background (`#0f1f2e`) for strong contrast
-- AUCA logo + "AUCA PORTAL" uppercase title on the left
-- Right side: **My Profile** pill button (avatar initials + label) and a ghost **Sign out** link
+#### Features Implemented
 
-#### Hero Banner
-- Full-width dark-to-navy gradient strip
-- Personalized greeting with email and semester info
-- Role badge
-- Floating stat strip (bottom-right of hero): Courses, GPA, Credits, Due Tasks
-
-#### Row 1 — Academic Overview (3-column grid)
-
-| Card | Content |
-|------|---------|
-| **Timetable** | Day chip + course name + time for Mon–Fri. Teal left accent. |
-| **Enrolled Courses** | Colored dot + course name + credit badge per course. Navy left accent. |
-| **Grades** | Circular GPA badge (gradient), stats (Avg Score, Credits, Courses), Download Transcript button. Dark left accent. |
-
-#### Row 2 — Finance & Updates (2-column grid)
-
-| Card | Content |
-|------|---------|
-| **Finances** | Fee breakdown with Paid/Due pills, bold Balance Due total, teal Pay Now button. Amber left accent. |
-| **Announcements** | Teal dot per item, announcement title + date. No accent border. |
-
-#### Sample Data Used
-
-| Field | Value |
-|-------|-------|
-| Student Name | Jean Valentin |
-| Student ID | AUCA-2024-0312 |
-| Faculty | Computer Science |
-| Year | Year 3 |
-| GPA | 3.6 |
-| Average Score | 82% |
-| Credits | 16 |
-| Courses | Intro to Big Data, Web Development, Database Systems, Data Structures, Software Engineering |
-| Balance Due | RWF 25,000 |
-
----
-
-## Courses & Timetable Management
-
-The application now includes comprehensive course browsing, enrollment, and timetable functionality.
-
-### Features Implemented
-
-#### Course List View (`/courses/`)
+##### Course List View (`/courses/`)
 - **Browse Available Courses**: Paginated grid layout with course cards
 - **Advanced Filtering**: Filter by department, semester, and search by course code/title
 - **Course Information**: Displays code, title, credits, department, lecturer, and description
 - **Responsive Design**: Mobile-friendly grid that adapts to screen size
 
-#### Course Detail View (`/courses/<id>/`)
+##### Course Detail View (`/courses/<id>/`)
 - **Detailed Course Information**: Complete course details, schedule, and enrollment status
 - **Schedule Display**: Shows class times and rooms grouped by day
 - **Enrollment Management**: Students can enroll/unenroll with duplicate prevention
 - **Role-Based Access**: Different views for students, lecturers, and staff
 
-#### Enrollment Functionality
+##### Enrollment Functionality
 - **Duplicate Prevention**: Unique constraint prevents multiple enrollments in same course-semester
 - **Real-time Status**: Shows current enrollment status and enrollment date
 - **Secure Operations**: POST requests with CSRF protection and user validation
 
-#### Timetable Generation (`/courses/timetable/`)
+##### Timetable Generation (`/courses/timetable/`)
 - **Weekly Schedule**: Displays enrolled courses grouped by day of week
 - **Time Slots**: Shows start/end times for each class
 - **Course Details**: Includes course code, title, room, and lecturer information
 - **Current Semester**: Only shows schedules for the active semester
 
-#### Lecturer Course Management (`/courses/lecturer/`)
+##### Lecturer Course Management (`/courses/lecturer/`)
 - **Assigned Courses**: View all courses taught by the lecturer
 - **Enrollment Counts**: See number of students enrolled per course
 - **Current Semester Focus**: Highlights active semester enrollments
 
-#### User Management (`/courses/users/`) - Staff Only
+##### User Management (`/courses/users/`) - Staff Only
 - **User Overview**: List all users with role-based filtering
 - **Search Functionality**: Search by username, email, or name
 - **Role Management**: View and manage user roles (Student/Lecturer/Staff)
 - **Status Tracking**: Active/inactive user status display
 
-### Technical Implementation
+#### Technical Implementation
 
-#### Views & Logic
+##### Views & Logic
 - **Role-Based Permissions**: Decorators ensure proper access control
 - **Database Queries**: Optimized with select_related/prefetch_related for performance
 - **Form Validation**: Django forms with custom validation and error handling
 - **Pagination**: Efficient handling of large course/user lists
 
-#### Templates & UI
+##### Templates & UI
 - **Consistent Design**: Extends base.html with shared navigation
 - **External CSS**: Dedicated `courses.css` for course-specific styling
 - **Responsive Layouts**: Mobile-first design with flexible grids
 - **Accessibility**: ARIA labels and semantic HTML structure
 
-#### Models & Relationships
+##### Models & Relationships
 - **CourseSchedule**: New model for managing class schedules
 - **Unique Constraints**: Prevents scheduling conflicts and duplicate enrollments
 - **Foreign Key Relationships**: Proper linking between courses, users, and semesters
 
-### URL Routes
-- `/courses/` - Course catalog with filtering
-- `/courses/<id>/` - Course details and enrollment
-- `/courses/<id>/enroll/` - Enroll in course
-- `/courses/<id>/unenroll/` - Unenroll from course
-- `/courses/timetable/` - Student timetable
-- `/courses/lecturer/` - Lecturer course management
-- `/courses/users/` - User management (staff only)
+---
+
+### Assessments & AI Evaluation
+
+The assessments module provides a complete assignment submission and evaluation system with AI assistance.
+
+#### Features
+
+##### Assessment Creation
+- **Lecturer Interface**: Create assignments with multiple questions using inline formsets
+- **Question Management**: Add questions with reference answers for AI evaluation
+- **Flexible Assessment Types**: Quiz, Midterm, Final, Assignment support
+- **Due Date Management**: Set deadlines and track submission status
+
+##### Student Submission
+- **Multi-Question Support**: Submit answers for each question individually
+- **File Upload**: Support for text/PDF file submissions with automatic text extraction
+- **Validation**: Ensures answers are provided (text or file)
+- **Duplicate Prevention**: Students can only submit once per assessment
+
+##### AI Evaluation System
+- **Semantic Similarity**: Uses Sentence Transformers to compare answers
+- **Automated Scoring**: Generates AI scores (0-100) based on similarity
+- **Feedback Generation**: Provides contextual feedback based on similarity levels
+- **Similarity Detection**: Identifies potential plagiarism through text analysis
+- **Batch Processing**: Efficient evaluation of multiple questions
+
+##### Lecturer Grading Interface
+- **Review Submissions**: View all student submissions with AI suggestions
+- **Override Grades**: Lecturers can accept or modify AI-recommended grades
+- **Feedback Addition**: Add personal feedback alongside AI suggestions
+- **Status Management**: Mark submissions as graded or pending
+
+#### Technical Implementation
+
+##### Models
+- **Assessment**: Main assessment with questions and metadata
+- **Question**: Individual questions with reference answers
+- **Submission**: Student submissions with AI evaluation results
+- **Answer**: Individual answers linked to submissions
+
+##### AI Evaluator (`apps/assessments/ai_evaluator.py`)
+- **AnswerEvaluator Class**: Singleton pattern for model loading
+- **Similarity Calculation**: Cosine similarity between embeddings
+- **Feedback Mapping**: Score-based feedback generation
+- **Batch Evaluation**: Process multiple pairs efficiently
+
+##### Views & Forms
+- **Formsets**: Django inline formsets for question management
+- **Role-Based Access**: Decorators for student/lecturer permissions
+- **File Processing**: PDF and text file extraction using pypdf
+- **AJAX Endpoints**: API for evaluation testing
+
+##### Templates & UI
+- **Assessment Cards**: Grid layout for assessment browsing
+- **Submission Forms**: Multi-question forms with file upload
+- **Review Interface**: Detailed submission review with AI insights
+- **Responsive Design**: Mobile-friendly assessment pages
+
+#### URL Routes
+- `/assessments/` - Assessment list
+- `/assessments/create/` - Create new assessment
+- `/assessments/<id>/` - Assessment details
+- `/assessments/<id>/submit/` - Submit answers
+- `/assessments/me/` - Student submissions
+- `/assessments/submissions/` - All submissions (lecturer)
+- `/assessments/submission/<id>/` - Review submission
 
 ---
+
+## Project Structure
+
+```
+auca_project_mimic/
+├── auca_project_mimic/          # Main Django project
+│   ├── settings/
+│   │   ├── base.py             # Base settings
+│   │   ├── development.py      # Dev settings
+│   │   └── production.py       # Prod settings
+│   ├── urls.py                 # Main URL configuration
+│   └── wsgi.py
+├── apps/                       # Django apps
+│   ├── accounts/               # Authentication & profiles
+│   ├── assessments/            # AI-powered assessments
+│   ├── core/                   # Core models (Semester, Faculty, etc.)
+│   ├── courses/                # Course management
+│   ├── finances/               # Fee management
+│   └── grades/                 # Grade tracking
+├── static/                     # Static files
+│   ├── css/
+│   │   ├── main.css           # Global styles
+│   │   ├── auth.css           # Auth pages
+│   │   ├── dashboard.css      # Dashboard
+│   │   ├── courses.css        # Courses
+│   │   └── assessments.css    # Assessments
+│   └── js/
+│       └── main.js            # Global JS
+├── templates/                  # HTML templates
+│   ├── base.html              # Base layout
+│   └── admin_dashboard.html
+├── utils/                      # Utility functions
+├── ml_model/                   # ML utilities (legacy)
+└── requirements.txt            # Python dependencies
+```
+
+---
+
+## URL Routes
+
+### Authentication
+- `/` → Redirects to `/dashboard/`
+- `/login/` → Login page
+- `/signup/` → Registration
+- `/logout/` → Logout
+- `/password-reset/` → Password reset flow
+- `/profile/` → Profile management
+
+### Dashboard
+- `/dashboard/` → Main dashboard
+
+### Courses
+- `/courses/` → Course catalog
+- `/courses/<id>/` → Course details
+- `/courses/<id>/enroll/` → Enroll in course
+- `/courses/<id>/unenroll/` → Unenroll from course
+- `/courses/timetable/` → Student timetable
+- `/courses/lecturer/` → Lecturer courses
+- `/courses/users/` → User management (staff)
+
+### Assessments
+- `/assessments/` → Assessment list
+- `/assessments/create/` → Create assessment
+- `/assessments/<id>/` → Assessment details
+- `/assessments/<id>/submit/` → Submit answers
+- `/assessments/me/` → My submissions
+- `/assessments/submissions/` → All submissions
+- `/assessments/submission/<id>/` → Review submission
+- `/assessments/evaluate/` → AI evaluation API
+
+### Admin
+- `/admin/` → Django admin
+
+---
+
+## Tech Stack
+
+- **Backend**: Django 6.0.3, Python 3.12
+- **Database**: SQLite (dev) / PostgreSQL (prod)
+- **Authentication**: Django Auth with custom user model
+- **Media Storage**: Cloudinary
+- **AI/ML**: Sentence Transformers, PyTorch
+- **Frontend**: HTML5, CSS3, JavaScript
+- **Deployment**: Ready for Heroku/AWS/GCP
+
+---
+
+## Deployment
+
+The application is production-ready with:
+- Environment-based configuration
+- Cloudinary for media
+- PostgreSQL support
+- Static file serving
+- Security settings in production.py
+
+For deployment:
+1. Set `DEBUG=False` in production
+2. Configure PostgreSQL DATABASE_URL
+3. Set up Cloudinary credentials
+4. Run `python manage.py collectstatic`
+5. Deploy to your preferred platform
+
 
 ## Database Models & Core Structure
 

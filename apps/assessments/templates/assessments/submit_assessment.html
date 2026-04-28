@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Submit {{ assessment.title }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/assessments.css' %}">
+{% endblock %}
+{% block content %}
+<div class="assessment-page">
+    <div class="detail-header">
+        <div>
+            <h1>Submit Assignment</h1>
+            <p>{{ assessment.title }} · {{ assessment.course.code }}</p>
+        </div>
+        <div class="detail-summary">
+            <span>Due {{ assessment.due_date|date:'M d, Y H:i' }}</span>
+            <span>{{ assessment.total_marks }} marks</span>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset.forms %}
+        <div class="answer-block">
+            <div class="question-heading">
+                <h2>Question {{ forloop.counter }}</h2>
+            </div>
+            <div class="answer-fields">
+                {{ form.question_id }}
+                <div class="form-row">
+                    {{ form.question_text.label_tag }}
+                    {{ form.question_text }}
+                </div>
+                <div class="form-row">
+                    {{ form.answer_text.label_tag }}
+                    {{ form.answer_text }}
+                </div>
+                <div class="form-row">
+                    {{ form.answer_file.label_tag }}
+                    {{ form.answer_file }}
+                </div>
+                {% if form.non_field_errors %}
+                <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Submit Assignment</button>
+            <a href="{% url 'assessments:assessment_detail' assessment.id %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

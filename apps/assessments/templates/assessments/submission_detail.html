@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Submission Review{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/assessments.css' %}">
+{% endblock %}
+{% block content %}
+<div class="assessment-page">
+    <div class="detail-header">
+        <div>
+            <h1>Submission Review</h1>
+            <p>{{ submission.assessment.title }} · {{ submission.student.get_full_name|default:submission.student.username }}</p>
+        </div>
+        <div class="detail-summary">
+            <span>Status: {{ submission.get_status_display }}</span>
+            <span>Submitted: {{ submission.submitted_at|date:'M d, Y H:i' }}</span>
+            {% if submission.graded_at %}<span>Graded: {{ submission.graded_at|date:'M d, Y H:i' }}</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="detail-card">
+        <div class="section-header">
+            <h2>AI Evaluation</h2>
+        </div>
+        <div class="status-row">
+            <div><strong>AI Score:</strong> {{ submission.ai_score|default:'Pending' }}</div>
+            <div><strong>Similarity:</strong> {{ submission.similarity_score|default:'Pending' }}{% if submission.similarity_score %}%{% endif %}</div>
+            <div><strong>Final Grade:</strong> {{ submission.final_grade|default:'Pending' }}</div>
+        </div>
+        {% if submission.ai_feedback %}
+        <div class="feedback-block">
+            <h3>AI Feedback</h3>
+            <pre>{{ submission.ai_feedback }}</pre>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="detail-card">
+        <div class="section-header">
+            <h2>Student Answers</h2>
+        </div>
+        {% for answer in submission.answers.all %}
+        <div class="question-preview">
+            <div class="question-top">
+                <span class="question-count">Question {{ answer.question.order }}</span>
+                <span class="question-marks">{{ answer.question.marks }} pts</span>
+            </div>
+            <p>{{ answer.question.question_text|linebreaksbr }}</p>
+            <div class="answer-panel">
+                <h3>Student Response</h3>
+                {% if answer.answer_text %}
+                    <p>{{ answer.answer_text|linebreaksbr }}</p>
+                {% endif %}
+                {% if answer.answer_file %}
+                    <p><strong>Uploaded file:</strong> <a href="{{ answer.answer_file.url }}" target="_blank">Download</a></p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if form %}
+    <form method="post" class="grading-form">
+        {% csrf_token %}
+        <div class="detail-card">
+            <div class="section-header">
+                <h2>Lecturer Feedback</h2>
+            </div>
+            {{ form.as_p }}
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Grade</button>
+            <a href="{% url 'assessments:submission_list' %}" class="btn btn-secondary">Back to Submissions</a>
+        </div>
+    </form>
+    {% else %}
+    <div class="form-actions">
+        <a href="{% url 'assessments:assessment_list' %}" class="btn btn-secondary">Back to Assessments</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

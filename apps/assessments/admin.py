@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Assessment, Question, Answer
+from .models import Assessment, Question, Answer, Submission
 
 
 @admin.register(Assessment)
@@ -14,6 +14,13 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ('assessment', 'question_text', 'marks', 'order')
     search_fields = ('question_text', 'assessment__title')
     list_filter = ('assessment',)
+
+
+@admin.register(Submission)
+class SubmissionAdmin(admin.ModelAdmin):
+    list_display = ('assessment', 'student', 'status', 'ai_score', 'similarity_score', 'final_grade', 'graded_at')
+    search_fields = ('student__username', 'assessment__title')
+    list_filter = ('status', 'assessment', 'graded_at')
 
 
 @admin.register(Answer)

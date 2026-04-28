@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Submission Review{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/assessments.css' %}">
+{% endblock %}
+{% block content %}
+<div class="assessment-page">
+    <div class="page-heading">
+        <div>
+            <h1>Submissions</h1>
+            <p>Review student answers and AI evaluation suggestions.</p>
+        </div>
+    </div>
+
+    <div class="submission-table-wrap">
+        <table class="submission-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Assessment</th>
+                    <th>Status</th>
+                    <th>AI Score</th>
+                    <th>Similarity</th>
+                    <th>Final Grade</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                <tr>
+                    <td>{{ submission.student.get_full_name|default:submission.student.username }}</td>
+                    <td>{{ submission.assessment.title }}</td>
+                    <td>{{ submission.get_status_display }}</td>
+                    <td>{{ submission.ai_score|default:'—' }}</td>
+                    <td>{{ submission.similarity_score|default:'—' }}{% if submission.similarity_score %}%{% endif %}</td>
+                    <td>{{ submission.final_grade|default:'—' }}</td>
+                    <td><a href="{% url 'assessments:submission_detail' submission.id %}" class="link-button">Review</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="empty-state">No submissions found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

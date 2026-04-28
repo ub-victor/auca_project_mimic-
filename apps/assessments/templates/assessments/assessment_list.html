@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Assessments{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/assessments.css' %}">
+{% endblock %}
+{% block content %}
+<div class="assessment-page">
+    <div class="page-heading">
+        <div>
+            <h1>Assessments</h1>
+            <p>Browse assignments and exams for your courses.</p>
+        </div>
+        <div class="page-actions">
+            {% if user.role in ['lecturer', 'staff'] %}
+                <a href="{% url 'assessments:create_assessment' %}" class="btn btn-primary">Create Assignment</a>
+            {% endif %}
+            {% if user.role == 'student' %}
+                <a href="{% url 'assessments:my_submissions' %}" class="btn btn-secondary">My Submissions</a>
+            {% endif %}
+            {% if user.role in ['lecturer', 'staff'] %}
+                <a href="{% url 'assessments:submission_list' %}" class="btn btn-secondary">All Submissions</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="assessment-grid">
+        {% for assessment in assessments %}
+        <article class="assessment-card">
+            <div class="card-title">
+                <h2>{{ assessment.title }}</h2>
+                <span class="tag">{{ assessment.get_assessment_type_display }}</span>
+            </div>
+            <p class="assessment-course">{{ assessment.course.code }} · {{ assessment.course.title }}</p>
+            <p class="assessment-meta">
+                Due {{ assessment.due_date|date:'M d, Y H:i' }} · {{ assessment.total_marks }} marks
+            </p>
+            <p class="assessment-description">{{ assessment.description|truncatechars:160 }}</p>
+            <div class="card-actions">
+                <a href="{% url 'assessments:assessment_detail' assessment.id %}" class="btn btn-outline">View</a>
+            </div>
+        </article>
+        {% empty %}
+        <div class="empty-state">
+            <h2>No assessments found</h2>
+            <p>Check your course assignments or ask your lecturer to publish a new assignment.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
